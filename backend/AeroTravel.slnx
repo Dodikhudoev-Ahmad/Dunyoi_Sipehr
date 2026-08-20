@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/Api/">
+    <Project Path="Api/AeroTravel.Api.csproj" />
+  </Folder>
+  <Folder Name="/Application/">
+    <Project Path="Application/AeroTravel.Application.csproj" />
+  </Folder>
+  <Folder Name="/Domain/">
+    <Project Path="Domain/AeroTravel.Domain.csproj" />
+  </Folder>
+  <Folder Name="/Infrastructure/">
+    <Project Path="Infrastructure/AeroTravel.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/AeroTravel.Tests.csproj" />
+  </Folder>
+</Solution>

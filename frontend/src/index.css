@@ -1,0 +1,165 @@
+@import "tailwindcss";
+
+/* Enables the `dark:` utility variant, driven by a `.dark` class on <html>
+   (see index.html's inline pre-paint script and src/lib/theme.ts). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-display: "Fraunces", "Georgia", serif;
+  --font-sans: "Inter", "Helvetica Neue", Arial, sans-serif;
+
+  /* ---------------------------------------------------------------------
+     Final premium palette — CHARCOAL + IVORY + STEEL BLUE + SKY.
+     Single source of truth: never hardcode brand hex values in components,
+     reference these tokens (or the legacy aliases below) instead.
+
+     --color-surface / --color-text / --color-muted / --color-elevated /
+     --color-brand-subtle are ADAPTIVE: their values flip under `:root.dark`
+     below so any component using bg-paper/text-text/bg-elevated/etc. gets
+     dark mode for free. --color-dark ("ink") and --color-white stay FIXED
+     in both themes — they're used for permanently-dark brand panels
+     (Footer, admin sidebar, login frame) that intentionally don't invert;
+     see docs/DECISIONS.md.
+     --------------------------------------------------------------------- */
+  --color-dark: #0b1210;
+  --color-surface: #f3f0e9;
+  --color-primary: #1c4e80;
+  --color-primary-hover: #2e6f9e;
+  --color-sage: #6fa0c8;
+  --color-sage-light: #e2ecf3;
+  --color-text: #111714;
+  --color-muted: #66706a;
+  --color-white: #f8f7f3;
+  --color-elevated: #f8f7f3;
+
+  /* Legacy token aliases — kept so existing utility classes (bg-ink, text-brand,
+     bg-paper, …) used across admin + shared components resolve to the same
+     final palette without a full rename pass. */
+  --color-ink: var(--color-dark);
+  --color-paper: var(--color-surface);
+  --color-brand: var(--color-primary);
+  --color-brand-hover: var(--color-primary-hover);
+  --color-brand-light: var(--color-sage-light);
+  --color-brand-subtle: #f5f8fb;
+  --color-brand-accent: var(--color-sage);
+  --color-slate: var(--color-muted);
+  --color-slate-dark: #b7c4bc;
+
+  --color-success: #1f8a5a;
+  --color-warning: #b8862f;
+  --color-danger: #b23a32;
+
+  /* Signal gold — decorative accent echoing the logo's gold ring/monogram (see
+     docs/DESIGN_BIBLE.md). Used sparingly: the page-header "Aero Map" motif in
+     AeroMapBackground (dark-theme map lines + gradient wash), never a functional/
+     interactive color. Fixed in both themes, like the other brand accents. */
+  --color-gold: #c9a24b;
+
+  /* Aero Map "premium" page-header treatment (AeroMapBackground tone="adaptive") —
+     line/dot color, three opacity levels, and the gradient wash behind the map.
+     Adaptive: overridden under :root.dark below so the motif reads as gold-on-dark
+     with a warm glow instead of a washed-out blue-on-dark. */
+  --color-map-line: var(--color-primary);
+  --map-bg-opacity: 0.09;
+  --map-route-opacity: 0.34;
+  --map-tick-opacity: 0.16;
+  --map-grain-opacity: 0.025;
+  --map-wash: linear-gradient(180deg, rgba(201, 162, 75, 0.09) 0%, transparent 55%),
+    radial-gradient(60% 55% at 12% 0%, rgba(28, 78, 128, 0.07) 0%, transparent 70%);
+
+  --animate-fade-rise: fade-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-fade-in: fade-in 0.6s ease-out both;
+
+  @keyframes fade-rise {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+/* Dark theme: overrides the adaptive tokens only (see @theme comment above).
+   `.dark` on <html> is set synchronously pre-paint by the inline script in
+   index.html, and toggled at runtime by src/lib/theme.ts. */
+:root.dark {
+  --color-surface: #101713;
+  --color-text: #e9ede8;
+  --color-muted: #93a49a;
+  --color-elevated: #1a2621;
+  --color-brand-subtle: #16212b;
+
+  --color-map-line: var(--color-gold);
+  --map-bg-opacity: 0.13;
+  --map-route-opacity: 0.42;
+  --map-tick-opacity: 0.2;
+  --map-grain-opacity: 0.03;
+  --map-wash: linear-gradient(180deg, rgba(201, 162, 75, 0.12) 0%, transparent 60%),
+    radial-gradient(60% 55% at 88% 0%, rgba(111, 160, 200, 0.1) 0%, transparent 70%);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Honeypot field: visually present in the DOM/tab order enough to fool naive bot
+   heuristics that skip `display:none`/`visibility:hidden`, but invisible and
+   unreachable to real users. */
+.honeypot-field {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  left: -9999px;
+}
+
+/* Thin, unobtrusive scrollbar for horizontal editorial carousels (testimonials, etc). */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-sage) transparent;
+}
+.scrollbar-thin::-webkit-scrollbar {
+  height: 4px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: var(--color-sage);
+  border-radius: 999px;
+}

@@ -1,0 +1,73 @@
+# Architecture Decisions
+
+## DEC-001
+**Problem:** How to store multilingual content (ru/tg/en) for CMS entities.
+**Decision:** Dedicated `*Translation` child tables (EntityId FK, Locale, translated columns), unique index on (EntityId, Locale).
+**Reason:** Queryable, indexable, admin-editable per-locale without JSON parsing; EF Core relational mapping is simpler than JSON column diffing.
+**Impact:** Every translatable aggregate gets a companion translation entity + EF configuration.
+
+## DEC-002
+**Problem:** MASTER_TZ.md did not exist prior to this build.
+**Decision:** Authored it from the build-mode specification supplied in the initiating instructions, treating it as authoritative going forward.
+**Reason:** Explicit user instruction: absence of spec is not a blocker, invent and continue.
+**Impact:** Product scope (travel agency lead-gen site) is a design choice made by the build agent, not the user; amend via new DEC entries if requirements diverge.
+
+## DEC-003
+**Problem:** CQRS implementation choice (hand-rolled vs MediatR).
+**Decision:** MediatR for command/query dispatch, with FluentValidation pipeline behavior.
+**Reason:** Standard, low-boilerplate, well-understood pattern; keeps controllers thin without a bespoke dispatcher.
+**Impact:** Adds MediatR + FluentValidation.DependencyInjectionExtensions package dependency.
+
+## DEC-004
+**Problem:** Anti-spam for public Travel Request submission without external CAPTCHA credentials.
+**Decision:** Honeypot hidden field (reject if filled) + ASP.NET Core built-in rate limiting (fixed window per IP) on the endpoint.
+**Reason:** No third-party CAPTCHA key available (external blocker, logged in BLOCKERS.md); this gives meaningful protection without external dependency.
+**Impact:** `docs/BLOCKERS.md` entry for optional future reCAPTCHA/hCaptcha upgrade.
+
+## DEC-005
+**Problem:** Result pattern vs exceptions for expected application failures.
+**Decision:** `Result<T>` / `Result` return type for Application layer handlers; exceptions reserved for truly unexpected failures, caught by global exception middleware.
+**Reason:** Explicit control flow for validation/not-found/conflict cases; avoids exception-driven business logic.
+**Impact:** Controllers map `Result` failures to ProblemDetails via a shared extension.
+
+## DEC-007
+**Problem:** Localized routing scheme — prefix every locale or treat default as unprefixed.
+**Decision:** `ru` (default) served unprefixed at root; `tg`/`en` use `/tg` and `/en` prefixes.
+**Reason:** Cleanest canonical URLs for the primary market (ru) while still giving tg/en explicit, crawlable, hreflang-able paths.
+**Impact:** Frontend router and backend SEO (hreflang/sitemap) must special-case the unprefixed default.
+
+## DEC-006
+**Problem:** Hosting stack for production without live credentials.
+**Decision:** Backend + PostgreSQL → Railway (Dockerfile-based); Frontend static build → Netlify.
+**Reason:** Specified in build instructions as target platforms.
+**Impact:** `railway.json`/Dockerfile and `netlify.toml` prepared in Stage 22 even without accounts.
+
+## DEC-008
+**Problem:** `db.Database.MigrateAsync()` was only invoked from `DevSeeder.SeedAsync`, itself only called under `if (app.Environment.IsDevelopment())` in `Program.cs`. Production (Railway, BLK-001) never applied the EF Core schema — first deploy would boot against an empty database with zero tables.
+**Decision:** Apply `db.Database.MigrateAsync()` unconditionally at startup, in all environments, before the dev-only seeder runs. No separate deploy-time migration step/job.
+**Reason:** Single-instance Railway deployment (one backend service, no rolling/multi-replica concerns for v1) — migrate-on-boot is the lowest-friction option and matches how Stage 4's integration smoke test already validated migrations locally. A separate migration job would be more failure-resistant under multi-replica rollouts, but that isn't this project's topology; revisit if Railway deployment moves to multiple concurrent replicas.
+**Impact:** `Program.cs` runs migrations before any request is served, in every environment; `DevSeeder.SeedAsync` no longer calls `MigrateAsync` itself (redundant with the startup step).
+
+## DEC-009
+**Problem:** `AdminUser.Role` (`Editor` / `SuperAdmin`, see DOMAIN_MODEL.md) existed on the domain model and was issued as a JWT role claim (`Infrastructure/Auth/AuthServices.cs`, `JwtTokenGenerator`), but every admin endpoint used a bare `[Authorize]` with no role check — the two roles were behaviorally identical. `API_CONTRACT.md` doesn't specify per-endpoint role restrictions (a known gap logged in Stage 2 of PROGRESS.md), and there's no admin-user management CRUD to create additional `Editor` accounts in the first place, so no endpoint had a documented reason to differ by role.
+**Decision:** Gate the destructive `DELETE` endpoint on every admin CMS controller (Countries, Cities, Destinations, Offers, Services, Testimonials, FAQ, SiteContent) to `SuperAdmin` via `[Authorize(Roles = nameof(AdminRole.SuperAdmin))]`. Everything else (list/read/create/update, and all TravelRequest workflow actions) stays reachable by any authenticated admin.
+**Reason:** Deletion is the one irreversible admin action in the system (create/update can always be corrected with another write); gating it to the elevated role is the smallest change that makes the `Editor`/`SuperAdmin` distinction do something real, without inventing an admin-user-management feature that isn't otherwise in scope. The JWT already carries the role as a standard `ClaimTypes.Role` claim, so ASP.NET Core's built-in `Roles=` check applies with no new infrastructure.
+**Impact:** An `Editor`-role admin now gets 403 Forbidden on `DELETE` CMS endpoints. Since the only account any environment can create today is the bootstrap `SuperAdmin` (no Editor-creation endpoint exists yet), this has no effect until an admin-user-management feature to provision `Editor` accounts is built — logged as a follow-up, not a blocker.
+
+## DEC-010
+**Problem:** `POST /auth/bootstrap` (creates the first SuperAdmin; disabled forever after, per API_CONTRACT.md) existed in the typed API layer (`frontend/src/api/auth.ts`) but had no UI page — Stage 3's known gap noted "endpoint exists in the API layer, not in SITEMAP.md so no page was built." First real-world use means whoever stands up a fresh Railway deploy for this agency has to create their own admin account via curl/Swagger before they can use the CMS at all.
+**Decision:** Build `/admin/bootstrap` as a real page (`frontend/src/admin/pages/BootstrapPage.tsx`), styled like `LoginPage`, but deliberately **not** linked from any nav, `SITEMAP.md`, or `ProtectedRoute` redirect — reachable only by typing the URL. The backend endpoint is already self-disabling once one AdminUser exists, so there's no need for the frontend to hide or gate the route further.
+**Reason:** The client operating this site is a travel agency, not a dev team — expecting them to use curl/Swagger for their very first login is a worse experience than a two-field form, for near-zero added maintenance surface (one page, reusing existing form primitives). Kept unlinked because it's genuinely a one-time operational step, not a feature staff should discover in normal use.
+**Impact:** Also fixed while building this: `authApi.bootstrap` was typed to return `LoginResponse` (`{ accessToken, expiresAtUtc, admin }`), but the backend's `BootstrapAdminCommandHandler` only ever returns the created `AdminUserDto` — no tokens. `BootstrapPage` calls `authApi.login` with the same credentials immediately after bootstrapping to establish the session. Also removed `isActive`/`createdAtUtc` from the frontend `AdminUser` type — declared there but never actually sent by any endpoint that returns that shape (login/me/bootstrap all map through the same 4-field `AdminUserDto`).
+
+## DEC-011
+**Problem:** Adding a dark theme (Stage 8, PROGRESS.md) needed a way to make the design system's existing color tokens (`--color-surface`/"paper", `--color-text`, `--color-dark`/"ink", `--color-white`, all defined once in `src/index.css`'s Tailwind v4 `@theme` block) dark-aware, but two of those tokens — `ink` and `white` — are used for two different jobs in the codebase: (a) "the current page's adaptive background/text" (e.g. `Button`'s secondary variant: `text-ink` on whatever the page background is) and (b) "a permanently-dark brand panel with permanently-light text," used deliberately in `Footer`, the admin sidebar (`AdminLayout`), the login/bootstrap page frame (`LoginPage`/`BootstrapPage`), and `Section`'s `tone="ink"` variant — these are meant to stay dark in *both* themes, the same way a dark editorial footer commonly does regardless of a site's own light/dark setting.
+**Decision:** Only the tokens used exclusively for job (a) — `--color-surface`, `--color-text`, `--color-muted`, and a new `--color-elevated` (extracted out of what used to be a `bg-white` literal, for cards/inputs/tables) — actually swap value under a `:root.dark { … }` override block. `--color-dark` ("ink") and `--color-white` stay fixed in both themes. Every place in the codebase that was pairing a fixed-dark background with what *used* to be an adaptive-token text color (`bg-ink` + `text-paper`, e.g. the admin sidebar) was changed to pair it with the fixed `text-white` instead, so the panel and its text invert together — never against each other — regardless of theme.
+**Reason:** Swapping `ink`/`white` too would have inverted the brand's fixed-dark panels into fixed-*light* panels under dark mode (wrong — a dark footer should still look like a dark footer) and, more subtly, broken contrast on every existing `bg-ink`/`bg-brand` + `text-paper`/`text-white` pairing the moment only one side of the pair flipped. Splitting the token set into "adaptive" vs. "fixed brand" up front, and auditing every usage against which bucket it actually belongs to (rather than a blanket variable swap), was cheaper and less error-prone than adding manual `dark:` classes to dozens of individual components.
+**Impact:** `src/index.css` documents the adaptive/fixed split inline, next to the token definitions, so future additions don't accidentally mix the two. Components that render on a fixed-dark panel (`Footer`, `AdminLayout` aside, `LoginPage`/`BootstrapPage` wrapper, `Section` tone="ink", `LocaleSwitcher`'s `dark` prop) must use `bg-ink`/`bg-dark`/`bg-brand*` paired with `text-white`, never `text-paper`. Everything else should use the adaptive tokens (`bg-paper`/`text-text`/`bg-elevated`) so it flips correctly with the theme toggle (`src/components/ui/ThemeToggle.tsx`, state in `localStorage`, applied pre-paint via an inline script in `index.html` — see PROGRESS.md Stage 8 for the flash-prevention mechanism).
+
+## DEC-012
+**Problem:** The Travel Request form (Stage: passport photo upload) needed a way to receive and store a sensitive-PII file (a passport photo) from an unauthenticated public endpoint, with no production object storage credentials available yet (BLK-008) and an explicit requirement that the files never be reachable via a public/static URL and that the server verify actual file content, not just the client's declared MIME type or extension.
+**Decision:** Two-step upload flow: `POST /public/travel-requests/passport-photos` (multipart, rate-limited by the same `[EnableRateLimiting("travel-requests")]` policy, `[RequestSizeLimit]` capped at 8MB) sniffs the first bytes of the stream against known image magic-byte signatures (`Application/Common/ImageSignature.cs` — JPEG/PNG/WEBP/GIF), rejects anything else regardless of `Content-Type` header or filename, and saves accepted files to local disk via a new `IFileStorageService` (Application interface) / `LocalFileStorageService` (Infrastructure, `backend/Api/uploads/`, gitignored, filenames are server-generated GUIDs — never the client's original filename) abstraction, returning only the generated filename. The main `POST /public/travel-requests` submission references 1-2 of these filenames in `PassportPhotoPaths`; `CreateTravelRequestCommandValidator` confirms each filename was actually issued by the upload endpoint (`IFileStorageService.ExistsAsync`, injected via constructor DI) before accepting the request. Retrieval is admin-only and ownership-scoped: `GET /admin/travel-requests/{id}/passport-photos/{fileName}` checks `fileName` is actually in that specific request's `PassportPhotoPaths` before streaming bytes — there is no `UseStaticFiles()` or any other public route that serves the uploads folder.
+**Reason:** Passport photos are sensitive personal data (explicit user requirement). Trusting client-declared file type is a known bypass (renaming a script to `.jpg`), hence magic-byte sniffing. A public/static file server would make every uploaded file guessable/enumerable by filename; the authenticated, ownership-scoped controller action closes that off without needing per-file ACLs. Local disk was chosen only because there's no S3-equivalent credential yet (BLK-008) — it is explicitly a dev-only stand-in, not a production design, which is why it's abstracted behind `IFileStorageService` so swapping the Infrastructure implementation later doesn't touch Application/Domain.
+**Impact:** `backend/Api/uploads/` is gitignored and NOT durable in production — see BLK-008. `IFileStorageService` is the seam a future S3/Blob-equivalent implementation must satisfy (`SaveAsync`/`ExistsAsync`/`OpenReadAsync`). Frontend never constructs a literal `<img src>` pointing at these files — `adminGetPassportPhotoBlob` fetches them as an authenticated Blob (`responseType: 'blob'`) and renders a local `URL.createObjectURL`, revoked on unmount.
