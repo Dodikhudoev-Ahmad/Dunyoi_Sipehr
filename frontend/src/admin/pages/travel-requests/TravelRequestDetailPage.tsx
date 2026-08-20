@@ -52,7 +52,7 @@ function PassportPhotoThumb({ requestId, fileName }: { requestId: string; fileNa
 
   return (
     <a href={objectUrl} target="_blank" rel="noreferrer" className="block h-32 w-32 overflow-hidden rounded-lg border border-text/15">
-      <img src={objectUrl} alt="Фото паспорта" className="h-full w-full object-cover" />
+      <img src={objectUrl} alt="Фото загранпаспорта" className="h-full w-full object-cover" />
     </a>
   )
 }
@@ -107,7 +107,7 @@ export function TravelRequestDetailPage() {
             <div><dt className="text-slate">Локаль</dt><dd className="font-medium">{r.preferredLocale}</dd></div>
             <div><dt className="text-slate">Создано</dt><dd className="font-medium">{new Date(r.createdAtUtc).toLocaleString('ru')}</dd></div>
             <div><dt className="text-slate">Согласие получено</dt><dd className="font-medium">{new Date(r.consentAcceptedAtUtc).toLocaleString('ru')}</dd></div>
-            <div><dt className="text-slate">Согласие на паспортные данные</dt><dd className="font-medium">{new Date(r.passportDataConsentAcceptedAtUtc).toLocaleString('ru')}</dd></div>
+            <div><dt className="text-slate">Согласие на данные загранпаспорта</dt><dd className="font-medium">{new Date(r.passportDataConsentAcceptedAtUtc).toLocaleString('ru')}</dd></div>
           </dl>
           {r.message && (
             <div className="pt-2">
@@ -117,7 +117,7 @@ export function TravelRequestDetailPage() {
           )}
           {r.passportPhotoPaths.length > 0 && (
             <div className="pt-2">
-              <p className="mb-2 text-sm text-slate">Фото паспорта</p>
+              <p className="mb-2 text-sm text-slate">Фото загранпаспорта</p>
               <div className="flex flex-wrap gap-3">
                 {r.passportPhotoPaths.map((fileName) => (
                   <PassportPhotoThumb key={fileName} requestId={r.id} fileName={fileName} />

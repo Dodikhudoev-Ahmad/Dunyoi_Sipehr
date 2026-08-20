@@ -23,7 +23,9 @@ export function HeroSection() {
           src={editorialImages.hero}
           alt=""
           className="h-full w-full object-cover"
+          loading="eager"
           fetchPriority="high"
+          decoding="sync"
         />
       </motion.div>
 

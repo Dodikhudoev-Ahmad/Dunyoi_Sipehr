@@ -109,12 +109,12 @@
     "returnDate": "Return date (optional)",
     "childAge": "Child {{index}} age",
     "childAgeHint": "Under 12 books at the child fare; 12 and older books at the adult fare",
-    "passportPhoto": "Passport photo",
-    "passportPhotoHint": "Attach 1–2 photos (passport main page), JPG/PNG/WEBP, up to 8 MB each",
+    "passportPhoto": "International passport photo",
+    "passportPhotoHint": "Attach 1–2 photos of your international passport (main page), JPG/PNG/WEBP, up to 8 MB each",
     "passportPhotoAdd": "Add photo",
     "passportPhotoRemove": "Remove",
     "passportPhotoUploading": "Uploading…",
-    "passportConsent": "I consent to the processing of my passport/ID data for ticket issuance"
+    "passportConsent": "I consent to the processing of my international passport/ID data for ticket issuance"
   },
   "validation": {
     "required": "This field is required",
@@ -128,8 +128,8 @@
     "dateInPast": "Date cannot be in the past",
     "returnBeforeDeparture": "Return date cannot be before the departure date",
     "childAgeRequired": "Please provide each child's age",
-    "passportConsentRequired": "Consent to process passport data is required",
-    "passportPhotoRequired": "Attach at least one passport photo",
+    "passportConsentRequired": "Consent to process international passport data is required",
+    "passportPhotoRequired": "Attach at least one international passport photo",
     "fileTooLarge": "File is too large (max 8 MB)",
     "fileInvalidType": "Only image files are supported",
     "uploadFailed": "Could not upload the file"

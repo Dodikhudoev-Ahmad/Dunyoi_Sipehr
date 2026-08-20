@@ -1,24 +1,12 @@
 import { motion } from 'motion/react'
-import * as Icons from 'lucide-react'
-import { Compass, type LucideIcon } from 'lucide-react'
 import type { Service } from '@/types/domain'
-
-type IconName = keyof typeof Icons
-
-/** Lucide icon exports are forwardRef objects (`typeof === 'object'`), not plain functions —
- * a naive `typeof Icon === 'function'` check always misses and silently falls back to Compass. */
-function resolveIcon(name: string): LucideIcon {
-  const normalized = name.trim()
-  const pascal = normalized.charAt(0).toUpperCase() + normalized.slice(1).toLowerCase()
-  const Icon = Icons[pascal as IconName] ?? Icons[normalized as IconName]
-  return (Icon ?? Compass) as LucideIcon
-}
+import { resolveServiceIcon } from '@/lib/serviceIcons'
 
 export function ServicesEditorial({ services }: { services: Service[] }) {
   return (
     <div className="border-t border-text/10">
       {services.map((service, i) => {
-        const Icon = resolveIcon(service.icon)
+        const Icon = resolveServiceIcon(service.icon)
         return (
           <motion.div
             key={service.id}

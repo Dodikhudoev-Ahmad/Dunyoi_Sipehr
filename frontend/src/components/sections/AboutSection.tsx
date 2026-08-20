@@ -7,6 +7,7 @@ import { Section } from '@/components/ui/Section'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { editorialImages } from '@/lib/editorialImages'
+import { optimizeImageUrl } from '@/lib/imageOptimize'
 
 const FACT_ICONS: LucideIcon[] = [Languages, Compass, ShieldCheck, Clock]
 
@@ -26,7 +27,13 @@ export function AboutSection() {
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className="order-2 aspect-[4/5] overflow-hidden rounded-sm md:order-1"
         >
-          <img src={editorialImages.about} alt="" loading="lazy" className="h-full w-full object-cover" />
+          <img
+            src={optimizeImageUrl(editorialImages.about, 1000)}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover"
+          />
         </motion.div>
 
         <div className="order-1 md:order-2">

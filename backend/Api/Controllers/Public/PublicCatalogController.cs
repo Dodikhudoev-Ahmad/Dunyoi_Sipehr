@@ -9,6 +9,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AeroTravel.Api.Controllers.Public;
 
+// [ResponseCache(Duration = 60, ...)] sets Cache-Control/Vary response headers so a browser (or a
+// future CDN) can skip the round trip entirely on repeat navigation within the window — this is
+// header-only (no app.UseResponseCaching() middleware, so the server itself never caches), which
+// keeps admin edits visible within at most 60s rather than however long a server-side cache
+// would hold a stale entry. Never applied to authenticated /admin/* or the travel-request POST.
+[ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any)]
 [Route("api/v1/public/countries")]
 public class PublicCountriesController(ISender mediator) : ApiControllerBase(mediator)
 {
@@ -17,6 +23,7 @@ public class PublicCountriesController(ISender mediator) : ApiControllerBase(med
         => (await Mediator.Send(new ListPublicCountriesQuery(ParseLocale(locale)), ct)).ToActionResult().Result ?? NoContent();
 }
 
+[ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any)]
 [Route("api/v1/public/cities")]
 public class PublicCitiesController(ISender mediator) : ApiControllerBase(mediator)
 {
@@ -25,6 +32,7 @@ public class PublicCitiesController(ISender mediator) : ApiControllerBase(mediat
         => (await Mediator.Send(new ListPublicCitiesQuery(ParseLocale(locale), countryId), ct)).ToActionResult().Result ?? NoContent();
 }
 
+[ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any)]
 [Route("api/v1/public/destinations")]
 public class PublicDestinationsController(ISender mediator) : ApiControllerBase(mediator)
 {
@@ -38,6 +46,7 @@ public class PublicDestinationsController(ISender mediator) : ApiControllerBase(
         => (await Mediator.Send(new GetPublicDestinationBySlugQuery(slug, ParseLocale(locale)), ct)).ToActionResult().Result ?? NoContent();
 }
 
+[ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any)]
 [Route("api/v1/public/services")]
 public class PublicServicesController(ISender mediator) : ApiControllerBase(mediator)
 {
@@ -46,6 +55,7 @@ public class PublicServicesController(ISender mediator) : ApiControllerBase(medi
         => (await Mediator.Send(new ListPublicServicesQuery(ParseLocale(locale)), ct)).ToActionResult().Result ?? NoContent();
 }
 
+[ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any)]
 [Route("api/v1/public/offers")]
 public class PublicOffersController(ISender mediator) : ApiControllerBase(mediator)
 {

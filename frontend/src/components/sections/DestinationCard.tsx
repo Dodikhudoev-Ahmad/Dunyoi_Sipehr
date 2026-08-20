@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { useLocale, localizedPath } from '@/i18n/LocaleContext'
 import type { Destination } from '@/types/domain'
 import { cn } from '@/lib/cn'
+import { optimizeImageUrl } from '@/lib/imageOptimize'
 
 interface DestinationCardProps {
   destination: Destination
@@ -49,9 +50,10 @@ export function DestinationCard({ destination, index = 0, size = 'default', fill
           )}
         >
           <img
-            src={destination.heroImageUrl}
+            src={optimizeImageUrl(destination.heroImageUrl, 800)}
             alt={destination.title}
             loading="lazy"
+            decoding="async"
             className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-dark/85 via-dark/10 to-transparent" />

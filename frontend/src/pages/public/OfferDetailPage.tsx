@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/Button'
 import { NotFoundPage } from '@/pages/public/NotFoundPage'
 import { currencySymbol } from '@/lib/currency'
 import { editorialImages } from '@/lib/editorialImages'
+import { optimizeImageUrl } from '@/lib/imageOptimize'
 
 export function OfferDetailPage() {
   const { slug = '' } = useParams()
@@ -77,7 +78,13 @@ export function OfferDetailPage() {
       <Section className="pt-0" tone="paper">
         {cover && (
           <div className="overflow-hidden rounded-2xl">
-            <img src={cover} alt={o.title} className="aspect-16/7 w-full object-cover" />
+            <img
+              src={optimizeImageUrl(cover, 1600)}
+              alt={o.title}
+              loading="lazy"
+              decoding="async"
+              className="aspect-16/7 w-full object-cover"
+            />
           </div>
         )}
 
@@ -86,7 +93,14 @@ export function OfferDetailPage() {
         {gallery.length > 1 && (
           <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4">
             {gallery.slice(1).map((url, i) => (
-              <img key={i} src={url} alt="" loading="lazy" className="aspect-square w-full rounded-xl object-cover" />
+              <img
+                key={i}
+                src={optimizeImageUrl(url, 500)}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                className="aspect-square w-full rounded-xl object-cover"
+              />
             ))}
           </div>
         )}
