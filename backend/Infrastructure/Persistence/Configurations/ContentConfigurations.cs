@@ -27,6 +27,8 @@ public class FaqItemConfiguration : IEntityTypeConfiguration<FaqItem>
     public void Configure(EntityTypeBuilder<FaqItem> builder)
     {
         builder.HasKey(x => x.Id);
+        // ListAdminFaqQuery filters by exact Category match when one is supplied.
+        builder.HasIndex(x => x.Category);
         builder.HasMany(x => x.Translations).WithOne().HasForeignKey(x => x.FaqItemId).OnDelete(DeleteBehavior.Cascade);
     }
 }

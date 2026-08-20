@@ -61,6 +61,10 @@ public class OfferConfiguration : IEntityTypeConfiguration<Offer>
         builder.Property(x => x.Slug).HasMaxLength(200).IsRequired();
         builder.HasIndex(x => x.Slug).IsUnique();
         builder.HasIndex(x => x.DestinationId);
+        // Public/admin offer listings filter and sort by these together (ListPublicOffersQuery /
+        // ListAdminOffersQuery) the same way Destination already does above — Offer had no
+        // equivalent index despite the identical query shape.
+        builder.HasIndex(x => new { x.IsPublished, x.IsFeatured });
         builder.Property(x => x.PriceFrom).HasColumnType("numeric(12,2)");
         builder.Property(x => x.GalleryUrls).HasColumnType("jsonb");
         builder.HasMany(x => x.Translations).WithOne().HasForeignKey(x => x.OfferId).OnDelete(DeleteBehavior.Cascade);

@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AeroTravel.Api.Controllers.Public;
 
+// See PublicCatalogController.cs for why: header-only Cache-Control, no server-side caching.
+[ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any)]
 [Route("api/v1/public/testimonials")]
 public class PublicTestimonialsController(ISender mediator) : ApiControllerBase(mediator)
 {
@@ -13,6 +15,7 @@ public class PublicTestimonialsController(ISender mediator) : ApiControllerBase(
         => (await Mediator.Send(new ListPublicTestimonialsQuery(ParseLocale(locale)), ct)).ToActionResult().Result ?? NoContent();
 }
 
+[ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any)]
 [Route("api/v1/public/faq")]
 public class PublicFaqController(ISender mediator) : ApiControllerBase(mediator)
 {
@@ -21,6 +24,7 @@ public class PublicFaqController(ISender mediator) : ApiControllerBase(mediator)
         => (await Mediator.Send(new ListPublicFaqQuery(ParseLocale(locale)), ct)).ToActionResult().Result ?? NoContent();
 }
 
+[ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any)]
 [Route("api/v1/public/site-content")]
 public class PublicSiteContentController(ISender mediator) : ApiControllerBase(mediator)
 {

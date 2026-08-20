@@ -17,6 +17,13 @@ export const queryClient = new QueryClient({
         return failureCount < 2
       },
       refetchOnWindowFocus: false,
+      // Defense-in-depth default: without this, the library default (staleTime: 0) means any
+      // query that forgets to set its own staleTime refetches instantly on every remount, even
+      // for data that's already in the cache — visible as a network request (and a stale→fresh
+      // flicker) on ordinary back/forward navigation. Public catalog hooks already set a longer
+      // 5-minute staleTime themselves (usePublicData.ts); this just raises the floor for
+      // everything else (admin queries, any hook added later) instead of leaving it at zero.
+      staleTime: 60_000,
     },
   },
 })

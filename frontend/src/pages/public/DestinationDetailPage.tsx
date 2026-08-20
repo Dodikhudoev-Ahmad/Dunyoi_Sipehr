@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/Button'
 import { OfferCard } from '@/components/sections/OfferCard'
 import { NotFoundPage } from '@/pages/public/NotFoundPage'
 import { editorialImages } from '@/lib/editorialImages'
+import { optimizeImageUrl } from '@/lib/imageOptimize'
 
 export function DestinationDetailPage() {
   const { slug = '' } = useParams()
@@ -59,7 +60,13 @@ export function DestinationDetailPage() {
 
       <Section className="pt-0" tone="paper">
         <div className="overflow-hidden rounded-2xl">
-          <img src={d.heroImageUrl} alt={d.title} className="aspect-16/7 w-full object-cover" />
+          <img
+            src={optimizeImageUrl(d.heroImageUrl, 1600)}
+            alt={d.title}
+            loading="lazy"
+            decoding="async"
+            className="aspect-16/7 w-full object-cover"
+          />
         </div>
 
         <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-3">
@@ -83,7 +90,14 @@ export function DestinationDetailPage() {
         {d.galleryUrls.length > 0 && (
           <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4">
             {d.galleryUrls.map((url, i) => (
-              <img key={i} src={url} alt="" loading="lazy" className="aspect-square w-full rounded-xl object-cover" />
+              <img
+                key={i}
+                src={optimizeImageUrl(url, 500)}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                className="aspect-square w-full rounded-xl object-cover"
+              />
             ))}
           </div>
         )}

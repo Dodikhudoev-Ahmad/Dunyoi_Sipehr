@@ -275,6 +275,8 @@ namespace AeroTravel.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Category");
+
                     b.ToTable("FaqItems");
                 });
 
@@ -351,6 +353,8 @@ namespace AeroTravel.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("Slug")
                         .IsUnique();
+
+                    b.HasIndex("IsPublished", "IsFeatured");
 
                     b.ToTable("Offers");
                 });

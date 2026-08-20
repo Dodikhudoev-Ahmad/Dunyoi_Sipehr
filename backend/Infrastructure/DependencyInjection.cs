@@ -16,7 +16,14 @@ public static class DependencyInjection
             ?? Environment.GetEnvironmentVariable("DATABASE_URL")
             ?? "Host=localhost;Port=5432;Database=aerotravel;Username=postgres;Password=postgres";
 
-        services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
+        // EnableRetryOnFailure: transparently retries a handful of transient network/timeout
+        // failures against Postgres (relevant on Railway per DEC-006/BLK-001, a shared/managed
+        // instance more prone to brief blips than a local dev DB) instead of surfacing a 500 on
+        // the first hiccup. No manual BeginTransaction/IDbContextTransaction usage exists anywhere
+        // in the codebase (grepped Application/Infrastructure/Api) that would need to be wrapped
+        // in an execution strategy, so this is a safe, additive change.
+        services.AddDbContext<AppDbContext>(options =>
+            options.UseNpgsql(connectionString, npgsql => npgsql.EnableRetryOnFailure()));
 
         services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<AppDbContext>());
         services.AddScoped<IReadDbContext>(sp => sp.GetRequiredService<AppDbContext>());

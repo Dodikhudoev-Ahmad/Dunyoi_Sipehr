@@ -7,6 +7,7 @@ using AeroTravel.Infrastructure.Persistence;
 using AeroTravel.Infrastructure.Persistence.Seed;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
@@ -107,6 +108,18 @@ builder.Services.AddRateLimiter(options =>
         }));
 });
 
+// ---- Response compression: every JSON API response gzip/brotli-compressed. `application/json`
+// is already in ResponseCompressionDefaults.MimeTypes, so no extra MIME config is needed.
+// EnableForHttps=true is safe here — this is a JSON data API (catalog reads, auth via Bearer
+// header, no per-session secret ever reflected into a compressible HTML body), not the
+// HTML+embedded-CSRF-token shape BREACH actually targets. ----
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.Providers.Add<GzipCompressionProvider>();
+});
+
 // ---- Health checks ----
 var connectionString = builder.Configuration["ConnectionStrings:Default"]
     ?? Environment.GetEnvironmentVariable("DATABASE_URL")
@@ -166,6 +179,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseResponseCompression();
 
 app.UseCors("Default");
 

@@ -6,6 +6,7 @@ import { useLocale, localizedPath } from '@/i18n/LocaleContext'
 import type { Offer } from '@/types/domain'
 import { cn } from '@/lib/cn'
 import { currencySymbol } from '@/lib/currency'
+import { optimizeImageUrl } from '@/lib/imageOptimize'
 
 export function OfferCard({ offer, index = 0, className }: { offer: Offer; index?: number; className?: string }) {
   const { t } = useTranslation()
@@ -26,9 +27,10 @@ export function OfferCard({ offer, index = 0, className }: { offer: Offer; index
         <div className="relative aspect-[4/3] overflow-hidden rounded-sm bg-dark/5 ring-1 ring-inset ring-dark/[0.06]">
           {cover ? (
             <img
-              src={cover}
+              src={optimizeImageUrl(cover, 800)}
               alt={offer.title}
               loading="lazy"
+              decoding="async"
               className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
             />
           ) : (

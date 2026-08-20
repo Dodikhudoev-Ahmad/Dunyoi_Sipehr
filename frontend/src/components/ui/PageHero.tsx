@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { cn } from '@/lib/cn'
+import { optimizeImageUrl } from '@/lib/imageOptimize'
 
 interface PageHeroProps {
   /** Background photo URL — a real photograph, not the vector Aero Map motif. */
@@ -33,7 +34,14 @@ export function PageHero({ image, eyebrow, backTo, backLabel, title, subtitle, c
         transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
         className="absolute inset-0"
       >
-        <img src={image} alt="" className="h-full w-full object-cover" loading="eager" fetchPriority="high" />
+        <img
+          src={optimizeImageUrl(image, 1600)}
+          alt=""
+          className="h-full w-full object-cover"
+          loading="eager"
+          fetchPriority="high"
+          decoding="sync"
+        />
       </motion.div>
 
       {/* Dark scrim for text contrast — a touch deeper in dark theme so the band still reads as

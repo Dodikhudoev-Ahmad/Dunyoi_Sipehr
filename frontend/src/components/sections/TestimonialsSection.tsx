@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { editorialImages } from '@/lib/editorialImages'
+import { optimizeImageUrl } from '@/lib/imageOptimize'
 import { cn } from '@/lib/cn'
 
 const AUTOPLAY_INTERVAL_MS = 3000
@@ -42,7 +43,13 @@ export function TestimonialsSection() {
 
   return (
     <section className="relative overflow-hidden bg-dark py-20 text-white md:py-28">
-      <img src={editorialImages.testimonialsBackdrop} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-25" />
+      <img
+        src={optimizeImageUrl(editorialImages.testimonialsBackdrop, 1600)}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        className="absolute inset-0 h-full w-full object-cover opacity-25"
+      />
       <div className="absolute inset-0 bg-gradient-to-t from-dark via-dark/85 to-dark/70" />
 
       <div className="relative mx-auto max-w-[1440px] px-6 md:px-12">
@@ -81,7 +88,13 @@ export function TestimonialsSection() {
                 </p>
                 <div className="mt-8 flex items-center gap-3">
                   {current.avatarUrl ? (
-                    <img src={current.avatarUrl} alt={current.authorName} className="h-11 w-11 rounded-full object-cover" />
+                    <img
+                      src={optimizeImageUrl(current.avatarUrl, 112)}
+                      alt={current.authorName}
+                      loading="lazy"
+                      decoding="async"
+                      className="h-11 w-11 rounded-full object-cover"
+                    />
                   ) : (
                     <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-sm font-medium">
                       {current.authorName.charAt(0)}

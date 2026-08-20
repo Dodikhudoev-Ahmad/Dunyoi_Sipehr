@@ -2,6 +2,7 @@ import { Star } from 'lucide-react'
 import { motion } from 'motion/react'
 import { Card } from '@/components/ui/Card'
 import type { Testimonial } from '@/types/domain'
+import { optimizeImageUrl } from '@/lib/imageOptimize'
 
 export function TestimonialCard({ testimonial, index = 0 }: { testimonial: Testimonial; index?: number }) {
   return (
@@ -20,7 +21,13 @@ export function TestimonialCard({ testimonial, index = 0 }: { testimonial: Testi
         <p className="flex-1 text-sm leading-relaxed text-slate">&ldquo;{testimonial.quote}&rdquo;</p>
         <div className="flex items-center gap-3">
           {testimonial.avatarUrl ? (
-            <img src={testimonial.avatarUrl} alt={testimonial.authorName} className="h-10 w-10 rounded-full object-cover" />
+            <img
+              src={optimizeImageUrl(testimonial.avatarUrl, 96)}
+              alt={testimonial.authorName}
+              loading="lazy"
+              decoding="async"
+              className="h-10 w-10 rounded-full object-cover"
+            />
           ) : (
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand/10 text-sm font-medium text-brand">
               {testimonial.authorName.charAt(0)}

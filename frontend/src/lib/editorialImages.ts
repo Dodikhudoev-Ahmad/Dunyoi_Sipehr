@@ -9,8 +9,11 @@
  * Real catalog imagery (destinations, offers) always comes from the API —
  * see docs/BLOCKERS.md BLK-007 for the dev-seed placeholder policy.
  */
+/** `auto=format` content-negotiates AVIF/WebP instead of a flat JPEG — see imageOptimize.ts,
+ * which further right-sizes these URLs per render context (call sites pass a container-sized
+ * `width` rather than always downloading the width baked in here). */
 function unsplash(id: string, w: number, q = 80) {
-  return `https://images.unsplash.com/photo-${id}?w=${w}&q=${q}&fm=jpg&fit=crop`
+  return `https://images.unsplash.com/photo-${id}?w=${w}&q=${q}&auto=format&fit=crop`
 }
 
 export const editorialImages = {
