@@ -1,0 +1,175 @@
+{
+  "nav": {
+    "home": "Home",
+    "destinations": "Destinations",
+    "offers": "Fares",
+    "services": "Services",
+    "about": "About",
+    "testimonials": "Testimonials",
+    "faq": "FAQ",
+    "contacts": "Contacts",
+    "travelRequest": "Send a Request",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "home": {
+    "heroEyebrow": "International flight tickets",
+    "heroTitle": "Flight tickets,\nfound with\nflight-level precision",
+    "heroSubtitle": "From route selection to ticket issuance — we find the best flights and fares for people who value precision over guesswork.",
+    "heroCta": "Send a Request",
+    "heroSecondaryCta": "Explore destinations",
+    "featuredDestinations": "Popular destinations",
+    "featuredOffers": "Special fares",
+    "servicesTeaser": "Our services",
+    "servicesTeaserSubtitle": "We help at every step — from route planning to departure.",
+    "testimonials": "What clients say",
+    "brandStatementEyebrow": "Our approach",
+    "brandStatement": "Every route is a precise calculation.\nWe find the best flight and fare.",
+    "finalCtaTitle": "Where are you\nflying to?",
+    "finalCtaSubtitle": "We'll find the best route and fare for you.",
+    "finalCtaButton": "Find a flight"
+  },
+  "destinations": {
+    "title": "Destinations",
+    "subtitle": "Cities we regularly find convenient, well-priced flights to.",
+    "empty": "No published destinations yet.",
+    "highlights": "Highlights",
+    "viewOffers": "View fares",
+    "backToList": "All destinations",
+    "eyebrow": "Where we fly",
+    "featuredTag": "Popular"
+  },
+  "offers": {
+    "title": "Fares",
+    "subtitle": "Special fares and well-priced flight destinations.",
+    "empty": "No special fares yet.",
+    "priceFrom": "from",
+    "duration": "{{count}} days",
+    "validUntil": "Valid until",
+    "requestThis": "Request this fare",
+    "backToList": "All fares",
+    "eyebrow": "Well-priced routes",
+    "eyebrowFallback": "Special fare"
+  },
+  "services": {
+    "title": "Services",
+    "subtitle": "Everything you need to book a flight — simple and hassle-free.",
+    "empty": "Services coming soon.",
+    "eyebrow": "How we work"
+  },
+  "about": {
+    "title": "About Us",
+    "eyebrow": "Why Dunyoi Sipehr",
+    "facts": [
+      "We serve clients in Russian, Tajik and English",
+      "We find the optimal route and fare for your budget",
+      "We support clients through to ticket issuance",
+      "We respond to every request within 24 hours"
+    ]
+  },
+  "testimonialsPage": {
+    "title": "Client Testimonials",
+    "empty": "No testimonials yet.",
+    "prev": "Previous testimonial",
+    "next": "Next testimonial"
+  },
+  "faqPage": {
+    "title": "Frequently Asked Questions",
+    "empty": "Questions coming soon."
+  },
+  "contacts": {
+    "title": "Contacts",
+    "address": "Address",
+    "phone": "Phone",
+    "email": "Email"
+  },
+  "privacy": {
+    "title": "Privacy Policy"
+  },
+  "travelRequest": {
+    "title": "Flight Ticket Request",
+    "subtitle": "Fill out the form and our consultant will find a flight and reach out within 24 hours.",
+    "fullName": "Full name",
+    "email": "Email",
+    "phone": "Phone",
+    "destination": "Destination (optional)",
+    "offer": "Fare (optional)",
+    "adults": "Adults",
+    "children": "Children",
+    "message": "Message",
+    "messagePlaceholder": "Tell us your preferred dates and route…",
+    "consent": "I consent to the processing of my personal data",
+    "submit": "Submit request",
+    "submitting": "Submitting…",
+    "successTitle": "Request submitted",
+    "successBody": "Thank you! We'll find a flight and be in touch shortly.",
+    "errorTitle": "Could not submit the request",
+    "none": "None selected",
+    "departureDate": "Departure date",
+    "returnDate": "Return date (optional)",
+    "childAge": "Child {{index}} age",
+    "childAgeHint": "Under 12 books at the child fare; 12 and older books at the adult fare",
+    "passportPhoto": "Passport photo",
+    "passportPhotoHint": "Attach 1–2 photos (passport main page), JPG/PNG/WEBP, up to 8 MB each",
+    "passportPhotoAdd": "Add photo",
+    "passportPhotoRemove": "Remove",
+    "passportPhotoUploading": "Uploading…",
+    "passportConsent": "I consent to the processing of my passport/ID data for ticket issuance"
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidEmail": "Enter a valid email address",
+    "invalidPhone": "Enter a valid phone number",
+    "minLength": "At least {{count}} characters",
+    "consentRequired": "You must consent to data processing",
+    "min0": "Cannot be negative",
+    "maxPassengers": "No more than {{count}}",
+    "invalidChildAge": "Age must be between 0 and 17",
+    "dateInPast": "Date cannot be in the past",
+    "returnBeforeDeparture": "Return date cannot be before the departure date",
+    "childAgeRequired": "Please provide each child's age",
+    "passportConsentRequired": "Consent to process passport data is required",
+    "passportPhotoRequired": "Attach at least one passport photo",
+    "fileTooLarge": "File is too large (max 8 MB)",
+    "fileInvalidType": "Only image files are supported",
+    "uploadFailed": "Could not upload the file"
+  },
+  "common": {
+    "loading": "Loading…",
+    "error": "Something went wrong",
+    "retry": "Retry",
+    "empty": "Nothing found",
+    "readMore": "Read more",
+    "back": "Back",
+    "close": "Close",
+    "currency_USD": "$",
+    "currency_EUR": "€",
+    "currency_TJS": "TJS",
+    "notFoundTitle": "Page not found",
+    "notFoundBody": "The page you requested doesn't exist or has moved.",
+    "notFoundCta": "Back to home",
+    "page": "Page",
+    "of": "of"
+  },
+  "footer": {
+    "tagline": "International flight tickets and route planning.",
+    "rights": "All rights reserved.",
+    "quickLinks": "Quick links",
+    "legal": "Legal"
+  },
+  "errors": {
+    "VALIDATION_FAILED": "Please check the fields you filled in.",
+    "NOT_FOUND": "This record could not be found.",
+    "UNAUTHORIZED": "Please sign in again.",
+    "FORBIDDEN": "You do not have permission to do this.",
+    "CONFLICT_DUPLICATE": "A record like this already exists.",
+    "RATE_LIMITED": "Too many attempts. Please try again shortly.",
+    "BOOTSTRAP_ALREADY_DONE": "An administrator account already exists.",
+    "NETWORK_ERROR": "The server could not be reached. Check your connection.",
+    "UNKNOWN_ERROR": "Something went wrong. Please try again.",
+    "CONFLICT_HAS_CHILDREN": "This record has related items. Remove them first.",
+    "INVALID_CREDENTIALS": "Incorrect email or password.",
+    "INVALID_REFRESH_TOKEN": "Your session has expired. Please sign in again.",
+    "INVALID_TRANSITION": "That status change is not allowed."
+  }
+}

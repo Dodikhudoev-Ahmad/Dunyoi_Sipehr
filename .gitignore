@@ -1,0 +1,43 @@
+# .NET
+bin/
+obj/
+*.user
+*.userosscache
+*.suo
+
+# Node
+node_modules/
+dist/
+.vite/
+*.local
+
+# Env
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vs/
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# EF Core
+*.db
+*.sqlite
+
+# Dev-local uploaded files (passport photos etc. — sensitive, never committed; see DEC-012)
+backend/Api/uploads/
+
+# Test results
+TestResults/
+coverage/
