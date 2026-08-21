@@ -4,6 +4,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { MotionConfig } from 'motion/react'
 import { queryClient } from '@/lib/queryClient'
 import { ToastProvider } from '@/components/ui/Toast'
+import { ScrollToTop } from '@/components/ScrollToTop'
 import { publicRoutesFor } from '@/routes/publicRoutes'
 
 // Public visitors and admin staff are different audiences reading different code — lazy-loading
@@ -29,6 +30,7 @@ export default function App() {
       <MotionConfig reducedMotion="user">
         <ToastProvider>
           <BrowserRouter>
+            <ScrollToTop />
             <Routes>
               {publicRoutesFor('ru', '/')}
               {publicRoutesFor('en', '/en')}

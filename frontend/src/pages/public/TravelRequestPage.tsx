@@ -165,6 +165,28 @@ export function TravelRequestPage() {
   const childrenCount = watch('passengersChildren')
   const departureDate = watch('departureDate')
 
+  // The ?destinationId=/?offerId= URL params are only usable once the matching <option> actually
+  // exists in the <Select> — destinations/offers load asynchronously, so at the moment useForm's
+  // defaultValues run (synchronously, on first render) the list is still empty and the browser
+  // has nothing to select, silently falling back to "Не выбрано". Once each query resolves,
+  // re-apply the value from the URL — but only if it's actually one of the loaded options, so a
+  // stale/invalid id in the URL doesn't get force-set into the field.
+  useEffect(() => {
+    const destinationId = searchParams.get('destinationId')
+    if (destinationId && destinations.data?.items.some((d) => d.id === destinationId)) {
+      setValue('destinationId', destinationId)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [destinations.data])
+
+  useEffect(() => {
+    const offerId = searchParams.get('offerId')
+    if (offerId && offers.data?.items.some((o) => o.id === offerId)) {
+      setValue('offerId', offerId)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [offers.data])
+
   // Keep childrenAges in sync with the children headcount — grows/shrinks the array, preserving
   // ages already entered for indices that still exist.
   useEffect(() => {
