@@ -49,7 +49,8 @@
     "requestThis": "Запросить этот тариф",
     "backToList": "Все тарифы",
     "eyebrow": "Выгодные направления",
-    "eyebrowFallback": "Спецтариф"
+    "eyebrowFallback": "Спецтариф",
+    "detailsTitle": "Детали тарифа"
   },
   "services": {
     "title": "Услуги",

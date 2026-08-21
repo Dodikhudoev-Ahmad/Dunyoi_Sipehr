@@ -49,7 +49,8 @@
     "requestThis": "Ин тарифро дархост кунед",
     "backToList": "Ҳамаи тарифҳо",
     "eyebrow": "Самтҳои мусоид",
-    "eyebrowFallback": "Тарифи махсус"
+    "eyebrowFallback": "Тарифи махсус",
+    "detailsTitle": "Тафсилоти тариф"
   },
   "services": {
     "title": "Хидматҳо",
