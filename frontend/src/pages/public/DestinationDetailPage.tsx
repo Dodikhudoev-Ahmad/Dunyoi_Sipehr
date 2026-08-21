@@ -29,7 +29,7 @@ export function DestinationDetailPage() {
     return (
       <>
         <PageHero image={editorialImages.destinationsHeader} eyebrow={t('nav.destinations')} title={<span className="opacity-0">.</span>} />
-        <Section className="pt-0" tone="paper">
+        <Section className="pt-10 md:pt-0" tone="paper">
           <div className="grid grid-cols-1 gap-10 lg:grid-cols-3 lg:gap-14">
             <div className="space-y-3 lg:col-span-2">
               <Skeleton className="h-4 w-32" />
@@ -68,7 +68,7 @@ export function DestinationDetailPage() {
         subtitle={d.summary}
       />
 
-      <Section className="pt-0" tone="paper">
+      <Section className="pt-10 md:pt-0" tone="paper">
         {/* About + Highlights: description reads as a real editorial paragraph (larger type,
             generous line-height) rather than competing for space with a sidebar list — the
             highlights instead live in their own card, each one a small icon-badged chip rather
