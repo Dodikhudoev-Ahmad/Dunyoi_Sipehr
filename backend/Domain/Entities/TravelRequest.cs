@@ -8,8 +8,10 @@ public class TravelRequest : Entity
     public DateTime CreatedAtUtc { get; private set; } = DateTime.UtcNow;
     public TravelRequestStatus Status { get; private set; } = TravelRequestStatus.New;
 
-    public string FullName { get; private set; } = default!;
-    public string Email { get; private set; } = default!;
+    public string LastName { get; private set; } = default!;
+    public string FirstName { get; private set; } = default!;
+    /// Patronymic — optional (not every name convention has one, notably outside the ru locale).
+    public string? MiddleName { get; private set; }
     public string Phone { get; private set; } = default!;
     public Locale PreferredLocale { get; private set; }
 
@@ -46,7 +48,7 @@ public class TravelRequest : Entity
     private TravelRequest() { }
 
     public TravelRequest(
-        string fullName, string email, string phone, Locale preferredLocale,
+        string lastName, string firstName, string? middleName, string phone, Locale preferredLocale,
         int passengersAdults, int passengersChildren, IReadOnlyList<int> childrenAges, string? message,
         DateOnly departureDate, DateOnly? returnDate,
         Guid? destinationId, string? destinationSnapshotTitle,
@@ -54,8 +56,9 @@ public class TravelRequest : Entity
         IReadOnlyList<string> passportPhotoPaths,
         string? sourceUtm, string? sourceIp, Locale sourceLocale)
     {
-        FullName = fullName;
-        Email = email;
+        LastName = lastName;
+        FirstName = firstName;
+        MiddleName = middleName;
         Phone = phone;
         PreferredLocale = preferredLocale;
         PassengersAdults = passengersAdults;

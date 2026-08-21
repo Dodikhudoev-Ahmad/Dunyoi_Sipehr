@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -42,10 +42,9 @@ describe('TravelRequestPage form validation', () => {
 
     await user.click(screen.getByRole('button', { name: /оставить заявку|отправ/i }))
 
-    // fullName uses zod's min(2) rule, which also rejects an empty string ("Минимум 2 символов")
-    // rather than a distinct "required" message — see lib/validation.ts.
-    expect(await screen.findByText('Минимум 2 символов')).toBeInTheDocument()
-    expect(screen.getByText('Введите корректный адрес эл. почты')).toBeInTheDocument()
+    // lastName/firstName use zod's min(2) rule, which also rejects an empty string
+    // ("Минимум 2 символов") rather than a distinct "required" message — see lib/validation.ts.
+    expect(await screen.findAllByText('Минимум 2 символов')).toHaveLength(2)
     expect(screen.getByText('Введите корректный номер телефона')).toBeInTheDocument()
     expect(screen.getByText('Необходимо согласие на обработку данных')).toBeInTheDocument()
 
@@ -53,23 +52,37 @@ describe('TravelRequestPage form validation', () => {
     expect(mock.history.post ?? []).toHaveLength(0)
   })
 
-  it('accepts a fully valid submission (required fields filled, consent checked)', async () => {
+  it('accepts a fully valid submission (required fields filled, both consents checked, photo uploaded)', async () => {
+    mock.onPost('/public/travel-requests/passport-photos').reply(200, 'uploaded-passport.jpg')
     mock.onPost('/public/travel-requests').reply(201, { id: 'new-id' })
     const user = userEvent.setup()
     renderPage()
 
-    await user.type(screen.getByLabelText('Полное имя'), 'Иван Иванов')
-    await user.type(screen.getByLabelText('Эл. почта'), 'ivan@example.com')
-    await user.type(screen.getByLabelText('Телефон'), '+992900000000')
-    await user.click(screen.getByRole('checkbox'))
+    await user.type(screen.getByLabelText('Фамилия'), 'Иванов')
+    await user.type(screen.getByLabelText('Имя'), 'Иван')
+    await user.type(screen.getByLabelText('Телефон'), '900000000')
+
+    const departureDate = new Date(Date.now() + 5 * 86400000).toISOString().slice(0, 10)
+    fireEvent.change(screen.getByLabelText('Дата вылета'), { target: { value: departureDate } })
+
+    const photoFile = new File(['fake-image-bytes'], 'passport.jpg', { type: 'image/jpeg' })
+    await user.upload(screen.getByLabelText('Добавить фото'), photoFile)
+    await waitFor(() => expect(mock.history.post!.some((r) => r.url?.includes('passport-photos'))).toBe(true))
+    await screen.findByRole('button', { name: 'Удалить' }) // photo upload finished — remove button only renders once status is 'done' or 'error'
+
+    await user.click(screen.getByLabelText('Я согласен(на) на обработку персональных данных'))
+    await user.click(screen.getByLabelText('Я согласен(на) на обработку данных загранпаспорта/персональных данных для оформления билета'))
     await user.click(screen.getByRole('button', { name: /оставить заявку|отправ/i }))
 
-    await waitFor(() => expect(mock.history.post).toHaveLength(1))
-    const [request] = mock.history.post
+    await waitFor(() => expect(mock.history.post!.filter((r) => r.url === '/public/travel-requests')).toHaveLength(1))
+    const [request] = mock.history.post!.filter((r) => r.url === '/public/travel-requests')
     expect(JSON.parse(request!.data as string)).toMatchObject({
-      fullName: 'Иван Иванов',
-      email: 'ivan@example.com',
+      lastName: 'Иванов',
+      firstName: 'Иван',
+      phone: '+992900000000',
+      passportPhotoPaths: ['uploaded-passport.jpg'],
       consentAccepted: true,
+      passportDataConsentAccepted: true,
     })
   })
 })

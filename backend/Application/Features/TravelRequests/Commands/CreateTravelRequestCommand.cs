@@ -22,8 +22,9 @@ public class CreateTravelRequestCommandValidator : AbstractValidator<CreateTrave
 
     public CreateTravelRequestCommandValidator(IFileStorageService fileStorage)
     {
-        RuleFor(x => x.Input.FullName).NotEmpty().MaximumLength(200);
-        RuleFor(x => x.Input.Email).NotEmpty().EmailAddress();
+        RuleFor(x => x.Input.LastName).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.Input.FirstName).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.Input.MiddleName).MaximumLength(200);
 
         // +992 (Tajikistan) fixed prefix, exactly 9 digits after it — mirrors the frontend's
         // fixed-prefix phone input, which only ever lets the user type the 9 trailing digits.
@@ -91,7 +92,7 @@ public class CreateTravelRequestCommandHandler(IApplicationDbContext db) : IRequ
         }
 
         var travelRequest = new TravelRequest(
-            input.FullName, input.Email, input.Phone, input.PreferredLocale,
+            input.LastName, input.FirstName, input.MiddleName, input.Phone, input.PreferredLocale,
             input.PassengersAdults, input.PassengersChildren, input.ChildrenAges, input.Message,
             input.DepartureDate, input.ReturnDate,
             input.DestinationId, destinationTitle, input.OfferId, offerTitle,

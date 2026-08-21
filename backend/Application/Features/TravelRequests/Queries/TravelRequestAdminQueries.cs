@@ -20,7 +20,7 @@ public class ListAdminTravelRequestsQueryHandler(IReadDbContext db) : IRequestHa
     {
         ["createdAt"] = t => t.CreatedAtUtc,
         ["status"] = t => t.Status,
-        ["fullName"] = t => t.FullName,
+        ["lastName"] = t => t.LastName,
     };
 
     public async Task<Result<PagedResult<TravelRequestListItemDto>>> Handle(ListAdminTravelRequestsQuery request, CancellationToken cancellationToken)
@@ -32,7 +32,7 @@ public class ListAdminTravelRequestsQueryHandler(IReadDbContext db) : IRequestHa
         if (!string.IsNullOrWhiteSpace(request.Search))
         {
             var term = request.Search.Trim();
-            query = query.Where(t => t.FullName.Contains(term) || t.Email.Contains(term) || t.Phone.Contains(term));
+            query = query.Where(t => t.LastName.Contains(term) || t.FirstName.Contains(term) || (t.MiddleName != null && t.MiddleName.Contains(term)) || t.Phone.Contains(term));
         }
 
         var page = request.Page < 1 ? 1 : request.Page;
@@ -42,7 +42,7 @@ public class ListAdminTravelRequestsQueryHandler(IReadDbContext db) : IRequestHa
         var total = await query.CountAsync(cancellationToken);
         var items = await query.Skip((page - 1) * pageSize).Take(pageSize)
             .Select(t => new TravelRequestListItemDto(
-                t.Id, t.CreatedAtUtc, t.Status, t.FullName, t.Email, t.Phone,
+                t.Id, t.CreatedAtUtc, t.Status, t.LastName, t.FirstName, t.MiddleName, t.Phone,
                 t.DepartureDate, t.ReturnDate,
                 t.DestinationSnapshotTitle, t.OfferSnapshotTitle, t.AssignedAdminUserId))
             .ToListAsync(cancellationToken);
@@ -59,7 +59,7 @@ public class GetAdminTravelRequestByIdQueryHandler(IReadDbContext db) : IRequest
     {
         var dto = await db.TravelRequests.Where(t => t.Id == request.Id)
             .Select(t => new TravelRequestDetailDto(
-                t.Id, t.CreatedAtUtc, t.Status, t.FullName, t.Email, t.Phone, t.PreferredLocale,
+                t.Id, t.CreatedAtUtc, t.Status, t.LastName, t.FirstName, t.MiddleName, t.Phone, t.PreferredLocale,
                 t.DestinationId, t.DestinationSnapshotTitle, t.OfferId, t.OfferSnapshotTitle,
                 t.PassengersAdults, t.PassengersChildren, t.ChildrenAges, t.Message,
                 t.DepartureDate, t.ReturnDate, t.PassportPhotoPaths,

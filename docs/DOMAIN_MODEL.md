@@ -41,7 +41,7 @@
 
 ### TravelRequest
 - Id, CreatedAtUtc, Status (enum: New, Contacted, Qualified, Won, Lost)
-- Contact: FullName, Email, Phone, PreferredLocale
+- Contact: LastName, FirstName, MiddleName (nullable — patronymic, not every name convention has one), Phone, PreferredLocale — no Email; contact is phone-only (+992)
 - DestinationId (FK, nullable) + DestinationSnapshotTitle (denormalized at submit time)
 - OfferId (FK, nullable) + OfferSnapshotTitle
 - PassengersAdults (int), PassengersChildren (int), ChildrenAges (jsonb List<int>, one entry per child, 0-17 — under-12 books child fare)

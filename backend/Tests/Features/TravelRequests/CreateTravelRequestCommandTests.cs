@@ -11,7 +11,7 @@ public class CreateTravelRequestCommandTests
     private static readonly DateOnly Tomorrow = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1));
 
     private static CreateTravelRequestInput ValidInput(string? website = null, IReadOnlyList<string>? passportPhotoPaths = null) => new(
-        "Jane Doe", "jane@example.com", "+992123456789", Locale.Ru,
+        "Doe", "Jane", null, "+992123456789", Locale.Ru,
         2, 0, [], null,
         Tomorrow, null,
         null, null, passportPhotoPaths ?? ["passport1.jpg"], PassportDataConsentAccepted: true,
@@ -50,17 +50,17 @@ public class CreateTravelRequestCommandTests
     }
 
     [Theory]
-    [InlineData("", "jane@example.com", "+992123456789", true)]
-    [InlineData("Jane", "not-an-email", "+992123456789", true)]
-    [InlineData("Jane", "jane@example.com", "", true)]
-    [InlineData("Jane", "jane@example.com", "+992123456789", false)]
-    [InlineData("Jane", "jane@example.com", "12345", true)] // missing +992 prefix
-    [InlineData("Jane", "jane@example.com", "+99212345", true)] // too few digits after +992
-    public async Task Validator_RejectsInvalidInput(string fullName, string email, string phone, bool consent)
+    [InlineData("", "Jane", "+992123456789", true)] // missing last name
+    [InlineData("Doe", "", "+992123456789", true)] // missing first name
+    [InlineData("Doe", "Jane", "", true)] // missing phone
+    [InlineData("Doe", "Jane", "+992123456789", false)] // consent not accepted
+    [InlineData("Doe", "Jane", "12345", true)] // missing +992 prefix
+    [InlineData("Doe", "Jane", "+99212345", true)] // too few digits after +992
+    public async Task Validator_RejectsInvalidInput(string lastName, string firstName, string phone, bool consent)
     {
         var validator = new CreateTravelRequestCommandValidator(StorageWith("passport1.jpg"));
         var input = new CreateTravelRequestInput(
-            fullName, email, phone, Locale.Ru, 1, 0, [], null,
+            lastName, firstName, null, phone, Locale.Ru, 1, 0, [], null,
             Tomorrow, null, null, null, ["passport1.jpg"], true, null, Locale.Ru, consent, null);
 
         var result = await validator.ValidateAsync(new CreateTravelRequestCommand(input, null));

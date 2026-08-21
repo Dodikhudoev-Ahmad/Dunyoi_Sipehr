@@ -295,8 +295,9 @@ export interface TravelRequest {
   id: string
   createdAtUtc: string
   status: TravelRequestStatus
-  fullName: string
-  email: string
+  lastName: string
+  firstName: string
+  middleName: string | null
   phone: string
   preferredLocale: Locale
   destinationId: string | null

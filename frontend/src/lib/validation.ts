@@ -23,8 +23,11 @@ export const MAX_PASSPORT_PHOTOS = 2
  */
 export const travelRequestSchema = z
   .object({
-    fullName: z.string().trim().min(2, { message: 'validation.minLength' }),
-    email: z.string().trim().email({ message: 'validation.invalidEmail' }),
+    lastName: z.string().trim().min(2, { message: 'validation.minLength' }),
+    firstName: z.string().trim().min(2, { message: 'validation.minLength' }),
+    /** Patronymic — optional (not every name convention has one, notably outside the ru locale);
+     * mirrors CreateTravelRequestCommandValidator's MiddleName rule (MaximumLength only) exactly. */
+    middleName: z.string().trim().max(200).optional(),
     /** Only the 9 digits after the fixed +992 prefix — the prefix itself is rendered in the UI
      * and never part of this field's value (see PhoneInput in TravelRequestPage). */
     phone: z.string().trim().regex(/^\d{9}$/, { message: 'validation.invalidPhone' }),

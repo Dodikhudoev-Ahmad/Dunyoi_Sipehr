@@ -613,18 +613,22 @@ namespace AeroTravel.Infrastructure.Persistence.Migrations
                     b.Property<string>("DestinationSnapshotTitle")
                         .HasColumnType("text");
 
-                    b.Property<string>("Email")
+                    b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
-                    b.Property<string>("FullName")
+                    b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
                     b.Property<string>("Message")
                         .HasColumnType("text");
+
+                    b.Property<string>("MiddleName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<Guid?>("OfferId")
                         .HasColumnType("uuid");
