@@ -1,10 +1,11 @@
 import { useParams, NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { CheckCircle2 } from 'lucide-react'
+import { MapPin, Star, ShieldCheck, Clock, type LucideIcon } from 'lucide-react'
 import { useLocale, localizedPath } from '@/i18n/LocaleContext'
 import { useDestination, useOffers } from '@/hooks/usePublicData'
 import { Section } from '@/components/ui/Section'
 import { PageHero } from '@/components/ui/PageHero'
+import { Card } from '@/components/ui/Card'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -13,6 +14,9 @@ import { OfferCard } from '@/components/sections/OfferCard'
 import { NotFoundPage } from '@/pages/public/NotFoundPage'
 import { editorialImages } from '@/lib/editorialImages'
 import { optimizeImageUrl } from '@/lib/imageOptimize'
+import { cn } from '@/lib/cn'
+
+const HIGHLIGHT_ICONS: LucideIcon[] = [MapPin, Star, ShieldCheck, Clock]
 
 export function DestinationDetailPage() {
   const { slug = '' } = useParams()
@@ -25,9 +29,14 @@ export function DestinationDetailPage() {
     return (
       <>
         <PageHero image={editorialImages.destinationsHeader} eyebrow={t('nav.destinations')} title={<span className="opacity-0">.</span>} />
-        <Section>
-          <Skeleton className="h-8 w-64" />
-          <Skeleton className="mt-4 aspect-16/7 w-full" />
+        <Section className="pt-0" tone="paper">
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-3 lg:gap-14">
+            <div className="space-y-3 lg:col-span-2">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-24 w-full" />
+            </div>
+            <Skeleton className="h-48 w-full rounded-2xl" />
+          </div>
         </Section>
       </>
     )
@@ -49,6 +58,7 @@ export function DestinationDetailPage() {
 
   return (
     <>
+      {/* Full-bleed hero — the destination's own photo, once. Nothing below repeats it. */}
       <PageHero
         image={d.heroImageUrl || editorialImages.destinationsHeader}
         eyebrow={t('nav.destinations')}
@@ -59,53 +69,64 @@ export function DestinationDetailPage() {
       />
 
       <Section className="pt-0" tone="paper">
-        <div className="overflow-hidden rounded-2xl">
-          <img
-            src={optimizeImageUrl(d.heroImageUrl, 1600)}
-            alt={d.title}
-            loading="lazy"
-            decoding="async"
-            className="aspect-16/7 w-full object-cover"
-          />
-        </div>
-
-        <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-3">
+        {/* About + Highlights: description reads as a real editorial paragraph (larger type,
+            generous line-height) rather than competing for space with a sidebar list — the
+            highlights instead live in their own card, each one a small icon-badged chip rather
+            than a plain bullet, so the two columns read as distinct, deliberate blocks. */}
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-3 lg:gap-14">
           <div className="lg:col-span-2">
-            <p className="whitespace-pre-line leading-relaxed text-slate">{d.description}</p>
+            <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary">{t('destinations.about')}</p>
+            <p className="mt-4 max-w-2xl whitespace-pre-line text-[17px] leading-relaxed text-slate">{d.description}</p>
           </div>
+
           {d.highlights.length > 0 && (
-            <div>
-              <h2 className="mb-3 text-lg font-medium">{t('destinations.highlights')}</h2>
-              <ul className="space-y-2">
-                {d.highlights.map((h, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-slate">
-                    <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-brand" /> {h}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <Card className="p-6 lg:sticky lg:top-28">
+              <h2 className="mb-5 text-lg font-medium">{t('destinations.highlights')}</h2>
+              <div className="space-y-3">
+                {d.highlights.map((h, i) => {
+                  const Icon = HIGHLIGHT_ICONS[i % HIGHLIGHT_ICONS.length] ?? MapPin
+                  return (
+                    <div key={i} className="flex items-center gap-3 rounded-xl bg-brand-subtle/40 px-4 py-3">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sage-light text-primary">
+                        <Icon size={16} strokeWidth={1.75} />
+                      </span>
+                      <span className="text-sm leading-snug text-text">{h}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </Card>
           )}
         </div>
 
+        {/* Gallery: edge-to-edge, equal-height photos in a row that adapts to however many exist
+            (1, 2, or 3+) — never a single small square floating in otherwise-empty space. */}
         {d.galleryUrls.length > 0 && (
-          <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4">
+          <div
+            className={cn(
+              'mt-16 grid gap-4 border-t border-text/10 pt-16',
+              d.galleryUrls.length === 1 && 'grid-cols-1',
+              d.galleryUrls.length === 2 && 'grid-cols-1 sm:grid-cols-2',
+              d.galleryUrls.length >= 3 && 'grid-cols-1 sm:grid-cols-3',
+            )}
+          >
             {d.galleryUrls.map((url, i) => (
               <img
                 key={i}
-                src={optimizeImageUrl(url, 500)}
+                src={optimizeImageUrl(url, 900)}
                 alt=""
                 loading="lazy"
                 decoding="async"
-                className="aspect-square w-full rounded-xl object-cover"
+                className="aspect-4/3 w-full rounded-2xl object-cover"
               />
             ))}
           </div>
         )}
 
-        <div className="mt-14">
-          <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-2xl font-medium">{t('destinations.viewOffers')}</h2>
-          </div>
+        {/* Offers: the same responsive card grid used on /offers — never a single card
+            stretched full width. */}
+        <div className="mt-16 border-t border-text/10 pt-16">
+          <h2 className="mb-8 text-2xl font-medium">{t('destinations.viewOffers')}</h2>
           {offers.isPending && <Skeleton className="h-40 w-full" />}
           {offers.isSuccess && offers.data.items.length === 0 && <EmptyState title={t('offers.empty')} />}
           {offers.isSuccess && offers.data.items.length > 0 && (
@@ -117,7 +138,7 @@ export function DestinationDetailPage() {
           )}
         </div>
 
-        <div className="mt-14 text-center">
+        <div className="mt-16 text-center">
           <NavLink to={localizedPath(locale, `/travel-request?destinationId=${d.id}`)}>
             <Button size="lg">{t('offers.requestThis')}</Button>
           </NavLink>
