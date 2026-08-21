@@ -1,0 +1,14 @@
+bin/
+obj/
+**/bin/
+**/obj/
+
+# Dev-local uploaded files (passport photos etc. — sensitive, never baked into an image; see DEC-012)
+Api/uploads/
+
+# Test project isn't needed to publish the API image
+Tests/
+
+.vs/
+.vscode/
+.idea/
