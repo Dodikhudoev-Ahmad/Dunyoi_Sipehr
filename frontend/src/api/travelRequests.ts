@@ -4,8 +4,9 @@ import type { PagedResult, ListQuery } from '@/types/api'
 import type { TravelRequest, TravelRequestStatus, Locale } from '@/types/domain'
 
 export interface TravelRequestSubmission {
-  fullName: string
-  email: string
+  lastName: string
+  firstName: string
+  middleName?: string
   /** Full number in +992XXXXXXXXX format — already composed with the fixed prefix by the caller. */
   phone: string
   preferredLocale: Locale

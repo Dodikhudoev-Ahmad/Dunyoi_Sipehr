@@ -43,8 +43,9 @@ public class TravelRequestConfiguration : IEntityTypeConfiguration<TravelRequest
     public void Configure(EntityTypeBuilder<TravelRequest> builder)
     {
         builder.HasKey(x => x.Id);
-        builder.Property(x => x.FullName).HasMaxLength(200).IsRequired();
-        builder.Property(x => x.Email).HasMaxLength(256).IsRequired();
+        builder.Property(x => x.LastName).HasMaxLength(200).IsRequired();
+        builder.Property(x => x.FirstName).HasMaxLength(200).IsRequired();
+        builder.Property(x => x.MiddleName).HasMaxLength(200);
         builder.Property(x => x.Phone).HasMaxLength(50).IsRequired();
         builder.Property(x => x.ChildrenAges).HasColumnType("jsonb");
         builder.Property(x => x.PassportPhotoPaths).HasColumnType("jsonb");

@@ -9,7 +9,7 @@ namespace AeroTravel.Tests.Features.TravelRequests;
 public class TravelRequestStateMachineTests
 {
     private static TravelRequest MakeRequest() => new(
-        "Jane Doe", "jane@example.com", "+992000000", Locale.Ru,
+        "Doe", "Jane", null, "+992000000000", Locale.Ru,
         2, 0, [], null,
         DateOnly.FromDateTime(DateTime.UtcNow), null,
         null, null, null, null,

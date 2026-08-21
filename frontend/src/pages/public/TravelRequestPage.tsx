@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, forwardRef, type InputHTMLAttributes, type TextareaHTMLAttributes } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -15,7 +15,7 @@ import { Section } from '@/components/ui/Section'
 import { PageHero } from '@/components/ui/PageHero'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { FieldLabel, FieldError, Input, Textarea, Select } from '@/components/ui/Input'
+import { FieldLabel, FieldError, Input, Select } from '@/components/ui/Input'
 import { editorialImages } from '@/lib/editorialImages'
 import { cn } from '@/lib/cn'
 
@@ -29,6 +29,98 @@ interface PassportPhoto {
   status: 'uploading' | 'done' | 'error'
   errorKey?: string
 }
+
+interface FloatingInputProps extends InputHTMLAttributes<HTMLInputElement> {
+  label: string
+  invalid?: boolean
+}
+
+/**
+ * A Material-style "outlined" text field: empty + unfocused, the label sits centered inside the
+ * field like a placeholder; on focus or once there's a value, it shrinks and rises to sit ON the
+ * top border line, with an opaque background matching the field fill (`bg-elevated`) painted
+ * behind it — since the label renders after the input in the DOM, that background paints over
+ * the border segment directly behind the label, visually "notching" the border open around the
+ * text (the standard notched-outline illusion, no SVG/fieldset-legend trickery needed).
+ *
+ * Pure CSS (Tailwind's `peer` + the `:placeholder-shown` pseudo-class via a single-space
+ * placeholder) — no extra state, works unmodified with react-hook-form's uncontrolled
+ * `register()` inputs. The label's x-position never moves (only `top` + `scale`), so it can never
+ * collide with typed content, which lives inside the box below the notch line, not behind it.
+ *
+ * Page-local to TravelRequestPage: the shared `Input`/`FieldLabel` in components/ui/Input.tsx
+ * (used by every other form, admin included) is untouched.
+ */
+const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(function FloatingInput(
+  { label, invalid, id, className, ...props },
+  ref,
+) {
+  return (
+    <div className="relative">
+      <input
+        ref={ref}
+        id={id}
+        placeholder=" "
+        className={cn(
+          'peer w-full rounded-lg border border-text/15 bg-elevated px-4 py-3 text-text outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/20',
+          invalid && 'border-danger focus:border-danger focus:ring-danger/20',
+          className,
+        )}
+        {...props}
+      />
+      <label
+        htmlFor={id}
+        className={cn(
+          'pointer-events-none absolute left-4 top-1/2 z-10 origin-left -translate-y-1/2 scale-100 rounded px-1 text-[15px] text-slate/70 transition-all duration-150',
+          'peer-focus:top-0 peer-focus:scale-75 peer-focus:bg-elevated peer-focus:text-brand',
+          'peer-not-placeholder-shown:top-0 peer-not-placeholder-shown:scale-75 peer-not-placeholder-shown:bg-elevated',
+          invalid && 'peer-focus:text-danger',
+        )}
+      >
+        {label}
+      </label>
+    </div>
+  )
+})
+
+interface FloatingTextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
+  label: string
+}
+
+/** Same notched-outline treatment as `FloatingInput`, adapted for a multi-line field: the resting
+ * label sits at the top-left (a tall empty box centering it mid-height would look odd) rather
+ * than vertically centered, so it only needs a short rise — not a rise from mid-box — to reach
+ * the notch line. */
+const FloatingTextarea = forwardRef<HTMLTextAreaElement, FloatingTextareaProps>(function FloatingTextarea(
+  { label, id, className, ...props },
+  ref,
+) {
+  return (
+    <div className="relative">
+      <textarea
+        ref={ref}
+        id={id}
+        placeholder=" "
+        rows={4}
+        className={cn(
+          'peer w-full resize-y rounded-lg border border-text/15 bg-elevated px-4 pb-2.5 pt-6 text-text outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/20',
+          className,
+        )}
+        {...props}
+      />
+      <label
+        htmlFor={id}
+        className={cn(
+          'pointer-events-none absolute left-4 top-4 z-10 origin-left translate-y-0 scale-100 rounded px-1 text-[15px] text-slate/70 transition-all duration-150',
+          'peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:scale-75 peer-focus:bg-elevated peer-focus:text-brand',
+          'peer-not-placeholder-shown:top-0 peer-not-placeholder-shown:-translate-y-1/2 peer-not-placeholder-shown:scale-75 peer-not-placeholder-shown:bg-elevated',
+        )}
+      >
+        {label}
+      </label>
+    </div>
+  )
+})
 
 export function TravelRequestPage() {
   const { t } = useTranslation()
@@ -52,8 +144,9 @@ export function TravelRequestPage() {
   } = useForm<TravelRequestFormValues>({
     resolver: zodResolver(travelRequestSchema),
     defaultValues: {
-      fullName: '',
-      email: '',
+      lastName: '',
+      firstName: '',
+      middleName: '',
       phone: '',
       destinationId: searchParams.get('destinationId') ?? '',
       offerId: searchParams.get('offerId') ?? '',
@@ -132,8 +225,9 @@ export function TravelRequestPage() {
   const mutation = useMutation({
     mutationFn: (values: TravelRequestFormValues) =>
       travelRequestsApi.publicSubmit({
-        fullName: values.fullName,
-        email: values.email,
+        lastName: values.lastName,
+        firstName: values.firstName,
+        middleName: values.middleName || undefined,
         phone: `+992${values.phone}`,
         preferredLocale: locale,
         destinationId: values.destinationId || null,
@@ -188,39 +282,66 @@ export function TravelRequestPage() {
                 <input id="website" type="text" tabIndex={-1} autoComplete="off" {...register('website')} />
               </div>
 
-              <div>
-                <FieldLabel htmlFor="fullName">{t('travelRequest.fullName')}</FieldLabel>
-                <Input id="fullName" invalid={Boolean(errors.fullName)} {...register('fullName')} />
-                <FieldError>{errors.fullName && t(errors.fullName.message ?? 'validation.required', { count: 2 })}</FieldError>
-              </div>
-
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
                 <div>
-                  <FieldLabel htmlFor="email">{t('travelRequest.email')}</FieldLabel>
-                  <Input id="email" type="email" invalid={Boolean(errors.email)} {...register('email')} />
-                  <FieldError>{errors.email && t(errors.email.message ?? 'validation.invalidEmail')}</FieldError>
+                  <FloatingInput id="lastName" label={t('travelRequest.lastName')} invalid={Boolean(errors.lastName)} {...register('lastName')} />
+                  <FieldError>{errors.lastName && t(errors.lastName.message ?? 'validation.required', { count: 2 })}</FieldError>
                 </div>
                 <div>
-                  <FieldLabel htmlFor="phone">{t('travelRequest.phone')}</FieldLabel>
+                  <FloatingInput id="firstName" label={t('travelRequest.firstName')} invalid={Boolean(errors.firstName)} {...register('firstName')} />
+                  <FieldError>{errors.firstName && t(errors.firstName.message ?? 'validation.required', { count: 2 })}</FieldError>
+                </div>
+                <div>
+                  <FloatingInput id="middleName" label={t('travelRequest.middleName')} invalid={Boolean(errors.middleName)} {...register('middleName')} />
+                  <FieldError>{errors.middleName && t(errors.middleName.message ?? 'validation.maxLength', { count: 200 })}</FieldError>
+                </div>
+              </div>
+
+              <div>
+                {/* Notched-outline phone field: the "+992" prefix lives INSIDE the box on the same
+                    baseline as the typed digits and only takes up space once the field is active
+                    (focused or has a value) — at rest, only the floating "Телефон" label shows,
+                    centered like a normal placeholder, with no prefix competing for the same
+                    space. The label itself never sits near "+992" at all: once floated, it rises
+                    to the border-notch position (like every other field here), well above the
+                    input's own content line, so the two can never overlap or sit at mismatched
+                    heights. */}
+                <div className="group relative">
                   <div
                     className={cn(
-                      'flex w-full items-center rounded-lg border border-text/15 bg-elevated pl-4 transition-colors focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/20',
-                      errors.phone && 'border-danger focus-within:border-danger focus-within:ring-danger/20',
+                      'flex w-full items-center rounded-lg border border-text/15 bg-elevated px-4 py-3 transition-colors has-[input:focus]:border-brand has-[input:focus]:ring-2 has-[input:focus]:ring-brand/20',
+                      errors.phone && 'border-danger has-[input:focus]:border-danger has-[input:focus]:ring-danger/20',
                     )}
                   >
-                    <span className="select-none text-text/60">+992</span>
+                    <span
+                      aria-hidden="true"
+                      className="inline-block max-w-0 shrink-0 select-none overflow-hidden whitespace-nowrap text-text opacity-0 transition-all duration-150 group-has-[input:focus]:max-w-14 group-has-[input:focus]:pr-2 group-has-[input:focus]:opacity-100 group-has-[input:not(:placeholder-shown)]:max-w-14 group-has-[input:not(:placeholder-shown)]:pr-2 group-has-[input:not(:placeholder-shown)]:opacity-100"
+                    >
+                      +992
+                    </span>
                     <input
                       id="phone"
                       type="tel"
                       inputMode="tel"
                       maxLength={9}
-                      placeholder="901234567"
-                      className="w-full bg-transparent px-2 py-2.5 text-text outline-none placeholder:text-slate/50"
+                      placeholder=" "
+                      className="peer w-full bg-transparent text-text outline-none"
                       {...register('phone')}
                     />
                   </div>
-                  <FieldError>{errors.phone && t(errors.phone.message ?? 'validation.invalidPhone')}</FieldError>
+                  <label
+                    htmlFor="phone"
+                    className={cn(
+                      'pointer-events-none absolute left-4 top-1/2 z-10 origin-left -translate-y-1/2 scale-100 rounded px-1 text-[15px] text-slate/70 transition-all duration-150',
+                      'group-has-[input:focus]:top-0 group-has-[input:focus]:scale-75 group-has-[input:focus]:bg-elevated group-has-[input:focus]:text-brand',
+                      'group-has-[input:not(:placeholder-shown)]:top-0 group-has-[input:not(:placeholder-shown)]:scale-75 group-has-[input:not(:placeholder-shown)]:bg-elevated',
+                      errors.phone && 'group-has-[input:focus]:text-danger',
+                    )}
+                  >
+                    {t('travelRequest.phone')}
+                  </label>
                 </div>
+                <FieldError>{errors.phone && t(errors.phone.message ?? 'validation.invalidPhone')}</FieldError>
               </div>
 
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -320,8 +441,8 @@ export function TravelRequestPage() {
               )}
 
               <div>
-                <FieldLabel htmlFor="message">{t('travelRequest.message')}</FieldLabel>
-                <Textarea id="message" placeholder={t('travelRequest.messagePlaceholder')} {...register('message')} />
+                <FloatingTextarea id="message" label={t('travelRequest.message')} {...register('message')} />
+                <p className="mt-1.5 text-xs text-slate">{t('travelRequest.messagePlaceholder')}</p>
               </div>
 
               <div>

@@ -18,7 +18,7 @@ Base path: `/api/v1`. All responses JSON. Errors: RFC7807 ProblemDetails with `e
 - `GET /public/testimonials`
 - `GET /public/faq`
 - `GET /public/site-content/{key}`
-- `POST /public/travel-requests` (rate-limited, honeypot field `website` must be empty; now also requires `departureDate`, `childrenAges` matching `passengersChildren`, `passportPhotoPaths` (1-2 filenames from the upload endpoint below), `passportDataConsentAccepted: true` — see DEC-012)
+- `POST /public/travel-requests` (rate-limited, honeypot field `website` must be empty; requires `lastName`, `firstName` (`middleName` optional — no `email` field, contact is phone-only), `departureDate`, `childrenAges` matching `passengersChildren`, `passportPhotoPaths` (1-2 filenames from the upload endpoint below), `passportDataConsentAccepted: true` — see DEC-012, DEC-015)
 - `POST /public/travel-requests/passport-photos` (multipart `file`, image/* sniffed server-side by magic bytes not extension, ≤8MB) → generated filename (`string`), to be included in the `passportPhotoPaths` array of the `Create` call above
 
 ## Auth

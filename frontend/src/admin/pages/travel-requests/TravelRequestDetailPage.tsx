@@ -83,18 +83,21 @@ export function TravelRequestDetailPage() {
   if (request.isError) return <ErrorState onRetry={() => request.refetch()} />
 
   const r = request.data
+  const fullName = [r.lastName, r.firstName, r.middleName].filter(Boolean).join(' ')
 
   return (
     <div>
       <button onClick={() => navigate('/admin/travel-requests')} className="mb-4 flex items-center gap-1 text-sm text-slate hover:text-text">
         <ArrowLeft size={14} /> К списку заявок
       </button>
-      <PageHeader title={r.fullName} action={<Badge tone={STATUS_TONE[r.status]}>{r.status}</Badge>} />
+      <PageHeader title={fullName} action={<Badge tone={STATUS_TONE[r.status]}>{r.status}</Badge>} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="space-y-3 p-6 lg:col-span-2">
           <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2 text-sm">
-            <div><dt className="text-slate">Эл. почта</dt><dd className="font-medium">{r.email}</dd></div>
+            <div><dt className="text-slate">Фамилия</dt><dd className="font-medium">{r.lastName}</dd></div>
+            <div><dt className="text-slate">Имя</dt><dd className="font-medium">{r.firstName}</dd></div>
+            <div><dt className="text-slate">Отчество</dt><dd className="font-medium">{r.middleName ?? '—'}</dd></div>
             <div><dt className="text-slate">Телефон</dt><dd className="font-medium">{r.phone}</dd></div>
             <div><dt className="text-slate">Направление</dt><dd className="font-medium">{r.destinationSnapshotTitle ?? '—'}</dd></div>
             <div><dt className="text-slate">Предложение</dt><dd className="font-medium">{r.offerSnapshotTitle ?? '—'}</dd></div>

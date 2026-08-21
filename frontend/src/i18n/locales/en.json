@@ -89,8 +89,9 @@
   "travelRequest": {
     "title": "Flight Ticket Request",
     "subtitle": "Fill out the form and our consultant will find a flight and reach out within 24 hours.",
-    "fullName": "Full name",
-    "email": "Email",
+    "lastName": "Last name",
+    "firstName": "First name",
+    "middleName": "Middle name",
     "phone": "Phone",
     "destination": "Destination (optional)",
     "offer": "Fare (optional)",
@@ -118,9 +119,9 @@
   },
   "validation": {
     "required": "This field is required",
-    "invalidEmail": "Enter a valid email address",
     "invalidPhone": "Enter a valid phone number",
     "minLength": "At least {{count}} characters",
+    "maxLength": "At most {{count}} characters",
     "consentRequired": "You must consent to data processing",
     "min0": "Cannot be negative",
     "maxPassengers": "No more than {{count}}",

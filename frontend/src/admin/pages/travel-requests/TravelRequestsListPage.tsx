@@ -35,8 +35,8 @@ export function TravelRequestsListPage() {
 
   const columns: Column<TravelRequest>[] = [
     { key: 'createdAtUtc', header: 'Дата', sortable: true, render: (r) => new Date(r.createdAtUtc).toLocaleString('ru') },
-    { key: 'fullName', header: 'Имя', render: (r) => r.fullName },
-    { key: 'email', header: 'Контакты', render: (r) => <span className="text-slate">{r.email} · {r.phone}</span> },
+    { key: 'fullName', header: 'ФИО', render: (r) => [r.lastName, r.firstName, r.middleName].filter(Boolean).join(' ') },
+    { key: 'phone', header: 'Телефон', render: (r) => <span className="text-slate">{r.phone}</span> },
     { key: 'destination', header: 'Направление', render: (r) => r.destinationSnapshotTitle ?? r.offerSnapshotTitle ?? '—' },
     { key: 'status', header: 'Статус', sortable: true, render: (r) => <Badge tone={STATUS_TONE[r.status]}>{r.status}</Badge> },
   ]
