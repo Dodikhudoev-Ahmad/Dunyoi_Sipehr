@@ -11,11 +11,12 @@
     <title>Dunyoi Sipehr — International Flight Tickets</title>
     <script>
       // Sets the `dark` class before first paint to avoid a light-theme flash.
-      // Keep in sync with src/lib/theme.ts (getInitialTheme).
+      // Keep in sync with src/lib/theme.ts (getInitialTheme). Defaults to dark when there's no
+      // stored preference, regardless of system color scheme.
       (function () {
         try {
           var stored = localStorage.getItem('theme');
-          var dark = stored === 'dark' || (stored !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          var dark = stored !== 'light';
           document.documentElement.classList.toggle('dark', dark);
         } catch (e) {}
       })();
