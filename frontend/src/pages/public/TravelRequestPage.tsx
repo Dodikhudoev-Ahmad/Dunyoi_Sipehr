@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslation } from 'react-i18next'
 import { useMutation } from '@tanstack/react-query'
-import { CheckCircle2, Upload, X, Loader2 } from 'lucide-react'
+import { Check, CheckCircle2, Upload, X, Loader2 } from 'lucide-react'
 import { useLocale } from '@/i18n/LocaleContext'
 import { useDestinations, useOffers } from '@/hooks/usePublicData'
 import { travelRequestsApi } from '@/api/travelRequests'
@@ -119,6 +119,37 @@ const FloatingTextarea = forwardRef<HTMLTextAreaElement, FloatingTextareaProps>(
         {label}
       </label>
     </div>
+  )
+})
+
+/** A styled checkbox: the real `<input type="checkbox">` stays in the DOM, full-size and
+ * interactive (opacity-0, layered over the visual square) so keyboard nav, screen readers, and
+ * react-hook-form's `register()` all work exactly as with a native checkbox — only the paint
+ * layer is custom. The box and the checkmark are both direct siblings of the input (Tailwind's
+ * `peer` selector only matches siblings, not descendants of a sibling), each independently
+ * toggled by `peer-checked:`. */
+const CustomCheckbox = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(function CustomCheckbox(
+  { className, ...props },
+  ref,
+) {
+  return (
+    <span className="relative mt-0.5 inline-flex h-5 w-5 shrink-0">
+      <input
+        ref={ref}
+        type="checkbox"
+        className={cn('peer absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0', className)}
+        {...props}
+      />
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 rounded-md border border-text/15 bg-elevated transition-colors peer-checked:border-brand peer-checked:bg-brand peer-focus-visible:ring-2 peer-focus-visible:ring-brand/20"
+      />
+      <Check
+        size={14}
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 m-auto text-white opacity-0 transition-opacity peer-checked:opacity-100"
+      />
+    </span>
   )
 })
 
@@ -515,14 +546,14 @@ export function TravelRequestPage() {
                 <FieldError>{showPassportPhotoRequiredError && t('validation.passportPhotoRequired')}</FieldError>
               </div>
 
-              <label className="flex items-start gap-2 text-sm text-slate">
-                <input type="checkbox" className="mt-0.5" {...register('consentAccepted')} />
+              <label className="flex items-start gap-2.5 text-sm text-slate">
+                <CustomCheckbox {...register('consentAccepted')} />
                 {t('travelRequest.consent')}
               </label>
               <FieldError>{errors.consentAccepted && t('validation.consentRequired')}</FieldError>
 
-              <label className="flex items-start gap-2 text-sm text-slate">
-                <input type="checkbox" className="mt-0.5" {...register('passportConsentAccepted')} />
+              <label className="flex items-start gap-2.5 text-sm text-slate">
+                <CustomCheckbox {...register('passportConsentAccepted')} />
                 {t('travelRequest.passportConsent')}
               </label>
               <FieldError>{errors.passportConsentAccepted && t('validation.passportConsentRequired')}</FieldError>
