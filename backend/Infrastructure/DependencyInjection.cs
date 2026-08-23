@@ -5,12 +5,13 @@ using AeroTravel.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace AeroTravel.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration, IHostEnvironment env)
     {
         var connectionString = configuration["ConnectionStrings:Default"]
             ?? Environment.GetEnvironmentVariable("DATABASE_URL")
@@ -34,8 +35,21 @@ public static class DependencyInjection
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
 
+        // R2 (Cloudflare's S3-compatible object storage) is production storage for passport
+        // photos — see DEC-012. LocalFileStorageService stays available, unmodified, for local
+        // `dotnet run` without AWS-shaped credentials on hand: only switch to it when no R2
+        // credentials are configured AND we're in Development, so a production/staging
+        // environment that's missing R2 credentials fails loudly (via R2FileStorageService
+        // throwing on first use) instead of silently falling back to ephemeral local disk.
+        var r2Section = configuration.GetSection("Storage:R2");
         services.Configure<LocalFileStorageOptions>(configuration.GetSection("Storage"));
-        services.AddSingleton<IFileStorageService, LocalFileStorageService>();
+        services.Configure<R2FileStorageOptions>(r2Section);
+
+        var hasR2Credentials = !string.IsNullOrWhiteSpace(r2Section["AccessKey"]) && !string.IsNullOrWhiteSpace(r2Section["SecretKey"]);
+        if (env.IsDevelopment() && !hasR2Credentials)
+            services.AddSingleton<IFileStorageService, LocalFileStorageService>();
+        else
+            services.AddSingleton<IFileStorageService, R2FileStorageService>();
 
         return services;
     }

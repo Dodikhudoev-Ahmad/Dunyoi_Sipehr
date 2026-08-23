@@ -24,7 +24,7 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
 
 // ---- Application / Infrastructure ----
 builder.Services.AddApplication();
-builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddInfrastructure(builder.Configuration, builder.Environment);
 
 // Enums (Currency, Locale, TravelRequestStatus, …) serialize as their string names, not raw
 // ordinals — matches the domain model and every frontend type declared against string unions.
