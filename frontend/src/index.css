@@ -56,8 +56,8 @@
   --color-gold: #c9a24b;
 
   /* Aero Map "premium" page-header treatment (AeroMapBackground tone="adaptive") —
-     line/dot color, three opacity levels, and the gradient wash behind the map.
-     Adaptive: overridden under :root.dark below so the motif reads as gold-on-dark
+      line/dot color, three opacity levels, and the gradient wash behind the map.
+      Adaptive: overridden under :root.dark below so the motif reads as gold-on-dark
      with a warm glow instead of a washed-out blue-on-dark. */
   --color-map-line: var(--color-primary);
   --map-bg-opacity: 0.09;

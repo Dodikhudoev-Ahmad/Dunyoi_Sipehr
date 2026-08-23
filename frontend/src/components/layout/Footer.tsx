@@ -42,8 +42,14 @@ export function Footer() {
           <div>
             <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-sage">{t('contacts.title')}</h3>
             <ul className="space-y-3 text-[15px] text-white/70">
-              <li className="flex items-center gap-2.5"><Mail size={15} className="text-sage" /> hello@dunyoisipehr.example</li>
-              <li className="flex items-center gap-2.5"><Phone size={15} className="text-sage" /> +992 00 000 0000</li>
+              <li className="flex items-center gap-2.5">
+                <Mail size={15} className="text-sage" />
+                <a href="mailto:dunhoisipeht.tj@gmail.com" className="transition-colors hover:text-white">dunhoisipeht.tj@gmail.com</a>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <Phone size={15} className="text-sage" />
+                <a href="tel:+992006773458" className="transition-colors hover:text-white">+992 00 677 34 58</a>
+              </li>
               <li className="flex items-center gap-2.5"><MapPin size={15} className="text-sage" /> Dushanbe, Tajikistan</li>
             </ul>
           </div>
@@ -51,7 +57,7 @@ export function Footer() {
 
         <div className="mt-16 flex flex-col items-start justify-between gap-4 border-t border-white/10 pt-8 text-xs text-white/40 sm:flex-row sm:items-center">
           <span>&copy; {year} Dunyoi Sipehr. {t('footer.rights')}</span>
-          <span className="uppercase tracking-[0.14em]">Dushanbe · Dubai · Istanbul · Moscow</span>
+          <span className="uppercase tracking-[0.14em]">Dushanbe, Tajikistan</span>
         </div>
       </div>
     </footer>
