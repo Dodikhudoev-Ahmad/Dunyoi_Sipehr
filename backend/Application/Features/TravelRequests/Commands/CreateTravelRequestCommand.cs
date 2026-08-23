@@ -59,6 +59,8 @@ public class CreateTravelRequestCommandValidator : AbstractValidator<CreateTrave
             .WithMessage("Consent to process international passport/ID data is required.");
 
         RuleFor(x => x.Input.ConsentAccepted).Equal(true).WithMessage("Consent is required.");
+
+        RuleFor(x => x.Input.Message).MaximumLength(500);
     }
 }
 

@@ -624,7 +624,8 @@ namespace AeroTravel.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(200)");
 
                     b.Property<string>("Message")
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("MiddleName")
                         .HasMaxLength(200)
