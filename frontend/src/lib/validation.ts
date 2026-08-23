@@ -38,7 +38,7 @@ export const travelRequestSchema = z
     passengersAdults: z.number().int().min(1, { message: 'validation.min0' }).max(MAX_PASSENGERS, { message: 'validation.maxPassengers' }),
     passengersChildren: z.number().int().min(0, { message: 'validation.min0' }).max(MAX_PASSENGERS, { message: 'validation.maxPassengers' }),
     childrenAges: z.array(z.number().int().min(0).max(MAX_CHILD_AGE, { message: 'validation.invalidChildAge' })),
-    message: z.string().trim().max(2000).optional(),
+    message: z.string().trim().max(500).optional(),
     consentAccepted: z.literal(true, { message: 'validation.consentRequired' }),
     passportConsentAccepted: z.literal(true, { message: 'validation.passportConsentRequired' }),
     website: z.string().max(0).optional(),
