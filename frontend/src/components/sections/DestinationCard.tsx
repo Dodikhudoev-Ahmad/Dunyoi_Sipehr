@@ -45,7 +45,7 @@ export function DestinationCard({ destination, index = 0, size = 'default', fill
             // `w-full` is required alongside `h-full`: once a tile gets a definite height from
             // CSS Grid stretch (the `fill` case), `aspect-ratio` would otherwise compute width
             // *from* that height (ballooning far past the grid column) instead of respecting it.
-            'relative flex h-full w-full overflow-hidden rounded-sm ring-1 ring-inset ring-dark/[0.06]',
+            'relative flex h-full w-full overflow-hidden rounded-2xl ring-1 ring-inset ring-dark/[0.06] transition-shadow duration-500 group-hover:shadow-xl group-hover:shadow-dark/20',
             aspectClass,
           )}
         >
@@ -58,8 +58,10 @@ export function DestinationCard({ destination, index = 0, size = 'default', fill
           />
           <div className="absolute inset-0 bg-gradient-to-t from-dark/85 via-dark/10 to-transparent" />
 
+          <span className="absolute left-5 top-5 font-display text-sm text-white/50">{String(index + 1).padStart(2, '0')}</span>
+
           {destination.isFeatured && (
-            <span className="absolute left-5 top-5 text-[11px] font-medium uppercase tracking-[0.16em] text-sage">
+            <span className="absolute left-5 top-14 text-[11px] font-medium uppercase tracking-[0.16em] text-sage">
               {t('destinations.featuredTag')}
             </span>
           )}
@@ -78,7 +80,7 @@ export function DestinationCard({ destination, index = 0, size = 'default', fill
                 {destination.summary}
               </p>
             </div>
-            <span className="mb-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/30 text-white transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:border-sage group-hover:text-sage">
+            <span className="mb-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/30 text-white opacity-100 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:border-sage group-hover:text-sage lg:opacity-0 lg:group-hover:opacity-100">
               <ArrowUpRight size={16} />
             </span>
           </div>
