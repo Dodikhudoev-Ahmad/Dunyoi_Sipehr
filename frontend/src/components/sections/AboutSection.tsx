@@ -53,7 +53,7 @@ export function AboutSection() {
               <h2 className="font-display text-3xl font-medium leading-[1.15] tracking-tight md:text-4xl">
                 {about.data.title}
               </h2>
-              <p className="mt-5 line-clamp-3 max-w-md text-[16px] leading-relaxed text-muted md:line-clamp-none">{about.data.body}</p>
+              <p className="mt-5 line-clamp-3 max-w-md text-[16px] leading-relaxed text-muted">{about.data.body}</p>
             </>
           )}
 
