@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
@@ -14,6 +15,7 @@ export function OfferCard({ offer, index = 0, className }: { offer: Offer; index
   const currency = currencySymbol(t, offer.currency)
   const cover = offer.heroImageUrl ?? offer.galleryUrls?.[0]
   const eyebrow = offer.durationDays ? t('offers.duration', { count: offer.durationDays }) : t('offers.eyebrowFallback')
+  const [loaded, setLoaded] = useState(false)
 
   return (
     <motion.div
@@ -31,7 +33,11 @@ export function OfferCard({ offer, index = 0, className }: { offer: Offer; index
               alt={offer.title}
               loading="lazy"
               decoding="async"
-              className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+              onLoad={() => setLoaded(true)}
+              className={cn(
+                'h-full w-full object-cover transition-[opacity,transform] duration-500 ease-out group-hover:scale-[1.04]',
+                loaded ? 'opacity-100' : 'opacity-0',
+              )}
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-brand-subtle text-brand/40">

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { ArrowUpRight } from 'lucide-react'
@@ -24,6 +25,7 @@ export function DestinationCard({ destination, index = 0, size = 'default', fill
   const { t } = useTranslation()
   const locale = useLocale()
   const large = size === 'large'
+  const [loaded, setLoaded] = useState(false)
 
   const aspectClass = fill
     ? 'aspect-[4/5] lg:aspect-auto'
@@ -54,14 +56,16 @@ export function DestinationCard({ destination, index = 0, size = 'default', fill
             alt={destination.title}
             loading="lazy"
             decoding="async"
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+            onLoad={() => setLoaded(true)}
+            className={cn(
+              'absolute inset-0 h-full w-full object-cover transition-[opacity,transform] duration-500 ease-out group-hover:scale-[1.04]',
+              loaded ? 'opacity-100' : 'opacity-0',
+            )}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-dark/85 via-dark/10 to-transparent" />
 
-          <span className="absolute left-5 top-5 font-display text-sm text-white/50">{String(index + 1).padStart(2, '0')}</span>
-
           {destination.isFeatured && (
-            <span className="absolute left-5 top-14 text-[11px] font-medium uppercase tracking-[0.16em] text-sage">
+            <span className="absolute left-5 top-5 text-[11px] font-medium uppercase tracking-[0.16em] text-sage">
               {t('destinations.featuredTag')}
             </span>
           )}
