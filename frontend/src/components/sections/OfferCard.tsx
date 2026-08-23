@@ -24,7 +24,7 @@ export function OfferCard({ offer, index = 0, className }: { offer: Offer; index
       className={cn('group h-full', className)}
     >
       <NavLink to={localizedPath(locale, `/offers/${offer.slug}`)} className="flex h-full flex-col">
-        <div className="relative aspect-[4/3] overflow-hidden rounded-sm bg-dark/5 ring-1 ring-inset ring-dark/[0.06]">
+        <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-dark/5 ring-1 ring-inset ring-dark/[0.06]">
           {cover ? (
             <img
               src={optimizeImageUrl(cover, 800)}
