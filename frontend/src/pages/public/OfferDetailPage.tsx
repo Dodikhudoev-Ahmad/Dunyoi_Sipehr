@@ -91,7 +91,7 @@ export function OfferDetailPage() {
                   <img
                     key={i}
                     src={optimizeImageUrl(url, 500)}
-                    alt=""
+                    alt={`${o.title} ${i + 2}`}
                     loading="lazy"
                     decoding="async"
                     className="aspect-square w-full rounded-xl object-cover"

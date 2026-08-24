@@ -124,7 +124,7 @@ export function DestinationDetailPage() {
               <img
                 key={i}
                 src={optimizeImageUrl(url, 900)}
-                alt=""
+                alt={d.galleryUrls.length > 1 ? `${d.title} ${i + 1}` : d.title}
                 loading="lazy"
                 decoding="async"
                 className="aspect-4/3 w-full rounded-2xl object-cover"
