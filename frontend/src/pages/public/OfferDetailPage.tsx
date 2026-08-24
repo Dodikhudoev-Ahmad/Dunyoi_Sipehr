@@ -10,6 +10,8 @@ import { ErrorState } from '@/components/ui/ErrorState'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { Button } from '@/components/ui/Button'
 import { NotFoundPage } from '@/pages/public/NotFoundPage'
+import { Seo } from '@/components/seo/Seo'
+import { pageTitle } from '@/lib/seo'
 import { currencySymbol } from '@/lib/currency'
 import { editorialImages } from '@/lib/editorialImages'
 import { optimizeImageUrl } from '@/lib/imageOptimize'
@@ -23,6 +25,7 @@ export function OfferDetailPage() {
   if (offer.isPending) {
     return (
       <>
+        <Seo title={pageTitle(t('nav.offers'))} path={`/offers/${slug}`} />
         <PageHero image={editorialImages.offersHeader} eyebrow={t('nav.offers')} title={<span className="opacity-0">.</span>} />
         <Section>
           <Skeleton className="h-8 w-64" />
@@ -36,6 +39,7 @@ export function OfferDetailPage() {
     if (offer.error.status === 404) return <NotFoundPage />
     return (
       <>
+        <Seo title={pageTitle(t('common.error'))} path={`/offers/${slug}`} noindex />
         <PageHero image={editorialImages.offersHeader} eyebrow={t('nav.offers')} title={t('common.error')} />
         <Section>
           <ErrorState onRetry={() => offer.refetch()} />
@@ -53,6 +57,7 @@ export function OfferDetailPage() {
 
   return (
     <>
+      <Seo title={pageTitle(o.title)} path={`/offers/${slug}`} />
       {/* The cover photo lives here, in the hero banner, only — no second full-width repeat of
           it below (that was the reported bug: the same image rendered twice in a row). Any
           additional photos become a compact gallery grid instead. */}

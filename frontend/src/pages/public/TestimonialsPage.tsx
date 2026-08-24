@@ -7,6 +7,8 @@ import { SkeletonCardGrid } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { TestimonialCard } from '@/components/sections/TestimonialCard'
+import { Seo } from '@/components/seo/Seo'
+import { pageTitle } from '@/lib/seo'
 import { editorialImages } from '@/lib/editorialImages'
 
 export function TestimonialsPage() {
@@ -16,6 +18,7 @@ export function TestimonialsPage() {
 
   return (
     <>
+      <Seo title={pageTitle(t('testimonialsPage.title'))} path="/testimonials" />
       <PageHero image={editorialImages.brandStatement} eyebrow={t('nav.testimonials')} title={t('testimonialsPage.title')} />
       <Section>
         {testimonials.isPending && <SkeletonCardGrid count={6} />}
