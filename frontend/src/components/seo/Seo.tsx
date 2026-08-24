@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async'
 import { useLocale, localizedPath } from '@/i18n/LocaleContext'
-import { absoluteUrl, DEFAULT_DESCRIPTION } from '@/lib/seo'
+import { absoluteUrl, organizationJsonLd, DEFAULT_DESCRIPTION } from '@/lib/seo'
+import logo from '@/assets/brand/logo.png'
 
 interface SeoProps {
   /** Full <title> text, e.g. via `pageTitle()` — not just the page name. */
@@ -24,7 +25,10 @@ interface SeoProps {
 export function Seo({ title, path, description = DEFAULT_DESCRIPTION, image, type = 'website', noindex, jsonLd }: SeoProps) {
   const locale = useLocale()
   const canonical = absoluteUrl(localizedPath(locale, path))
-  const jsonLdList = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : []
+  // Organization schema is site-wide identity, not per-page content — every public page carries
+  // it automatically (via Seo, which every public page already renders) rather than each page
+  // remembering to pass it. Page-specific schema (e.g. offer Product/Offer) layers on top.
+  const jsonLdList = [organizationJsonLd(logo), ...(jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [])]
 
   return (
     <Helmet>

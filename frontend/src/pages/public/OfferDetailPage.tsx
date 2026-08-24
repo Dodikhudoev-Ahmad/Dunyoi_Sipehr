@@ -11,7 +11,7 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { Button } from '@/components/ui/Button'
 import { NotFoundPage } from '@/pages/public/NotFoundPage'
 import { Seo } from '@/components/seo/Seo'
-import { pageTitle, ogImageUrl } from '@/lib/seo'
+import { pageTitle, ogImageUrl, absoluteUrl, offerProductJsonLd } from '@/lib/seo'
 import { currencySymbol } from '@/lib/currency'
 import { editorialImages } from '@/lib/editorialImages'
 import { optimizeImageUrl } from '@/lib/imageOptimize'
@@ -54,6 +54,7 @@ export function OfferDetailPage() {
   const cover = gallery[0]
 
   const hasFareDetails = Boolean(o.durationDays || o.validUntilUtc)
+  const canonicalUrl = absoluteUrl(localizedPath(locale, `/offers/${slug}`))
 
   return (
     <>
@@ -62,6 +63,10 @@ export function OfferDetailPage() {
         path={`/offers/${slug}`}
         description={o.summary}
         image={cover ? ogImageUrl(cover) : undefined}
+        jsonLd={offerProductJsonLd(
+          { title: o.title, summary: o.summary, priceFrom: o.priceFrom, currency: o.currency, image: cover ? ogImageUrl(cover) : undefined },
+          canonicalUrl,
+        )}
       />
       {/* The cover photo lives here, in the hero banner, only — no second full-width repeat of
           it below (that was the reported bug: the same image rendered twice in a row). Any

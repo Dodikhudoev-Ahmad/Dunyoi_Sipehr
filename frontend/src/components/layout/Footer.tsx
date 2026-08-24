@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Mail, Phone, MapPin } from 'lucide-react'
 import { useLocale, localizedPath } from '@/i18n/LocaleContext'
+import { SITE_CONTACT } from '@/lib/seo'
 import logo from '@/assets/brand/logo.png'
 
 export function Footer() {
@@ -44,11 +45,11 @@ export function Footer() {
             <ul className="space-y-3 text-[15px] text-white/70">
               <li className="flex items-center gap-2.5">
                 <Mail size={15} className="text-sage" />
-                <a href="mailto:dunhoisipeht.tj@gmail.com" className="transition-colors hover:text-white">dunhoisipeht.tj@gmail.com</a>
+                <a href={`mailto:${SITE_CONTACT.email}`} className="transition-colors hover:text-white">{SITE_CONTACT.email}</a>
               </li>
               <li className="flex items-center gap-2.5">
                 <Phone size={15} className="text-sage" />
-                <a href="tel:+992006773458" className="transition-colors hover:text-white">+992 00 677 34 58</a>
+                <a href={`tel:${SITE_CONTACT.phone}`} className="transition-colors hover:text-white">{SITE_CONTACT.phoneDisplay}</a>
               </li>
               <li className="flex items-center gap-2.5"><MapPin size={15} className="text-sage" /> Dushanbe, Tajikistan</li>
             </ul>
