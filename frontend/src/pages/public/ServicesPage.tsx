@@ -8,7 +8,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { ServicesEditorial } from '@/components/sections/ServicesEditorial'
 import { Seo } from '@/components/seo/Seo'
-import { pageTitle } from '@/lib/seo'
+import { pageTitle, ogImageUrl } from '@/lib/seo'
 import { editorialImages } from '@/lib/editorialImages'
 
 export function ServicesPage() {
@@ -18,7 +18,12 @@ export function ServicesPage() {
 
   return (
     <>
-      <Seo title={pageTitle(t('services.title'))} path="/services" />
+      <Seo
+        title={pageTitle(t('services.title'))}
+        path="/services"
+        description={t('services.subtitle')}
+        image={ogImageUrl(editorialImages.servicesHeader)}
+      />
       <PageHero image={editorialImages.servicesHeader} eyebrow={t('nav.services')} title={t('services.title')} subtitle={t('services.subtitle')} />
       <Section>
         {services.isPending && (

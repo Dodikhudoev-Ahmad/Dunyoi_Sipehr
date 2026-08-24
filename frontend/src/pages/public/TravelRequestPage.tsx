@@ -17,7 +17,7 @@ import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { FieldLabel, FieldError, Input, Select } from '@/components/ui/Input'
 import { Seo } from '@/components/seo/Seo'
-import { pageTitle } from '@/lib/seo'
+import { pageTitle, ogImageUrl } from '@/lib/seo'
 import { editorialImages } from '@/lib/editorialImages'
 import { cn } from '@/lib/cn'
 
@@ -314,7 +314,12 @@ export function TravelRequestPage() {
 
   return (
     <>
-      <Seo title={pageTitle(t('travelRequest.title'))} path="/travel-request" />
+      <Seo
+        title={pageTitle(t('travelRequest.title'))}
+        path="/travel-request"
+        description={t('travelRequest.subtitle')}
+        image={ogImageUrl(editorialImages.travelRequestHeader)}
+      />
       <PageHero
         image={editorialImages.travelRequestHeader}
         eyebrow={t('nav.travelRequest')}

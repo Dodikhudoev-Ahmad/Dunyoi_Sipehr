@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/Card'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { Seo } from '@/components/seo/Seo'
-import { pageTitle } from '@/lib/seo'
+import { pageTitle, ogImageUrl } from '@/lib/seo'
 import { editorialImages } from '@/lib/editorialImages'
 
 export function ContactsPage() {
@@ -18,7 +18,7 @@ export function ContactsPage() {
 
   return (
     <>
-      <Seo title={pageTitle(t('contacts.title'))} path="/contacts" />
+      <Seo title={pageTitle(t('contacts.title'))} path="/contacts" image={ogImageUrl(editorialImages.contactsHeader)} />
       <PageHero image={editorialImages.contactsHeader} eyebrow={t('nav.contacts')} title={t('contacts.title')} />
       <Section>
         {content.isPending && <Skeleton className="h-40 w-full max-w-xl" />}

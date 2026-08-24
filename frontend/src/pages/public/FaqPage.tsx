@@ -10,7 +10,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { cn } from '@/lib/cn'
 import { Seo } from '@/components/seo/Seo'
-import { pageTitle } from '@/lib/seo'
+import { pageTitle, ogImageUrl } from '@/lib/seo'
 import { editorialImages } from '@/lib/editorialImages'
 
 export function FaqPage() {
@@ -21,7 +21,7 @@ export function FaqPage() {
 
   return (
     <>
-      <Seo title={pageTitle(t('faqPage.title'))} path="/faq" />
+      <Seo title={pageTitle(t('faqPage.title'))} path="/faq" image={ogImageUrl(editorialImages.faqHeader)} />
       <PageHero image={editorialImages.faqHeader} eyebrow={t('nav.faq')} title={t('faqPage.title')} />
       <Section>
         {faq.isPending && (
