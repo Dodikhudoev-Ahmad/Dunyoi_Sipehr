@@ -2,7 +2,8 @@ import { useTranslation } from 'react-i18next'
 import { useLocale } from '@/i18n/LocaleContext'
 import { useServices } from '@/hooks/usePublicData'
 import { Seo } from '@/components/seo/Seo'
-import { pageTitle } from '@/lib/seo'
+import { pageTitle, ogImageUrl } from '@/lib/seo'
+import { editorialImages } from '@/lib/editorialImages'
 import { Section } from '@/components/ui/Section'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { Skeleton } from '@/components/ui/Skeleton'
@@ -24,7 +25,12 @@ export function HomePage() {
 
   return (
     <>
-      <Seo title={pageTitle(t('home.heroTitle').replace(/\s*\n\s*/g, ' '))} path="/" />
+      <Seo
+        title={pageTitle(t('home.heroTitle').replace(/\s*\n\s*/g, ' '))}
+        path="/"
+        description={t('home.heroSubtitle')}
+        image={ogImageUrl(editorialImages.hero)}
+      />
       <HeroSection />
       <DestinationsEditorial />
       <BrandStatementBand />

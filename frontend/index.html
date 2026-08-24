@@ -4,11 +4,13 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Dunyoi Sipehr — international flight ticket search and booking. Find the best routes and fares, with support through to ticket issuance." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <title>Dunyoi Sipehr — International Flight Tickets</title>
+    <!-- No static <title>/<meta name="description"> here on purpose: react-helmet-async only
+         manages tags it renders itself, so a static tag would sit alongside (not get replaced
+         by) the per-page one — see src/lib/seo.ts DEFAULT_TITLE/DEFAULT_DESCRIPTION, rendered
+         once at the app root (App.tsx) as the single source of truth every page overrides. -->
     <script>
       // Sets the `dark` class before first paint to avoid a light-theme flash.
       // Keep in sync with src/lib/theme.ts (getInitialTheme). Defaults to dark when there's no

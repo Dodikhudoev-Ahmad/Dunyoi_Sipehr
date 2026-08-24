@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/Button'
 import { OfferCard } from '@/components/sections/OfferCard'
 import { NotFoundPage } from '@/pages/public/NotFoundPage'
 import { Seo } from '@/components/seo/Seo'
-import { pageTitle } from '@/lib/seo'
+import { pageTitle, ogImageUrl } from '@/lib/seo'
 import { editorialImages } from '@/lib/editorialImages'
 import { optimizeImageUrl } from '@/lib/imageOptimize'
 import { cn } from '@/lib/cn'
@@ -62,7 +62,12 @@ export function DestinationDetailPage() {
 
   return (
     <>
-      <Seo title={pageTitle(d.title)} path={`/destinations/${slug}`} />
+      <Seo
+        title={pageTitle(d.title)}
+        path={`/destinations/${slug}`}
+        description={d.summary}
+        image={ogImageUrl(d.heroImageUrl)}
+      />
       {/* Full-bleed hero — the destination's own photo, once. Nothing below repeats it. */}
       <PageHero
         image={d.heroImageUrl || editorialImages.destinationsHeader}

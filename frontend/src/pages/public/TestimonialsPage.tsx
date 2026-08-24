@@ -8,7 +8,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { TestimonialCard } from '@/components/sections/TestimonialCard'
 import { Seo } from '@/components/seo/Seo'
-import { pageTitle } from '@/lib/seo'
+import { pageTitle, ogImageUrl } from '@/lib/seo'
 import { editorialImages } from '@/lib/editorialImages'
 
 export function TestimonialsPage() {
@@ -18,7 +18,7 @@ export function TestimonialsPage() {
 
   return (
     <>
-      <Seo title={pageTitle(t('testimonialsPage.title'))} path="/testimonials" />
+      <Seo title={pageTitle(t('testimonialsPage.title'))} path="/testimonials" image={ogImageUrl(editorialImages.brandStatement)} />
       <PageHero image={editorialImages.brandStatement} eyebrow={t('nav.testimonials')} title={t('testimonialsPage.title')} />
       <Section>
         {testimonials.isPending && <SkeletonCardGrid count={6} />}

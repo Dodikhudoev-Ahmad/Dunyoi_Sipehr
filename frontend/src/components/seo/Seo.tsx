@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async'
 import { useLocale, localizedPath } from '@/i18n/LocaleContext'
-import { absoluteUrl } from '@/lib/seo'
+import { absoluteUrl, DEFAULT_DESCRIPTION } from '@/lib/seo'
 
 interface SeoProps {
   /** Full <title> text, e.g. via `pageTitle()` — not just the page name. */
@@ -20,9 +20,6 @@ interface SeoProps {
   /** One or more JSON-LD objects, each rendered as its own <script type="application/ld+json">. */
   jsonLd?: object | object[]
 }
-
-const DEFAULT_DESCRIPTION =
-  'Dunyoi Sipehr — international flight ticket search and booking. Find the best routes and fares, with support through to ticket issuance.'
 
 export function Seo({ title, path, description = DEFAULT_DESCRIPTION, image, type = 'website', noindex, jsonLd }: SeoProps) {
   const locale = useLocale()

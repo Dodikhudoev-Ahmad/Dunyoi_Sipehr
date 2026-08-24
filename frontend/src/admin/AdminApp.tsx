@@ -1,4 +1,5 @@
 import { Routes, Route, useLocation } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { AdminErrorBoundary } from '@/admin/components/ErrorBoundary'
 import { AdminLayout } from '@/admin/components/AdminLayout'
 import { ProtectedRoute } from '@/admin/components/ProtectedRoute'
@@ -44,6 +45,16 @@ export default function AdminApp() {
     // Keyed by pathname so navigating to a different admin route (even client-side, without a
     // full reload) remounts the boundary and clears a previous crash instead of getting stuck.
     <AdminErrorBoundary key={location.pathname}>
+      {/* Admin isn't crawlable (robots.txt disallows /admin/) and none of these pages render
+          their own <Seo> — this just keeps the browser tab title sane. AdminNotFound below is
+          the one exception (it nests the public NotFoundPage, which has its own Seo); that page
+          briefly ends up with two <title> tags as a result, which is harmless (document.title
+          still resolves correctly — see src/lib/seo.ts) and not worth the complexity of avoiding
+          on a route that's disallowed from indexing either way. */}
+      <Helmet>
+        <title>Dunyoi Sipehr — Admin</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <Routes>
         <Route path="login" element={<LoginPage />} />
         {/* Unlinked — first-run only, see docs/DECISIONS.md */}

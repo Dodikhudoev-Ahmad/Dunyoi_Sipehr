@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { useLocale } from '@/i18n/LocaleContext'
 import { useDestinations } from '@/hooks/usePublicData'
 import { Seo } from '@/components/seo/Seo'
-import { pageTitle } from '@/lib/seo'
+import { pageTitle, ogImageUrl } from '@/lib/seo'
 import { Section } from '@/components/ui/Section'
 import { PageHero } from '@/components/ui/PageHero'
 import { SkeletonCardGrid } from '@/components/ui/Skeleton'
@@ -18,7 +18,12 @@ export function DestinationsListPage() {
 
   return (
     <>
-      <Seo title={pageTitle(t('destinations.title'))} path="/destinations" />
+      <Seo
+        title={pageTitle(t('destinations.title'))}
+        path="/destinations"
+        description={t('destinations.subtitle')}
+        image={ogImageUrl(editorialImages.destinationsHeader)}
+      />
       <PageHero
         image={editorialImages.destinationsHeader}
         eyebrow={t('nav.destinations')}

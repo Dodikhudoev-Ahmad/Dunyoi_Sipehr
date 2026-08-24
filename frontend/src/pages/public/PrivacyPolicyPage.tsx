@@ -15,7 +15,7 @@ export function PrivacyPolicyPage() {
 
   return (
     <>
-      <Seo title={pageTitle(t('privacy.title'))} path="/privacy-policy" />
+      <Seo title={pageTitle(t('privacy.title'))} path="/privacy-policy" description={content.data?.body || undefined} />
       <Section withMap className="pt-16">
         <h1 className="mb-8 text-3xl font-medium md:text-5xl">{t('privacy.title')}</h1>
 

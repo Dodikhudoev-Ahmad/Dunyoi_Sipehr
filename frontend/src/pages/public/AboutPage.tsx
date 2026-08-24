@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Seo } from '@/components/seo/Seo'
-import { pageTitle } from '@/lib/seo'
+import { pageTitle, ogImageUrl } from '@/lib/seo'
 import { editorialImages } from '@/lib/editorialImages'
 
 export function AboutPage() {
@@ -17,7 +17,12 @@ export function AboutPage() {
 
   return (
     <>
-      <Seo title={pageTitle(t('about.title'))} path="/about" />
+      <Seo
+        title={pageTitle(t('about.title'))}
+        path="/about"
+        description={content.data?.body || undefined}
+        image={ogImageUrl(editorialImages.about)}
+      />
       <PageHero image={editorialImages.about} eyebrow={t('nav.about')} title={t('about.title')} />
       <Section>
         {content.isPending && (
