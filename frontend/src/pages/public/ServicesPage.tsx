@@ -7,6 +7,8 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { ServicesEditorial } from '@/components/sections/ServicesEditorial'
+import { Seo } from '@/components/seo/Seo'
+import { pageTitle } from '@/lib/seo'
 import { editorialImages } from '@/lib/editorialImages'
 
 export function ServicesPage() {
@@ -16,6 +18,7 @@ export function ServicesPage() {
 
   return (
     <>
+      <Seo title={pageTitle(t('services.title'))} path="/services" />
       <PageHero image={editorialImages.servicesHeader} eyebrow={t('nav.services')} title={t('services.title')} subtitle={t('services.subtitle')} />
       <Section>
         {services.isPending && (
