@@ -11,7 +11,7 @@ import { OfferCard } from '@/components/sections/OfferCard'
 export function CuratedOffers() {
   const { t } = useTranslation()
   const locale = useLocale()
-  const offers = useOffers(locale, { featured: true, pageSize: 3 })
+  const offers = useOffers(locale, { featured: true, pageSize: 6 })
 
   return (
     <Section tone="paper" className="pt-20 md:pt-28">
