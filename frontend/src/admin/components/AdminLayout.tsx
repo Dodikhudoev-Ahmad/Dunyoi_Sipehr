@@ -11,6 +11,7 @@ import {
   FileText,
   Inbox,
   ScrollText,
+  KanbanSquare,
   LogOut,
   Menu,
   X,
@@ -26,19 +27,23 @@ interface NavItem {
   label: string
   icon: typeof LayoutDashboard
   end?: boolean
+  /** Разделы управления контентом сайта — их видит только SuperAdmin.
+   *  CRM-менеджер (роль Editor) работает только с заявками и воронкой. */
+  superAdminOnly?: boolean
 }
 
 const NAV: NavItem[] = [
   { to: '/admin', label: 'Дашборд', icon: LayoutDashboard, end: true },
-  { to: '/admin/destinations', label: 'Направления', icon: MapPinned },
-  { to: '/admin/offers', label: 'Предложения', icon: Tag },
-  { to: '/admin/services', label: 'Услуги', icon: Wrench },
-  { to: '/admin/countries-cities', label: 'Страны и города', icon: Globe2 },
-  { to: '/admin/testimonials', label: 'Отзывы', icon: MessageSquareQuote },
-  { to: '/admin/faq', label: 'Вопросы', icon: HelpCircle },
-  { to: '/admin/site-content', label: 'Контент сайта', icon: FileText },
+  { to: '/admin/crm', label: 'CRM — воронка', icon: KanbanSquare },
   { to: '/admin/travel-requests', label: 'Заявки', icon: Inbox },
-  { to: '/admin/audit-log', label: 'Журнал аудита', icon: ScrollText },
+  { to: '/admin/destinations', label: 'Направления', icon: MapPinned, superAdminOnly: true },
+  { to: '/admin/offers', label: 'Предложения', icon: Tag, superAdminOnly: true },
+  { to: '/admin/services', label: 'Услуги', icon: Wrench, superAdminOnly: true },
+  { to: '/admin/countries-cities', label: 'Страны и города', icon: Globe2, superAdminOnly: true },
+  { to: '/admin/testimonials', label: 'Отзывы', icon: MessageSquareQuote, superAdminOnly: true },
+  { to: '/admin/faq', label: 'Вопросы', icon: HelpCircle, superAdminOnly: true },
+  { to: '/admin/site-content', label: 'Контент сайта', icon: FileText, superAdminOnly: true },
+  { to: '/admin/audit-log', label: 'Журнал аудита', icon: ScrollText, superAdminOnly: true },
 ]
 
 interface SidebarContentProps {
@@ -51,6 +56,9 @@ interface SidebarContentProps {
 /** Shared nav/profile markup for the static desktop sidebar and the mobile drawer — kept in one
  * place so the two surfaces can't drift out of sync with each other. */
 function SidebarContent({ admin, onLogout, onNavigate, headerExtra }: SidebarContentProps) {
+  // CRM-менеджеру (роль Editor) показываем только Дашборд, CRM и Заявки.
+  // SuperAdmin видит все разделы, включая управление контентом сайта.
+  const navItems = NAV.filter((item) => !item.superAdminOnly || admin?.role === 'SuperAdmin')
   return (
     <>
       <div className="flex items-center gap-2.5 px-6 py-6 font-display text-lg">
@@ -59,7 +67,7 @@ function SidebarContent({ admin, onLogout, onNavigate, headerExtra }: SidebarCon
         {headerExtra}
       </div>
       <nav className="flex-1 space-y-1 px-3">
-        {NAV.map(({ to, label, icon: Icon, end }) => (
+        {navItems.map(({ to, label, icon: Icon, end }) => (
           <NavLink
             key={to}
             to={to}

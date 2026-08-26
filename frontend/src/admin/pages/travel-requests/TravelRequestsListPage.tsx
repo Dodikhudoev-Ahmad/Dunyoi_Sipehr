@@ -12,16 +12,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { useListState } from '@/admin/hooks/useListState'
 import { Pagination } from '@/admin/components/Pagination'
 import { Select } from '@/components/ui/Input'
-
-const STATUSES: TravelRequestStatus[] = ['New', 'Contacted', 'Qualified', 'Won', 'Lost']
-
-const STATUS_TONE: Record<TravelRequestStatus, 'brand' | 'warning' | 'accent' | 'success' | 'danger'> = {
-  New: 'brand',
-  Contacted: 'warning',
-  Qualified: 'accent',
-  Won: 'success',
-  Lost: 'danger',
-}
+import { STATUS_ORDER, STATUS_LABEL, STATUS_TONE } from '@/admin/lib/requestStatus'
 
 export function TravelRequestsListPage() {
   const navigate = useNavigate()
@@ -38,7 +29,7 @@ export function TravelRequestsListPage() {
     { key: 'fullName', header: 'ФИО', render: (r) => [r.lastName, r.firstName, r.middleName].filter(Boolean).join(' ') },
     { key: 'phone', header: 'Телефон', render: (r) => <span className="text-slate">{r.phone}</span> },
     { key: 'destination', header: 'Направление', render: (r) => r.destinationSnapshotTitle ?? r.offerSnapshotTitle ?? '—' },
-    { key: 'status', header: 'Статус', sortable: true, render: (r) => <Badge tone={STATUS_TONE[r.status]}>{r.status}</Badge> },
+    { key: 'status', header: 'Статус', sortable: true, render: (r) => <Badge tone={STATUS_TONE[r.status]}>{STATUS_LABEL[r.status]}</Badge> },
   ]
 
   return (
@@ -48,9 +39,9 @@ export function TravelRequestsListPage() {
         action={
           <Select value={status} onChange={(e) => { setStatus(e.target.value as TravelRequestStatus | ''); setPage(1) }} className="w-48">
             <option value="">Все статусы</option>
-            {STATUSES.map((s) => (
+            {STATUS_ORDER.map((s) => (
               <option key={s} value={s}>
-                {s}
+                {STATUS_LABEL[s]}
               </option>
             ))}
           </Select>

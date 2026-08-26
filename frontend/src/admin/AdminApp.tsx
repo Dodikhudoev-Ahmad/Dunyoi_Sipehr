@@ -18,6 +18,7 @@ import { FaqListPage } from '@/admin/pages/faq/FaqListPage'
 import { FaqFormPage } from '@/admin/pages/faq/FaqFormPage'
 import { SiteContentPage } from '@/admin/pages/site-content/SiteContentPage'
 import { CountriesCitiesPage } from '@/admin/pages/countries-cities/CountriesCitiesPage'
+import { CrmBoardPage } from '@/admin/pages/crm/CrmBoardPage'
 import { TravelRequestsListPage } from '@/admin/pages/travel-requests/TravelRequestsListPage'
 import { TravelRequestDetailPage } from '@/admin/pages/travel-requests/TravelRequestDetailPage'
 import { AuditLogPage } from '@/admin/pages/audit-log/AuditLogPage'
@@ -75,6 +76,7 @@ export default function AdminApp() {
             <Route path="faq/:id" element={<FaqFormPage />} />
             <Route path="site-content" element={<SiteContentPage />} />
             <Route path="countries-cities" element={<CountriesCitiesPage />} />
+            <Route path="crm" element={<CrmBoardPage />} />
             <Route path="travel-requests" element={<TravelRequestsListPage />} />
             <Route path="travel-requests/:id" element={<TravelRequestDetailPage />} />
             <Route path="audit-log" element={<AuditLogPage />} />
