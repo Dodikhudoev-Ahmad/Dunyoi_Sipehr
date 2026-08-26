@@ -14,16 +14,7 @@ import { ErrorState } from '@/components/ui/ErrorState'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { useToast } from '@/components/ui/Toast'
 import { adminErrorMessage } from '@/lib/apiError'
-
-const STATUSES: TravelRequestStatus[] = ['New', 'Contacted', 'Qualified', 'Won', 'Lost']
-
-const STATUS_TONE: Record<TravelRequestStatus, 'brand' | 'warning' | 'accent' | 'success' | 'danger'> = {
-  New: 'brand',
-  Contacted: 'warning',
-  Qualified: 'accent',
-  Won: 'success',
-  Lost: 'danger',
-}
+import { STATUS_ORDER, STATUS_LABEL, STATUS_TONE } from '@/admin/lib/requestStatus'
 
 /** Passport photos are never a public URL — fetched as an authenticated blob and rendered via a
  * local object URL, revoked on unmount to avoid leaking the decoded image in memory. */
@@ -90,7 +81,7 @@ export function TravelRequestDetailPage() {
       <button onClick={() => navigate('/admin/travel-requests')} className="mb-4 flex items-center gap-1 text-sm text-slate hover:text-text">
         <ArrowLeft size={14} /> К списку заявок
       </button>
-      <PageHeader title={fullName} action={<Badge tone={STATUS_TONE[r.status]}>{r.status}</Badge>} />
+      <PageHeader title={fullName} action={<Badge tone={STATUS_TONE[r.status]}>{STATUS_LABEL[r.status]}</Badge>} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="space-y-3 p-6 lg:col-span-2">
@@ -133,7 +124,7 @@ export function TravelRequestDetailPage() {
         <Card className="space-y-3 p-6">
           <p className="text-sm font-medium text-slate">Изменить статус</p>
           <div className="flex flex-wrap gap-2">
-            {STATUSES.map((s) => (
+            {STATUS_ORDER.map((s) => (
               <Button
                 key={s}
                 size="sm"
@@ -141,7 +132,7 @@ export function TravelRequestDetailPage() {
                 disabled={setStatus.isPending}
                 onClick={() => setStatus.mutate(s)}
               >
-                {s}
+                {STATUS_LABEL[s]}
               </Button>
             ))}
           </div>
