@@ -26,6 +26,7 @@ public class AdminSiteContentController(ISender mediator, ICurrentUserService cu
         => (await Mediator.Send(new GetAdminSiteContentByIdQuery(id), ct)).ToActionResult().Result!;
 
     [HttpPost]
+    [Authorize(Roles = nameof(AdminRole.SuperAdmin))]
     public async Task<IActionResult> Create([FromBody] UpsertSiteContentInput input, CancellationToken ct)
     {
         var result = await Mediator.Send(new CreateSiteContentCommand(input, CurrentAdminUserId), ct);
@@ -35,6 +36,7 @@ public class AdminSiteContentController(ISender mediator, ICurrentUserService cu
     }
 
     [HttpPut("{id:guid}")]
+    [Authorize(Roles = nameof(AdminRole.SuperAdmin))]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpsertSiteContentInput input, CancellationToken ct)
         => (await Mediator.Send(new UpdateSiteContentCommand(id, input, CurrentAdminUserId), ct)).ToActionResult();
 

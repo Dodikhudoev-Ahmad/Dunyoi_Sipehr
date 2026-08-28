@@ -1,16 +1,17 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { Phone, Plane, Users, ChevronLeft, ChevronRight, TrendingUp, Inbox, CheckCircle2, Percent } from 'lucide-react'
+import { Phone, Plane, Users, ChevronLeft, ChevronRight, TrendingUp, Inbox, CheckCircle2, Percent, AlertTriangle } from 'lucide-react'
 import { travelRequestsApi } from '@/api/travelRequests'
-import type { TravelRequest, TravelRequestStatus } from '@/types/domain'
+import type { Currency, TravelRequest, TravelRequestStatus } from '@/types/domain'
 import { PageHeader } from '@/admin/components/PageHeader'
+import { DealValueModal } from '@/admin/components/DealValueModal'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { useToast } from '@/components/ui/Toast'
 import { adminErrorMessage } from '@/lib/apiError'
 import { cn } from '@/lib/cn'
-import { STATUS_ORDER, STATUS_LABEL, STATUS_ACCENT } from '@/admin/lib/requestStatus'
+import { STATUS_ORDER, STATUS_LABEL, STATUS_ACCENT, isFollowUpOverdue } from '@/admin/lib/requestStatus'
 
 // Ключ кэша react-query для списка заявок на доске — выносим в одно место,
 // чтобы и загрузка, и обновление статуса ссылались на один и тот же список.
@@ -47,10 +48,11 @@ function RequestCard({
 }) {
   const fullName = [request.lastName, request.firstName].filter(Boolean).join(' ')
   const destination = request.destinationSnapshotTitle ?? request.offerSnapshotTitle ?? '—'
-  const passengers = request.passengersAdults + request.passengersChildren
+  const passengers = (request.passengersAdults ?? 0) + (request.passengersChildren ?? 0)
   // Позиция статуса в воронке — нужна, чтобы отключить стрелку «назад» на первом
   // этапе и «вперёд» на последнем.
   const idx = STATUS_ORDER.indexOf(request.status)
+  const overdue = isFollowUpOverdue(request)
 
   return (
     <div
@@ -58,11 +60,17 @@ function RequestCard({
       draggable
       onDragStart={onDragStart}
       className={cn(
-        'group rounded-xl border border-text/8 bg-paper p-3 shadow-[0_1px_2px_rgba(11,15,20,0.04)] transition-shadow hover:shadow-[0_6px_18px_rgba(11,15,20,0.10)]',
+        'group rounded-xl border bg-paper p-3 shadow-[0_1px_2px_rgba(11,15,20,0.04)] transition-shadow hover:shadow-[0_6px_18px_rgba(11,15,20,0.10)]',
+        overdue ? 'border-danger/40 bg-danger/5' : 'border-text/8',
         isBusy && 'pointer-events-none opacity-50',
       )}
     >
       <button onClick={onOpen} className="block w-full text-left">
+        {overdue && (
+          <p className="mb-1.5 flex items-center gap-1 text-[11px] font-medium text-danger">
+            <AlertTriangle size={11} /> Просрочено напоминание
+          </p>
+        )}
         <p className="truncate text-sm font-medium">{fullName}</p>
         <p className="mt-1.5 flex items-center gap-1.5 truncate text-xs text-slate">
           <Plane size={12} className="shrink-0" /> {destination}
@@ -76,6 +84,11 @@ function RequestCard({
           </span>
           <span>{new Date(request.createdAtUtc).toLocaleDateString('ru')}</span>
         </div>
+        {request.dealValue != null && (
+          <p className="mt-2 text-sm font-semibold text-success">
+            {request.dealValue.toLocaleString('ru')} {request.dealCurrency}
+          </p>
+        )}
       </button>
 
       {/* Стрелки перемещения по воронке — основной способ на телефоне,
@@ -108,6 +121,9 @@ export function CrmBoardPage() {
   const { showToast } = useToast()
   // Запоминаем, какую карточку тащим мышью, чтобы узнать её при «отпускании» на колонке.
   const [dragged, setDragged] = useState<TravelRequest | null>(null)
+  // Заявка, которую пытаются перевести в «Успех» без указанной суммы сделки — пока ждём ввод в
+  // модалке, сам статус ещё не меняется.
+  const [pendingWonRequest, setPendingWonRequest] = useState<TravelRequest | null>(null)
 
   // Грузим все заявки одним запросом (до 100) и раскладываем по колонкам на клиенте.
   const board = useQuery({
@@ -136,6 +152,12 @@ export function CrmBoardPage() {
     onSettled: () => void queryClient.invalidateQueries({ queryKey: BOARD_KEY }),
   })
 
+  const setDealValue = useMutation({
+    mutationFn: ({ id, value, currency }: { id: string; value: number; currency: Currency }) =>
+      travelRequestsApi.adminUpdateDealValue(id, value, currency),
+    onError: (error) => showToast(adminErrorMessage('Не удалось сохранить сумму сделки', error), 'error'),
+  })
+
   if (board.isPending) return <Skeleton className="h-96 w-full" />
   if (board.isError) return <ErrorState onRetry={() => board.refetch()} />
 
@@ -150,15 +172,26 @@ export function CrmBoardPage() {
   const closed = won + lost
   const conversion = closed > 0 ? Math.round((won / closed) * 100) : 0
 
+  // Единая точка входа для любого перехода статуса на доске (стрелки и drag-n-drop оба идут
+  // через неё) — так бизнес-правило «нет суммы сделки — нет перехода в Успех» не обходится ни
+  // одним из двух способов взаимодействия.
+  const changeStatus = (request: TravelRequest, status: TravelRequestStatus) => {
+    if (status === 'Won' && request.dealValue == null) {
+      setPendingWonRequest(request)
+      return
+    }
+    setStatus.mutate({ id: request.id, status })
+  }
+
   // Перемещение карточки на N этапов вперёд/назад по массиву STATUS_ORDER.
   const move = (request: TravelRequest, dir: -1 | 1) => {
     const next = STATUS_ORDER[STATUS_ORDER.indexOf(request.status) + dir]
-    if (next) setStatus.mutate({ id: request.id, status: next })
+    if (next) changeStatus(request, next)
   }
 
   // Отпустили карточку на колонку: если статус реально меняется — сохраняем.
   const drop = (status: TravelRequestStatus) => {
-    if (dragged && dragged.status !== status) setStatus.mutate({ id: dragged.id, status })
+    if (dragged && dragged.status !== status) changeStatus(dragged, status)
     setDragged(null)
   }
 
@@ -215,6 +248,32 @@ export function CrmBoardPage() {
           })}
         </div>
       </div>
+
+      <DealValueModal
+        open={pendingWonRequest !== null}
+        onClose={() => setPendingWonRequest(null)}
+        isPending={setDealValue.isPending || setStatus.isPending}
+        onConfirm={(value, currency) => {
+          if (!pendingWonRequest) return
+          const id = pendingWonRequest.id
+          setDealValue.mutate(
+            { id, value, currency },
+            {
+              onSuccess: () => {
+                setStatus.mutate(
+                  { id, status: 'Won' },
+                  {
+                    onSuccess: () => {
+                      showToast('Сделка закрыта успешно')
+                      setPendingWonRequest(null)
+                    },
+                  },
+                )
+              },
+            },
+          )
+        }}
+      />
     </div>
   )
 }

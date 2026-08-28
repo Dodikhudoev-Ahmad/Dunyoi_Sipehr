@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { ChevronUp, ChevronDown } from 'lucide-react'
+import { cn } from '@/lib/cn'
 
 export interface Column<T> {
   key: string
@@ -15,9 +16,11 @@ interface DataTableProps<T> {
   sort?: string
   dir?: 'asc' | 'desc'
   onSort?: (key: string) => void
+  /** Extra classes for a specific row — e.g. flagging an overdue follow-up. */
+  rowClassName?: (row: T) => string | undefined
 }
 
-export function DataTable<T>({ columns, rows, rowKey, sort, dir, onSort }: DataTableProps<T>) {
+export function DataTable<T>({ columns, rows, rowKey, sort, dir, onSort, rowClassName }: DataTableProps<T>) {
   return (
     <div className="overflow-x-auto rounded-xl border border-text/10 bg-elevated">
       <table className="w-full min-w-[640px] text-left text-sm">
@@ -39,7 +42,7 @@ export function DataTable<T>({ columns, rows, rowKey, sort, dir, onSort }: DataT
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={rowKey(row)} className="border-b border-text/5 last:border-0 hover:bg-text/2">
+            <tr key={rowKey(row)} className={cn('border-b border-text/5 last:border-0 hover:bg-text/2', rowClassName?.(row))}>
               {columns.map((col) => (
                 <td key={col.key} className="px-4 py-3 align-middle">
                   {col.render(row)}

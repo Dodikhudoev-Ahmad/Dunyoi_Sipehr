@@ -14,6 +14,7 @@ public interface IApplicationDbContext
     DbSet<FaqItem> FaqItems { get; }
     DbSet<SiteContent> SiteContents { get; }
     DbSet<TravelRequest> TravelRequests { get; }
+    DbSet<TravelRequestNote> TravelRequestNotes { get; }
     DbSet<AdminUser> AdminUsers { get; }
     DbSet<RefreshToken> RefreshTokens { get; }
     DbSet<AuditLog> AuditLogs { get; }
@@ -33,6 +34,7 @@ public interface IReadDbContext
     IQueryable<FaqItem> FaqItems { get; }
     IQueryable<SiteContent> SiteContents { get; }
     IQueryable<TravelRequest> TravelRequests { get; }
+    IQueryable<TravelRequestNote> TravelRequestNotes { get; }
     IQueryable<AdminUser> AdminUsers { get; }
     IQueryable<AuditLog> AuditLogs { get; }
 }

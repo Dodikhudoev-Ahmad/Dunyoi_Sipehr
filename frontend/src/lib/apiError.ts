@@ -13,6 +13,7 @@ const ADMIN_ERROR_MESSAGES: Record<ApiErrorCode, string> = {
   RATE_LIMITED: 'слишком много попыток, повторите позже',
   BOOTSTRAP_ALREADY_DONE: 'администратор уже создан',
   INVALID_CREDENTIALS: 'неверный e-mail или пароль',
+  ACCOUNT_DEACTIVATED: 'учётная запись деактивирована',
   INVALID_REFRESH_TOKEN: 'сессия истекла, войдите заново',
   INVALID_TRANSITION: 'такой переход статуса недопустим',
   NETWORK_ERROR: 'сервер недоступен',

@@ -64,3 +64,50 @@ public class AssignTravelRequestCommandHandler(IApplicationDbContext db) : IRequ
         return Result.Success();
     }
 }
+
+public record UpdateTravelRequestDealValueCommand(Guid Id, decimal Value, Currency Currency, Guid? AdminUserId) : IRequest<Result>;
+
+public class UpdateTravelRequestDealValueCommandValidator : AbstractValidator<UpdateTravelRequestDealValueCommand>
+{
+    public UpdateTravelRequestDealValueCommandValidator()
+    {
+        RuleFor(x => x.Value).GreaterThan(0);
+        RuleFor(x => x.Currency).IsInEnum();
+    }
+}
+
+public class UpdateTravelRequestDealValueCommandHandler(IApplicationDbContext db) : IRequestHandler<UpdateTravelRequestDealValueCommand, Result>
+{
+    public async Task<Result> Handle(UpdateTravelRequestDealValueCommand request, CancellationToken cancellationToken)
+    {
+        var travelRequest = await db.TravelRequests.FirstOrDefaultAsync(t => t.Id == request.Id, cancellationToken);
+        if (travelRequest is null)
+            return Result.Failure(Error.NotFound("NOT_FOUND", "Travel request not found."));
+
+        travelRequest.SetDealValue(request.Value, request.Currency);
+
+        db.AuditLogs.Add(new AuditLog(nameof(TravelRequest), travelRequest.Id, "SetDealValue", request.AdminUserId,
+            $"{{\"value\":{request.Value},\"currency\":\"{request.Currency}\"}}"));
+        await db.SaveChangesAsync(cancellationToken);
+        return Result.Success();
+    }
+}
+
+public record UpdateNextFollowUpCommand(Guid Id, DateTime? Date, Guid? AdminUserId) : IRequest<Result>;
+
+public class UpdateNextFollowUpCommandHandler(IApplicationDbContext db) : IRequestHandler<UpdateNextFollowUpCommand, Result>
+{
+    public async Task<Result> Handle(UpdateNextFollowUpCommand request, CancellationToken cancellationToken)
+    {
+        var travelRequest = await db.TravelRequests.FirstOrDefaultAsync(t => t.Id == request.Id, cancellationToken);
+        if (travelRequest is null)
+            return Result.Failure(Error.NotFound("NOT_FOUND", "Travel request not found."));
+
+        travelRequest.SetNextFollowUp(request.Date);
+
+        db.AuditLogs.Add(new AuditLog(nameof(TravelRequest), travelRequest.Id, "SetFollowUp", request.AdminUserId,
+            $"{{\"date\":\"{request.Date:o}\"}}"));
+        await db.SaveChangesAsync(cancellationToken);
+        return Result.Success();
+    }
+}

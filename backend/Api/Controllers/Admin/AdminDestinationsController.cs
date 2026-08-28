@@ -26,6 +26,7 @@ public class AdminDestinationsController(ISender mediator, ICurrentUserService c
         => (await Mediator.Send(new GetAdminDestinationByIdQuery(id), ct)).ToActionResult().Result!;
 
     [HttpPost]
+    [Authorize(Roles = nameof(AdminRole.SuperAdmin))]
     public async Task<IActionResult> Create([FromBody] UpsertDestinationInput input, CancellationToken ct)
     {
         var result = await Mediator.Send(new CreateDestinationCommand(input, CurrentAdminUserId), ct);
@@ -35,6 +36,7 @@ public class AdminDestinationsController(ISender mediator, ICurrentUserService c
     }
 
     [HttpPut("{id:guid}")]
+    [Authorize(Roles = nameof(AdminRole.SuperAdmin))]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpsertDestinationInput input, CancellationToken ct)
         => (await Mediator.Send(new UpdateDestinationCommand(id, input, CurrentAdminUserId), ct)).ToActionResult();
 

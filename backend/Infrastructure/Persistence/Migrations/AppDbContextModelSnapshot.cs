@@ -604,6 +604,13 @@ namespace AeroTravel.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int?>("DealCurrency")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal?>("DealValue")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)");
+
                     b.Property<DateOnly>("DepartureDate")
                         .HasColumnType("date");
 
@@ -630,6 +637,9 @@ namespace AeroTravel.Infrastructure.Persistence.Migrations
                     b.Property<string>("MiddleName")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime?>("NextFollowUpAtUtc")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("OfferId")
                         .HasColumnType("uuid");
@@ -681,11 +691,42 @@ namespace AeroTravel.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("DestinationId");
 
+                    b.HasIndex("NextFollowUpAtUtc");
+
                     b.HasIndex("OfferId");
 
                     b.HasIndex("Status");
 
                     b.ToTable("TravelRequests");
+                });
+
+            modelBuilder.Entity("AeroTravel.Domain.Entities.TravelRequestNote", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AuthorAdminUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<Guid>("TravelRequestId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorAdminUserId");
+
+                    b.HasIndex("TravelRequestId");
+
+                    b.ToTable("TravelRequestNotes");
                 });
 
             modelBuilder.Entity("AeroTravel.Domain.Entities.City", b =>
@@ -832,6 +873,21 @@ namespace AeroTravel.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("OfferId")
                         .OnDelete(DeleteBehavior.SetNull);
+                });
+
+            modelBuilder.Entity("AeroTravel.Domain.Entities.TravelRequestNote", b =>
+                {
+                    b.HasOne("AeroTravel.Domain.Entities.AdminUser", null)
+                        .WithMany()
+                        .HasForeignKey("AuthorAdminUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AeroTravel.Domain.Entities.TravelRequest", null)
+                        .WithMany()
+                        .HasForeignKey("TravelRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("AeroTravel.Domain.Entities.AdminUser", b =>

@@ -20,7 +20,7 @@ export function AuditLogPage() {
   })
 
   const columns: Column<AuditLog>[] = [
-    { key: 'timestamp', header: 'Время', render: (l) => new Date(l.timestamp).toLocaleString('ru') },
+    { key: 'timestampUtc', header: 'Время', render: (l) => new Date(l.timestampUtc).toLocaleString('ru') },
     { key: 'entityType', header: 'Сущность', render: (l) => l.entityType },
     { key: 'action', header: 'Действие', render: (l) => l.action },
     { key: 'adminUserId', header: 'Администратор', render: (l) => l.adminUserId ?? 'система' },

@@ -26,6 +26,7 @@ public class AdminTestimonialsController(ISender mediator, ICurrentUserService c
         => (await Mediator.Send(new GetAdminTestimonialByIdQuery(id), ct)).ToActionResult().Result!;
 
     [HttpPost]
+    [Authorize(Roles = nameof(AdminRole.SuperAdmin))]
     public async Task<IActionResult> Create([FromBody] UpsertTestimonialInput input, CancellationToken ct)
     {
         var result = await Mediator.Send(new CreateTestimonialCommand(input, CurrentAdminUserId), ct);
@@ -35,6 +36,7 @@ public class AdminTestimonialsController(ISender mediator, ICurrentUserService c
     }
 
     [HttpPut("{id:guid}")]
+    [Authorize(Roles = nameof(AdminRole.SuperAdmin))]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpsertTestimonialInput input, CancellationToken ct)
         => (await Mediator.Send(new UpdateTestimonialCommand(id, input, CurrentAdminUserId), ct)).ToActionResult();
 

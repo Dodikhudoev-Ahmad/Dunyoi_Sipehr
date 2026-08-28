@@ -321,6 +321,34 @@ export interface TravelRequest {
   sourceIp: string | null
   sourceLocale: Locale
   assignedAdminUserId: string | null
+  assignedAdminDisplayName: string | null
+  dealValue: number | null
+  dealCurrency: Currency | null
+  nextFollowUpAtUtc: string | null
+}
+
+export interface TravelRequestNote {
+  id: string
+  travelRequestId: string
+  text: string
+  createdAtUtc: string
+  authorAdminUserId: string
+  authorDisplayName: string
+}
+
+export interface AdminStaff {
+  id: string
+  displayName: string
+  email: string
+  role: AdminRole
+  isActive: boolean
+  createdAtUtc: string
+}
+
+/** Minimal shape for "assign to" dropdowns — active staff only. */
+export interface AssignableAdmin {
+  id: string
+  displayName: string
 }
 
 // Mirrors backend AdminUserDto exactly (Application/Features/Auth/Dtos/AuthDtos.cs) — every
@@ -340,6 +368,9 @@ export interface AuditLog {
   entityId: string
   action: string
   adminUserId: string | null
-  timestamp: string
+  /** Backend serializes `AuditLogDto.TimestampUtc` — matching the field name here (was
+   * mistakenly `timestamp`, which never matched any real response field, so every render of an
+   * audit entry's time showed "Invalid Date"). */
+  timestampUtc: string
   detailsJson: string | null
 }

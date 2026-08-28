@@ -58,6 +58,7 @@ function mapErrorCode(status: number, problem: ProblemDetails | undefined): ApiE
     'RATE_LIMITED',
     'BOOTSTRAP_ALREADY_DONE',
     'INVALID_CREDENTIALS',
+    'ACCOUNT_DEACTIVATED',
     'INVALID_REFRESH_TOKEN',
     'INVALID_TRANSITION',
   ]

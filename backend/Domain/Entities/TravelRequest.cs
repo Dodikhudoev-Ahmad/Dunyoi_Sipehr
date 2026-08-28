@@ -45,6 +45,17 @@ public class TravelRequest : Entity
 
     public Guid? AssignedAdminUserId { get; private set; }
 
+    /// CRM deal value — set once a request is being worked, not required until the operator
+    /// actually wants to record one (nullable). See DEC entry: the *requirement* that a value be
+    /// set before closing a deal as Won is enforced client-side (a UI gate before the status-
+    /// change API call fires), not here — the state machine above is intentionally untouched.
+    public decimal? DealValue { get; private set; }
+    public Currency? DealCurrency { get; private set; }
+
+    /// Next-contact reminder — nullable, cleared by passing null. Purely a CRM operator aid (see
+    /// Kanban/list red-flag highlighting); has no effect on the status state machine.
+    public DateTime? NextFollowUpAtUtc { get; private set; }
+
     private TravelRequest() { }
 
     public TravelRequest(
@@ -98,4 +109,12 @@ public class TravelRequest : Entity
     }
 
     public void AssignTo(Guid? adminUserId) => AssignedAdminUserId = adminUserId;
+
+    public void SetDealValue(decimal value, Currency currency)
+    {
+        DealValue = value;
+        DealCurrency = currency;
+    }
+
+    public void SetNextFollowUp(DateTime? nextFollowUpAtUtc) => NextFollowUpAtUtc = nextFollowUpAtUtc;
 }

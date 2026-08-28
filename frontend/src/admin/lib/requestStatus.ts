@@ -1,4 +1,4 @@
-import type { TravelRequestStatus } from '@/types/domain'
+import type { TravelRequest, TravelRequestStatus } from '@/types/domain'
 
 /**
  * Единый источник правды для CRM-воронки заявок.
@@ -35,4 +35,17 @@ export const STATUS_ACCENT: Record<TravelRequestStatus, string> = {
   Qualified: 'bg-brand-accent',
   Won: 'bg-success',
   Lost: 'bg-danger',
+}
+
+/** Overdue = a reminder date in the past on a request that's still actually open — a Won/Lost
+ * deal with a stale reminder isn't "overdue" in any meaningful sense, it's just closed. Shared by
+ * the Kanban board and the list table so the same request is never flagged in one place and not
+ * the other. */
+export function isFollowUpOverdue(request: Pick<TravelRequest, 'nextFollowUpAtUtc' | 'status'>): boolean {
+  return (
+    request.nextFollowUpAtUtc !== null &&
+    new Date(request.nextFollowUpAtUtc) < new Date() &&
+    request.status !== 'Won' &&
+    request.status !== 'Lost'
+  )
 }

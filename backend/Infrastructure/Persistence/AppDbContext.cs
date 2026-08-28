@@ -15,6 +15,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<FaqItem> FaqItems => Set<FaqItem>();
     public DbSet<SiteContent> SiteContents => Set<SiteContent>();
     public DbSet<TravelRequest> TravelRequests => Set<TravelRequest>();
+    public DbSet<TravelRequestNote> TravelRequestNotes => Set<TravelRequestNote>();
     public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
@@ -28,6 +29,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     IQueryable<FaqItem> IReadDbContext.FaqItems => FaqItems.AsNoTracking();
     IQueryable<SiteContent> IReadDbContext.SiteContents => SiteContents.AsNoTracking();
     IQueryable<TravelRequest> IReadDbContext.TravelRequests => TravelRequests.AsNoTracking();
+    IQueryable<TravelRequestNote> IReadDbContext.TravelRequestNotes => TravelRequestNotes.AsNoTracking();
     IQueryable<AdminUser> IReadDbContext.AdminUsers => AdminUsers.AsNoTracking();
     IQueryable<AuditLog> IReadDbContext.AuditLogs => AuditLogs.AsNoTracking();
 
