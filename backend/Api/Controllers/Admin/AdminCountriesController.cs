@@ -26,6 +26,7 @@ public class AdminCountriesController(ISender mediator, ICurrentUserService curr
         => (await Mediator.Send(new GetAdminCountryByIdQuery(id), ct)).ToActionResult().Result!;
 
     [HttpPost]
+    [Authorize(Roles = nameof(AdminRole.SuperAdmin))]
     public async Task<IActionResult> Create([FromBody] UpsertCountryInput input, CancellationToken ct)
     {
         var result = await Mediator.Send(new CreateCountryCommand(input, CurrentAdminUserId), ct);
@@ -35,6 +36,7 @@ public class AdminCountriesController(ISender mediator, ICurrentUserService curr
     }
 
     [HttpPut("{id:guid}")]
+    [Authorize(Roles = nameof(AdminRole.SuperAdmin))]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpsertCountryInput input, CancellationToken ct)
         => (await Mediator.Send(new UpdateCountryCommand(id, input, CurrentAdminUserId), ct)).ToActionResult();
 

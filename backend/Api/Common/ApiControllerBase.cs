@@ -19,4 +19,5 @@ public abstract class ApiControllerBase(ISender mediator) : ControllerBase
 public abstract class AdminApiControllerBase(ISender mediator, ICurrentUserService currentUser) : ApiControllerBase(mediator)
 {
     protected Guid? CurrentAdminUserId => currentUser.AdminUserId;
+    protected AdminRole? CurrentAdminRole => currentUser.Role;
 }

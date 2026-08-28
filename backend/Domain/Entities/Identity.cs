@@ -25,6 +25,9 @@ public class AdminUser : Entity
 
     public void SetPasswordHash(string passwordHash) => PasswordHash = passwordHash;
     public void Deactivate() => IsActive = false;
+    public void Activate() => IsActive = true;
+    public void SetDisplayName(string displayName) => DisplayName = displayName;
+    public void SetRole(AdminRole role) => Role = role;
 
     public RefreshToken IssueRefreshToken(string tokenHash, DateTime expiresAtUtc, string? createdByIp)
     {

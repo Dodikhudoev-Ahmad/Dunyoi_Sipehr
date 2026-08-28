@@ -26,6 +26,7 @@ public class AdminCitiesController(ISender mediator, ICurrentUserService current
         => (await Mediator.Send(new GetAdminCityByIdQuery(id), ct)).ToActionResult().Result!;
 
     [HttpPost]
+    [Authorize(Roles = nameof(AdminRole.SuperAdmin))]
     public async Task<IActionResult> Create([FromBody] UpsertCityInput input, CancellationToken ct)
     {
         var result = await Mediator.Send(new CreateCityCommand(input, CurrentAdminUserId), ct);
@@ -35,6 +36,7 @@ public class AdminCitiesController(ISender mediator, ICurrentUserService current
     }
 
     [HttpPut("{id:guid}")]
+    [Authorize(Roles = nameof(AdminRole.SuperAdmin))]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpsertCityInput input, CancellationToken ct)
         => (await Mediator.Send(new UpdateCityCommand(id, input, CurrentAdminUserId), ct)).ToActionResult();
 

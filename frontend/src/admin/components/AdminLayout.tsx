@@ -12,6 +12,8 @@ import {
   Inbox,
   ScrollText,
   KanbanSquare,
+  Users,
+  Crown,
   LogOut,
   Menu,
   X,
@@ -43,6 +45,7 @@ const NAV: NavItem[] = [
   { to: '/admin/testimonials', label: 'Отзывы', icon: MessageSquareQuote, superAdminOnly: true },
   { to: '/admin/faq', label: 'Вопросы', icon: HelpCircle, superAdminOnly: true },
   { to: '/admin/site-content', label: 'Контент сайта', icon: FileText, superAdminOnly: true },
+  { to: '/admin/staff', label: 'Сотрудники', icon: Users, superAdminOnly: true },
   { to: '/admin/audit-log', label: 'Журнал аудита', icon: ScrollText, superAdminOnly: true },
 ]
 
@@ -89,7 +92,16 @@ function SidebarContent({ admin, onLogout, onNavigate, headerExtra }: SidebarCon
           <p className="truncate text-sm">{admin?.displayName ?? admin?.email}</p>
           <ThemeToggle dark />
         </div>
-        <p className="text-xs text-white/50">{admin?.role}</p>
+        {admin?.role === 'SuperAdmin' ? (
+          <span
+            className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-dark"
+            style={{ background: 'linear-gradient(135deg, var(--color-gold) 0%, #e8c976 50%, var(--color-gold) 100%)' }}
+          >
+            <Crown size={11} strokeWidth={2.5} /> SuperAdmin
+          </span>
+        ) : (
+          <p className="text-xs text-white/50">{admin?.role}</p>
+        )}
         <button
           onClick={onLogout}
           className="mt-3 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-white/75 hover:bg-white/10 hover:text-white"

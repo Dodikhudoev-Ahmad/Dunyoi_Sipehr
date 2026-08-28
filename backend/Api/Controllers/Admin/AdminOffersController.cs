@@ -27,6 +27,7 @@ public class AdminOffersController(ISender mediator, ICurrentUserService current
         => (await Mediator.Send(new GetAdminOfferByIdQuery(id), ct)).ToActionResult().Result!;
 
     [HttpPost]
+    [Authorize(Roles = nameof(AdminRole.SuperAdmin))]
     public async Task<IActionResult> Create([FromBody] UpsertOfferInput input, CancellationToken ct)
     {
         var result = await Mediator.Send(new CreateOfferCommand(input, CurrentAdminUserId), ct);
@@ -36,6 +37,7 @@ public class AdminOffersController(ISender mediator, ICurrentUserService current
     }
 
     [HttpPut("{id:guid}")]
+    [Authorize(Roles = nameof(AdminRole.SuperAdmin))]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpsertOfferInput input, CancellationToken ct)
         => (await Mediator.Send(new UpdateOfferCommand(id, input, CurrentAdminUserId), ct)).ToActionResult();
 

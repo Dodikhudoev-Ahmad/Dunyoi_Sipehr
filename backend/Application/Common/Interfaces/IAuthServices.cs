@@ -1,4 +1,5 @@
 using AeroTravel.Domain.Entities;
+using AeroTravel.Domain.Enums;
 
 namespace AeroTravel.Application.Common.Interfaces;
 
@@ -18,6 +19,7 @@ public interface IJwtTokenGenerator
 public interface ICurrentUserService
 {
     Guid? AdminUserId { get; }
+    AdminRole? Role { get; }
     string? IpAddress { get; }
 }
 

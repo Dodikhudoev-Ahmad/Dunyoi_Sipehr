@@ -1,5 +1,6 @@
 using AeroTravel.Application.Common.Interfaces;
 using AeroTravel.Domain.Entities;
+using AeroTravel.Domain.Enums;
 using AeroTravel.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -38,9 +39,10 @@ public class FakeJwtTokenGenerator : IJwtTokenGenerator
     public string HashRefreshTokenValue(string rawValue) => $"hash:{rawValue}";
 }
 
-public class FakeCurrentUserService(Guid? adminUserId = null) : ICurrentUserService
+public class FakeCurrentUserService(Guid? adminUserId = null, AdminRole? role = null) : ICurrentUserService
 {
     public Guid? AdminUserId { get; } = adminUserId;
+    public AdminRole? Role { get; } = role;
     public string? IpAddress => "127.0.0.1";
 }
 

@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async'
 import { AdminErrorBoundary } from '@/admin/components/ErrorBoundary'
 import { AdminLayout } from '@/admin/components/AdminLayout'
 import { ProtectedRoute } from '@/admin/components/ProtectedRoute'
+import { SuperAdminRoute } from '@/admin/components/SuperAdminRoute'
 import { LoginPage } from '@/admin/pages/LoginPage'
 import { BootstrapPage } from '@/admin/pages/BootstrapPage'
 import { DashboardPage } from '@/admin/pages/DashboardPage'
@@ -22,6 +23,7 @@ import { CrmBoardPage } from '@/admin/pages/crm/CrmBoardPage'
 import { TravelRequestsListPage } from '@/admin/pages/travel-requests/TravelRequestsListPage'
 import { TravelRequestDetailPage } from '@/admin/pages/travel-requests/TravelRequestDetailPage'
 import { AuditLogPage } from '@/admin/pages/audit-log/AuditLogPage'
+import { StaffListPage } from '@/admin/pages/staff/StaffListPage'
 import { NotFoundPage } from '@/pages/public/NotFoundPage'
 import { LocaleProvider } from '@/i18n/LocaleContext'
 
@@ -64,22 +66,30 @@ export default function AdminApp() {
         <Route element={<ProtectedRoute />}>
           <Route element={<AdminLayout />}>
             <Route index element={<DashboardPage />} />
-            <Route path="destinations" element={<DestinationsListPage />} />
-            <Route path="destinations/:id" element={<DestinationFormPage />} />
-            <Route path="offers" element={<OffersListPage />} />
-            <Route path="offers/:id" element={<OfferFormPage />} />
-            <Route path="services" element={<ServicesListPage />} />
-            <Route path="services/:id" element={<ServiceFormPage />} />
-            <Route path="testimonials" element={<TestimonialsListPage />} />
-            <Route path="testimonials/:id" element={<TestimonialFormPage />} />
-            <Route path="faq" element={<FaqListPage />} />
-            <Route path="faq/:id" element={<FaqFormPage />} />
-            <Route path="site-content" element={<SiteContentPage />} />
-            <Route path="countries-cities" element={<CountriesCitiesPage />} />
             <Route path="crm" element={<CrmBoardPage />} />
             <Route path="travel-requests" element={<TravelRequestsListPage />} />
             <Route path="travel-requests/:id" element={<TravelRequestDetailPage />} />
-            <Route path="audit-log" element={<AuditLogPage />} />
+
+            {/* Content management + staff + audit log — SuperAdmin only. The sidebar already
+                hides these links for Editor, but this route guard is the real, independent check
+                (not a CSS trick) for anyone who navigates straight to the URL. */}
+            <Route element={<SuperAdminRoute />}>
+              <Route path="destinations" element={<DestinationsListPage />} />
+              <Route path="destinations/:id" element={<DestinationFormPage />} />
+              <Route path="offers" element={<OffersListPage />} />
+              <Route path="offers/:id" element={<OfferFormPage />} />
+              <Route path="services" element={<ServicesListPage />} />
+              <Route path="services/:id" element={<ServiceFormPage />} />
+              <Route path="testimonials" element={<TestimonialsListPage />} />
+              <Route path="testimonials/:id" element={<TestimonialFormPage />} />
+              <Route path="faq" element={<FaqListPage />} />
+              <Route path="faq/:id" element={<FaqFormPage />} />
+              <Route path="site-content" element={<SiteContentPage />} />
+              <Route path="countries-cities" element={<CountriesCitiesPage />} />
+              <Route path="audit-log" element={<AuditLogPage />} />
+              <Route path="staff" element={<StaffListPage />} />
+            </Route>
+
             <Route path="*" element={<AdminNotFound />} />
           </Route>
         </Route>
