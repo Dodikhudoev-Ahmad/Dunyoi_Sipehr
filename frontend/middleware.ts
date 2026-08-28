@@ -60,5 +60,5 @@ export const config = {
   // Skip static assets (hashed JS/CSS/images under /assets/, plus the top-level static files) and
   // /admin/* — the admin SPA isn't part of this public-route whitelist and isn't crawled anyway
   // (robots.txt disallows /admin/); a real 404 there isn't worth the added complexity.
-  matcher: ['/((?!assets/|admin|favicon\\.(png|svg)|robots\\.txt|sitemap\\.xml).*)'],
+  matcher: ['/(?:(?!assets/|admin|favicon\\.(?:png|svg)|robots\\.txt|sitemap\\.xml).*)'],
 }
