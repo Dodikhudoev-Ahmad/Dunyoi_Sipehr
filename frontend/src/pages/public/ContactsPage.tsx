@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/Card'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { Seo } from '@/components/seo/Seo'
-import { pageTitle, ogImageUrl } from '@/lib/seo'
+import { pageTitle, ogImageUrl, SITE_CONTACT } from '@/lib/seo'
 import { editorialImages } from '@/lib/editorialImages'
 
 export function ContactsPage() {
@@ -37,14 +37,14 @@ export function ContactsPage() {
                 <Phone size={18} className="mt-0.5 shrink-0 text-brand" />
                 <div>
                   <p className="text-xs uppercase tracking-wide text-slate/70">{t('contacts.phone')}</p>
-                  <p className="text-text">+992 00 000 0000</p>
+                  <a href={`tel:${SITE_CONTACT.phone}`} className="text-text transition-colors hover:text-brand">{SITE_CONTACT.phoneDisplay}</a>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <Mail size={18} className="mt-0.5 shrink-0 text-brand" />
                 <div>
                   <p className="text-xs uppercase tracking-wide text-slate/70">{t('contacts.email')}</p>
-                  <p className="text-text">hello@dunyoisipehr.example</p>
+                  <a href={`mailto:${SITE_CONTACT.email}`} className="text-text transition-colors hover:text-brand">{SITE_CONTACT.email}</a>
                 </div>
               </div>
             </div>
