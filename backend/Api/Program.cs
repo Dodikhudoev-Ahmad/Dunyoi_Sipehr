@@ -89,11 +89,28 @@ builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-    options.AddPolicy("travel-requests", context => RateLimitPartition.GetFixedWindowLimiter(
+    // Final form submission — deliberately tight (1/min pending CAPTCHA post-domain). Kept
+    // separate from the photo-upload policy below: they used to share one "travel-requests"
+    // policy at the controller level, which meant a legitimate multi-step submission (upload a
+    // photo, then submit) was two requests against a 1/min limit — the second one always got
+    // rejected with 429, breaking the form for every real visitor, not just abusers.
+    options.AddPolicy("travel-request-submit", context => RateLimitPartition.GetFixedWindowLimiter(
         context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
         _ => new FixedWindowRateLimiterOptions
         {
             PermitLimit = 1,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0,
+        }));
+
+    // Passport-photo upload — a real submission needs up to 2 (MAX_PASSPORT_PHOTOS) plus room
+    // for a retry after a network hiccup, so 5/min still comfortably covers legitimate use while
+    // capping how many files an abuser can write per minute.
+    options.AddPolicy("travel-request-photo-upload", context => RateLimitPartition.GetFixedWindowLimiter(
+        context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 5,
             Window = TimeSpan.FromMinutes(1),
             QueueLimit = 0,
         }));
