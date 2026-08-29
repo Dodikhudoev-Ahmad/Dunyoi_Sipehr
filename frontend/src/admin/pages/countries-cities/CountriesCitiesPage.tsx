@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus } from 'lucide-react'
+import { Plus, Pencil } from 'lucide-react'
 import { countriesApi } from '@/api/countries'
 import { citiesApi } from '@/api/cities'
 import { LOCALES, type AdminCountryItem, type AdminCityItem } from '@/types/domain'
@@ -9,6 +9,7 @@ import { PageHeader } from '@/admin/components/PageHeader'
 import { DataTable, type Column } from '@/admin/components/DataTable'
 import { ConfirmDeleteButton } from '@/admin/components/ConfirmDeleteButton'
 import { Button } from '@/components/ui/Button'
+import { IconActionButton } from '@/components/ui/IconActionButton'
 import { Input, FieldLabel, FieldError } from '@/components/ui/Input'
 import { Card } from '@/components/ui/Card'
 import { Skeleton } from '@/components/ui/Skeleton'
@@ -142,10 +143,9 @@ export function CountriesCitiesPage() {
       key: 'actions',
       header: '',
       render: (c) => (
-        <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            variant="ghost"
+        <div className="flex items-center justify-end gap-1">
+          <IconActionButton
+            label="Редактировать"
             onClick={() => {
               setCountryForm({
                 id: c.id,
@@ -156,8 +156,8 @@ export function CountriesCitiesPage() {
               setCountryErrors({})
             }}
           >
-            Редактировать
-          </Button>
+            <Pencil size={16} />
+          </IconActionButton>
           <ConfirmDeleteButton onConfirm={() => deleteCountry.mutate(c.id)} disabled={deleteCountry.isPending} />
         </div>
       ),
@@ -179,10 +179,9 @@ export function CountriesCitiesPage() {
       key: 'actions',
       header: '',
       render: (c) => (
-        <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            variant="ghost"
+        <div className="flex items-center justify-end gap-1">
+          <IconActionButton
+            label="Редактировать"
             onClick={() => {
               setCityForm({
                 id: c.id,
@@ -193,8 +192,8 @@ export function CountriesCitiesPage() {
               setCityErrors({})
             }}
           >
-            Редактировать
-          </Button>
+            <Pencil size={16} />
+          </IconActionButton>
           <ConfirmDeleteButton onConfirm={() => deleteCity.mutate(c.id)} disabled={deleteCity.isPending} />
         </div>
       ),

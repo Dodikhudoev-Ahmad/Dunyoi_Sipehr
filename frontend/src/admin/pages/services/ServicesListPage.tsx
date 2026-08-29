@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { Plus } from 'lucide-react'
+import { Plus, Pencil } from 'lucide-react'
 import { servicesApi } from '@/api/services'
 import type { AdminServiceItem } from '@/types/domain'
 import { findTranslation } from '@/lib/translations'
@@ -9,6 +9,7 @@ import { DataTable, type Column } from '@/admin/components/DataTable'
 import { ConfirmDeleteButton } from '@/admin/components/ConfirmDeleteButton'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
+import { IconActionButton } from '@/components/ui/IconActionButton'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -38,10 +39,10 @@ export function ServicesListPage() {
       key: 'actions',
       header: '',
       render: (s) => (
-        <div className="flex items-center gap-2">
-          <Button size="sm" variant="ghost" onClick={() => navigate(`/admin/services/${s.id}`)}>
-            Редактировать
-          </Button>
+        <div className="flex items-center justify-end gap-1">
+          <IconActionButton label="Редактировать" onClick={() => navigate(`/admin/services/${s.id}`)}>
+            <Pencil size={16} />
+          </IconActionButton>
           <ConfirmDeleteButton onConfirm={() => remove.mutate(s.id)} disabled={remove.isPending} />
         </div>
       ),
