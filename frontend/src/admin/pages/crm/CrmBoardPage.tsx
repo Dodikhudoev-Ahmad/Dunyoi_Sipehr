@@ -12,6 +12,7 @@ import { useToast } from '@/components/ui/Toast'
 import { adminErrorMessage } from '@/lib/apiError'
 import { cn } from '@/lib/cn'
 import { STATUS_ORDER, STATUS_LABEL, STATUS_ACCENT, isFollowUpOverdue } from '@/admin/lib/requestStatus'
+import { useScrollShadow } from '@/admin/hooks/useScrollShadow'
 
 // Ключ кэша react-query для списка заявок на доске — выносим в одно место,
 // чтобы и загрузка, и обновление статуса ссылались на один и тот же список.
@@ -117,6 +118,7 @@ function RequestCard({
 
 export function CrmBoardPage() {
   const navigate = useNavigate()
+  const { ref: boardRef, canScrollLeft, canScrollRight } = useScrollShadow<HTMLDivElement>()
   const queryClient = useQueryClient()
   const { showToast } = useToast()
   // Запоминаем, какую карточку тащим мышью, чтобы узнать её при «отпускании» на колонке.
@@ -208,7 +210,8 @@ export function CrmBoardPage() {
       </div>
 
       {/* Доска: колонки в ряд с горизонтальной прокруткой на узких экранах. */}
-      <div className="-mx-5 overflow-x-auto px-5 pb-4 md:mx-0 md:px-0">
+      <div className="relative -mx-5 md:mx-0">
+        <div ref={boardRef} className="overflow-x-auto px-5 pb-4 md:px-0">
         <div className="flex gap-4" style={{ minWidth: 'min-content' }}>
           {STATUS_ORDER.map((status) => {
             const cards = items.filter((r) => r.status === status)
@@ -247,6 +250,19 @@ export function CrmBoardPage() {
             )
           })}
         </div>
+        </div>
+        <div
+          className={cn(
+            'pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-paper to-transparent transition-opacity',
+            canScrollLeft ? 'opacity-100' : 'opacity-0',
+          )}
+        />
+        <div
+          className={cn(
+            'pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-paper to-transparent transition-opacity',
+            canScrollRight ? 'opacity-100' : 'opacity-0',
+          )}
+        />
       </div>
 
       <DealValueModal
