@@ -81,7 +81,7 @@ export function TravelRequestsListPage() {
       <PageHeader
         title="Заявки на путешествие"
         action={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Select value={status} onChange={(e) => { setStatus(e.target.value as TravelRequestStatus | ''); setPage(1) }} className="w-48">
               <option value="">Все статусы</option>
               {STATUS_ORDER.map((s) => (
@@ -90,7 +90,7 @@ export function TravelRequestsListPage() {
                 </option>
               ))}
             </Select>
-            <Button size="sm" variant="secondary" onClick={handleExport} disabled={exporting}>
+            <Button size="sm" variant="secondary" onClick={handleExport} disabled={exporting} className="shrink-0 whitespace-nowrap">
               <Download size={14} /> {exporting ? 'Экспорт…' : 'Экспорт в Excel'}
             </Button>
           </div>
