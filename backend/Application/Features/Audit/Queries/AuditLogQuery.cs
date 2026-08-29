@@ -33,7 +33,10 @@ public class ListAuditLogQueryHandler(IReadDbContext db) : IRequestHandler<ListA
         query = query.ApplySort(request.SortBy, request.SortDir, SortWhitelist, "timestamp");
         var total = await query.CountAsync(cancellationToken);
         var items = await query.Skip((page - 1) * pageSize).Take(pageSize)
-            .Select(a => new AuditLogDto(a.Id, a.EntityType, a.EntityId, a.Action, a.AdminUserId, a.TimestampUtc, a.DetailsJson))
+            .Select(a => new AuditLogDto(
+                a.Id, a.EntityType, a.EntityId, a.Action, a.AdminUserId,
+                db.AdminUsers.Where(u => u.Id == a.AdminUserId).Select(u => u.DisplayName).FirstOrDefault(),
+                a.TimestampUtc, a.DetailsJson))
             .ToListAsync(cancellationToken);
 
         return Result.Success(new PagedResult<AuditLogDto>(items, page, pageSize, total));
