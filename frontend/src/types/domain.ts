@@ -368,6 +368,9 @@ export interface AuditLog {
   entityId: string
   action: string
   adminUserId: string | null
+  /** Looked up server-side from AdminUsers by adminUserId; null only when adminUserId itself is
+   * null (a system-initiated entry) or genuinely orphaned (no matching admin row). */
+  adminDisplayName: string | null
   /** Backend serializes `AuditLogDto.TimestampUtc` — matching the field name here (was
    * mistakenly `timestamp`, which never matched any real response field, so every render of an
    * audit entry's time showed "Invalid Date"). */
