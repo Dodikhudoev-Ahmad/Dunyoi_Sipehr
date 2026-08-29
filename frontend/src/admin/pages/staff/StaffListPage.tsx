@@ -184,15 +184,23 @@ export function StaffListPage() {
       key: 'role',
       header: 'Роль',
       render: (s) => (
-        <Select
-          value={s.role}
-          disabled={update.isPending || s.id === currentAdmin?.id}
-          onChange={(e) => update.mutate({ id: s.id, role: e.target.value as AdminRole })}
-          className="w-36 py-1.5 text-sm"
-        >
-          <option value="Editor">{ROLE_LABEL.Editor}</option>
-          <option value="SuperAdmin">{ROLE_LABEL.SuperAdmin}</option>
-        </Select>
+        // Fixed-width wrapper, not a width class on the <select> itself: the Select's own
+        // base styles already set w-full, and a plain width utility placed on the same
+        // element loses that cascade tie unpredictably (bit us before on the travel-requests
+        // filter). Worse here: since the table uses browser auto layout, a select stuck at
+        // w-full gives the column no stable size hint, collapsing it to near-zero width and
+        // clipping the role text down to an invisible sliver.
+        <div className="w-36">
+          <Select
+            value={s.role}
+            disabled={update.isPending || s.id === currentAdmin?.id}
+            onChange={(e) => update.mutate({ id: s.id, role: e.target.value as AdminRole })}
+            className="py-1.5 text-sm"
+          >
+            <option value="Editor">{ROLE_LABEL.Editor}</option>
+            <option value="SuperAdmin">{ROLE_LABEL.SuperAdmin}</option>
+          </Select>
+        </div>
       ),
     },
     {
