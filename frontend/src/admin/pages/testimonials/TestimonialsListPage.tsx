@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { Plus, Star } from 'lucide-react'
+import { Plus, Star, Pencil } from 'lucide-react'
 import { testimonialsApi } from '@/api/testimonials'
 import type { AdminTestimonialItem } from '@/types/domain'
 import { PageHeader } from '@/admin/components/PageHeader'
@@ -8,6 +8,7 @@ import { DataTable, type Column } from '@/admin/components/DataTable'
 import { ConfirmDeleteButton } from '@/admin/components/ConfirmDeleteButton'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
+import { IconActionButton } from '@/components/ui/IconActionButton'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -41,10 +42,10 @@ export function TestimonialsListPage() {
       key: 'actions',
       header: '',
       render: (t) => (
-        <div className="flex items-center gap-2">
-          <Button size="sm" variant="ghost" onClick={() => navigate(`/admin/testimonials/${t.id}`)}>
-            Редактировать
-          </Button>
+        <div className="flex items-center justify-end gap-1">
+          <IconActionButton label="Редактировать" onClick={() => navigate(`/admin/testimonials/${t.id}`)}>
+            <Pencil size={16} />
+          </IconActionButton>
           <ConfirmDeleteButton onConfirm={() => remove.mutate(t.id)} disabled={remove.isPending} />
         </div>
       ),

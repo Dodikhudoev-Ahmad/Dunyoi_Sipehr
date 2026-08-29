@@ -8,6 +8,7 @@ import { PageHeader } from '@/admin/components/PageHeader'
 import { DataTable, type Column } from '@/admin/components/DataTable'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
+import { IconActionButton } from '@/components/ui/IconActionButton'
 import { Modal } from '@/components/ui/Modal'
 import { FieldLabel, FieldError, Input, Select } from '@/components/ui/Input'
 import { Skeleton } from '@/components/ui/Skeleton'
@@ -213,38 +214,31 @@ export function StaffListPage() {
       key: 'actions',
       header: '',
       render: (s) => (
-        <div className="flex items-center justify-end gap-1.5">
-          <Button
-            size="sm"
-            variant="ghost"
+        <div className="flex items-center justify-end gap-1">
+          <IconActionButton
+            label="Сбросить пароль"
             onClick={() => resetPassword.mutate(s.id)}
             disabled={resetPassword.isPending}
-            title="Сбросить пароль"
           >
-            <KeyRound size={14} /> Сбросить пароль
-          </Button>
+            <KeyRound size={16} />
+          </IconActionButton>
           {s.isActive ? (
-            <Button
-              size="sm"
-              variant="ghost"
-              className="text-danger hover:bg-danger/10"
+            <IconActionButton
+              label={s.id === currentAdmin?.id ? 'Нельзя деактивировать свой аккаунт' : 'Деактивировать'}
+              tone="danger"
               onClick={() => update.mutate({ id: s.id, isActive: false })}
               disabled={update.isPending || s.id === currentAdmin?.id}
-              title={s.id === currentAdmin?.id ? 'Нельзя деактивировать свой аккаунт' : 'Деактивировать'}
             >
-              <Ban size={14} /> Деактивировать
-            </Button>
+              <Ban size={16} />
+            </IconActionButton>
           ) : (
-            <Button
-              size="sm"
-              variant="ghost"
-              className="text-success hover:bg-success/10"
+            <IconActionButton
+              label="Активировать"
               onClick={() => update.mutate({ id: s.id, isActive: true })}
               disabled={update.isPending}
-              title="Активировать"
             >
-              <CheckCircle2 size={14} /> Активировать
-            </Button>
+              <CheckCircle2 size={16} />
+            </IconActionButton>
           )}
         </div>
       ),
