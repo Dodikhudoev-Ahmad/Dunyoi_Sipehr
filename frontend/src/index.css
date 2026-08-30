@@ -126,6 +126,15 @@ h1, h2, h3, h4 {
   letter-spacing: -0.01em;
 }
 
+/* ServicesEditorial "current step" highlight for touch devices — see the IntersectionObserver
+   in that component. Scoped to hover:none so it never fights the desktop group-hover rule. */
+@media (hover: none) {
+  .step-icon[data-step-active='true'] {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
