@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { Download, AlertTriangle } from 'lucide-react'
+import { AlertTriangle } from 'lucide-react'
 import { travelRequestsApi } from '@/api/travelRequests'
 import type { TravelRequest, TravelRequestStatus } from '@/types/domain'
 import { PageHeader } from '@/admin/components/PageHeader'
@@ -17,6 +17,24 @@ import { Pagination } from '@/admin/components/Pagination'
 import { Select } from '@/components/ui/Input'
 import { adminErrorMessage } from '@/lib/apiError'
 import { STATUS_ORDER, STATUS_LABEL, STATUS_TONE, isFollowUpOverdue } from '@/admin/lib/requestStatus'
+
+/** Excel-brand mark (document + "X") for the export button — deliberately not lucide's generic
+ * Download icon, so the button reads as "export to Excel" at a glance. Uses currentColor so it
+ * stays legible against the button's green fill. */
+function ExcelIcon({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+      <path d="M14 2v6h6" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+      <path d="M8.2 12.5 15.8 19.5M15.8 12.5 8.2 19.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  )
+}
 
 export function TravelRequestsListPage() {
   const navigate = useNavigate()
@@ -94,8 +112,8 @@ export function TravelRequestsListPage() {
                 </option>
               ))}
             </Select>
-            <Button size="sm" variant="secondary" onClick={handleExport} disabled={exporting} className="shrink-0 whitespace-nowrap">
-              <Download size={14} /> {exporting ? 'Excel…' : 'Excel'}
+            <Button size="sm" variant="excel" onClick={handleExport} disabled={exporting} className="shrink-0 whitespace-nowrap">
+              <ExcelIcon size={14} /> {exporting ? 'Excel…' : 'Excel'}
             </Button>
           </div>
         }
