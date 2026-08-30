@@ -5,8 +5,8 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-display: "Fraunces", "Georgia", serif;
-  --font-sans: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Bodoni Moda", "Georgia", serif;
+  --font-sans: "Golos Text", "Helvetica Neue", Arial, sans-serif;
 
   /* ---------------------------------------------------------------------
      Final premium palette — CHARCOAL + IVORY + STEEL BLUE + SKY.
