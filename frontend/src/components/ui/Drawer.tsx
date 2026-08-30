@@ -65,7 +65,7 @@ export function Drawer({ open, onClose, side = 'left', label, panelClassName, ch
             exit={{ x: closedX }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
             className={cn(
-              'fixed inset-y-0 z-50 flex w-72 max-w-[80%] flex-col shadow-xl',
+              'fixed inset-y-0 z-50 flex h-dvh w-72 max-w-[80%] flex-col shadow-xl',
               side === 'left' ? 'left-0' : 'right-0',
               panelClassName,
             )}
