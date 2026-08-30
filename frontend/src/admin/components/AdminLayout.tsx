@@ -64,12 +64,12 @@ function SidebarContent({ admin, onLogout, onNavigate, headerExtra }: SidebarCon
   const navItems = NAV.filter((item) => !item.superAdminOnly || admin?.role === 'SuperAdmin')
   return (
     <>
-      <div className="flex items-center gap-2.5 px-6 py-6 font-display text-lg">
+      <div className="flex shrink-0 items-center gap-2.5 px-6 py-6 font-display text-lg">
         <img src={logo} alt="" aria-hidden className="h-8 w-8 shrink-0 object-contain" /> Dunyoi Sipehr
         <span className="ml-auto rounded-full bg-white/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-white/60">Admin</span>
         {headerExtra}
       </div>
-      <nav className="flex-1 space-y-1 px-3">
+      <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto px-3">
         {navItems.map(({ to, label, icon: Icon, end }) => (
           <NavLink
             key={to}
@@ -87,7 +87,7 @@ function SidebarContent({ admin, onLogout, onNavigate, headerExtra }: SidebarCon
           </NavLink>
         ))}
       </nav>
-      <div className="border-t border-white/10 px-4 py-4">
+      <div className="shrink-0 border-t border-white/10 px-4 py-4">
         <div className="mb-3 flex items-center justify-between">
           <p className="truncate text-sm">{admin?.displayName ?? admin?.email}</p>
           <ThemeToggle dark />
