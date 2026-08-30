@@ -1,7 +1,7 @@
 import { forwardRef, type ButtonHTMLAttributes } from 'react'
 import { cn } from '@/lib/cn'
 
-type Variant = 'primary' | 'secondary' | 'ghost'
+type Variant = 'primary' | 'secondary' | 'ghost' | 'excel'
 type Size = 'sm' | 'md' | 'lg'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -13,6 +13,9 @@ const variantClasses: Record<Variant, string> = {
   primary: 'bg-brand text-white hover:bg-brand-hover',
   secondary: 'bg-transparent text-text border border-text/20 hover:border-brand hover:text-brand',
   ghost: 'bg-transparent text-text hover:bg-brand-subtle hover:text-brand',
+  // Excel-brand green (#217346, MS Office's own swatch) for the requests export button — kept
+  // entirely out of the blue brand palette so hover/focus never drift toward the site's blue.
+  excel: 'bg-[#217346] text-white hover:bg-[#1a5c38] focus-visible:ring-[#217346]/50',
 }
 
 const sizeClasses: Record<Size, string> = {
