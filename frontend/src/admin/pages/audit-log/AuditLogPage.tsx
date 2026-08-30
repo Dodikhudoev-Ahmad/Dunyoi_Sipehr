@@ -7,7 +7,8 @@ import { DataTable, type Column } from '@/admin/components/DataTable'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { FieldLabel, Select } from '@/components/ui/Input'
+import { FieldLabel } from '@/components/ui/Input'
+import { Select } from '@/components/ui/Select'
 import { Pagination } from '@/admin/components/Pagination'
 
 // Mirrors the EntityType strings actually logged via nameof(...) across every

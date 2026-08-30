@@ -14,7 +14,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { useToast } from '@/components/ui/Toast'
 import { useListState } from '@/admin/hooks/useListState'
 import { Pagination } from '@/admin/components/Pagination'
-import { Select } from '@/components/ui/Input'
+import { Select } from '@/components/ui/Select'
 import { adminErrorMessage } from '@/lib/apiError'
 import { STATUS_ORDER, STATUS_LABEL, STATUS_TONE, isFollowUpOverdue } from '@/admin/lib/requestStatus'
 

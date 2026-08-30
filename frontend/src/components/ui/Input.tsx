@@ -1,4 +1,4 @@
-import { forwardRef, type InputHTMLAttributes, type LabelHTMLAttributes, type SelectHTMLAttributes, type TextareaHTMLAttributes, type ReactNode } from 'react'
+import { forwardRef, type InputHTMLAttributes, type LabelHTMLAttributes, type TextareaHTMLAttributes, type ReactNode } from 'react'
 import { cn } from '@/lib/cn'
 
 export function FieldLabel({ className, ...props }: LabelHTMLAttributes<HTMLLabelElement>) {
@@ -10,7 +10,9 @@ export function FieldError({ children }: { children?: ReactNode }) {
   return <p className="mt-1 text-sm text-danger">{children}</p>
 }
 
-const baseFieldClasses =
+// Shared with Select.tsx so every text field / dropdown in the app has identical height,
+// padding, border-radius, and focus treatment.
+export const baseFieldClasses =
   'w-full rounded-lg border border-text/15 bg-elevated px-4 py-2.5 text-text placeholder:text-slate/50 outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/20'
 
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean }>(
@@ -34,16 +36,3 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<H
   ),
 )
 Textarea.displayName = 'Textarea'
-
-export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSelectElement> & { invalid?: boolean }>(
-  ({ className, invalid, children, ...props }, ref) => (
-    <select
-      ref={ref}
-      className={cn(baseFieldClasses, invalid && 'border-danger focus:border-danger focus:ring-danger/20', className)}
-      {...props}
-    >
-      {children}
-    </select>
-  ),
-)
-Select.displayName = 'Select'

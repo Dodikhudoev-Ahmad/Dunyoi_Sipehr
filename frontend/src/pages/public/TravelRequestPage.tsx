@@ -1,6 +1,6 @@
 import { useEffect, useState, forwardRef, type InputHTMLAttributes, type TextareaHTMLAttributes } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslation } from 'react-i18next'
 import { useMutation } from '@tanstack/react-query'
@@ -15,7 +15,8 @@ import { Section } from '@/components/ui/Section'
 import { PageHero } from '@/components/ui/PageHero'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { FieldLabel, FieldError, Input, Select } from '@/components/ui/Input'
+import { FieldLabel, FieldError, Input } from '@/components/ui/Input'
+import { Select } from '@/components/ui/Select'
 import { Seo } from '@/components/seo/Seo'
 import { pageTitle, ogImageUrl } from '@/lib/seo'
 import { editorialImages } from '@/lib/editorialImages'
@@ -168,6 +169,7 @@ export function TravelRequestPage() {
 
   const {
     register,
+    control,
     handleSubmit,
     watch,
     setValue,
@@ -427,25 +429,37 @@ export function TravelRequestPage() {
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <div>
                   <FieldLabel htmlFor="destinationId">{t('travelRequest.destination')}</FieldLabel>
-                  <Select id="destinationId" {...register('destinationId')}>
-                    <option value="">{t('travelRequest.none')}</option>
-                    {destinations.data?.items.map((d) => (
-                      <option key={d.id} value={d.id}>
-                        {d.title}
-                      </option>
-                    ))}
-                  </Select>
+                  <Controller
+                    name="destinationId"
+                    control={control}
+                    render={({ field }) => (
+                      <Select id="destinationId" name={field.name} value={field.value} onChange={(e) => field.onChange(e.target.value)} onBlur={field.onBlur}>
+                        <option value="">{t('travelRequest.none')}</option>
+                        {destinations.data?.items.map((d) => (
+                          <option key={d.id} value={d.id}>
+                            {d.title}
+                          </option>
+                        ))}
+                      </Select>
+                    )}
+                  />
                 </div>
                 <div>
                   <FieldLabel htmlFor="offerId">{t('travelRequest.offer')}</FieldLabel>
-                  <Select id="offerId" {...register('offerId')}>
-                    <option value="">{t('travelRequest.none')}</option>
-                    {offers.data?.items.map((o) => (
-                      <option key={o.id} value={o.id}>
-                        {o.title}
-                      </option>
-                    ))}
-                  </Select>
+                  <Controller
+                    name="offerId"
+                    control={control}
+                    render={({ field }) => (
+                      <Select id="offerId" name={field.name} value={field.value} onChange={(e) => field.onChange(e.target.value)} onBlur={field.onBlur}>
+                        <option value="">{t('travelRequest.none')}</option>
+                        {offers.data?.items.map((o) => (
+                          <option key={o.id} value={o.id}>
+                            {o.title}
+                          </option>
+                        ))}
+                      </Select>
+                    )}
+                  />
                 </div>
               </div>
 
@@ -486,13 +500,25 @@ export function TravelRequestPage() {
                     {Array.from({ length: childrenCount }).map((_, i) => (
                       <div key={i}>
                         <FieldLabel htmlFor={`childAge-${i}`}>{t('travelRequest.childAge', { index: i + 1 })}</FieldLabel>
-                        <Select id={`childAge-${i}`} {...register(`childrenAges.${i}` as const, { valueAsNumber: true })}>
-                          {Array.from({ length: 18 }).map((_, age) => (
-                            <option key={age} value={age}>
-                              {age}
-                            </option>
-                          ))}
-                        </Select>
+                        <Controller
+                          name={`childrenAges.${i}` as const}
+                          control={control}
+                          render={({ field }) => (
+                            <Select
+                              id={`childAge-${i}`}
+                              name={field.name}
+                              value={field.value === undefined ? '' : String(field.value)}
+                              onChange={(e) => field.onChange(Number(e.target.value))}
+                              onBlur={field.onBlur}
+                            >
+                              {Array.from({ length: 18 }).map((_, age) => (
+                                <option key={age} value={age}>
+                                  {age}
+                                </option>
+                              ))}
+                            </Select>
+                          )}
+                        />
                       </div>
                     ))}
                   </div>
