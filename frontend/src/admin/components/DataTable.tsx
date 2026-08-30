@@ -26,12 +26,12 @@ export function DataTable<T>({ columns, rows, rowKey, sort, dir, onSort, rowClas
 
   return (
     <div className="relative">
-      <div ref={ref} className="overflow-x-auto rounded-xl border border-text/10 bg-elevated">
+      <div ref={ref} className="snap-x snap-mandatory overflow-x-auto rounded-xl border border-text/10 bg-elevated">
       <table className="w-full min-w-[640px] text-left text-sm">
         <thead>
           <tr className="border-b border-text/10 text-xs uppercase tracking-wide text-slate">
             {columns.map((col) => (
-              <th key={col.key} className="px-4 py-3 font-medium">
+              <th key={col.key} className="snap-start px-4 py-3 font-medium">
                 {col.sortable && onSort ? (
                   <button className="flex items-center gap-1 hover:text-text" onClick={() => onSort(col.key)}>
                     {col.header}
