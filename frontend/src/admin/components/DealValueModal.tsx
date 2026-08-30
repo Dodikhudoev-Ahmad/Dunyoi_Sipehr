@@ -2,7 +2,8 @@ import { useState } from 'react'
 import type { Currency } from '@/types/domain'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
-import { FieldLabel, Input, Select } from '@/components/ui/Input'
+import { FieldLabel, Input } from '@/components/ui/Input'
+import { Select } from '@/components/ui/Select'
 
 /**
  * Shared by CrmBoardPage (drag-to-Won) and TravelRequestDetailPage (status-button click) — both
