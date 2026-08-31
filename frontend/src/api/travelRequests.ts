@@ -38,7 +38,7 @@ export const travelRequestsApi = {
     return apiPost<string>('/public/travel-requests/passport-photos', formData)
   },
 
-  adminList: (query: ListQuery & { status?: TravelRequestStatus; from?: string; to?: string; dueBy?: string }) =>
+  adminList: (query: ListQuery & { status?: TravelRequestStatus; from?: string; to?: string; dueBy?: string; search?: string }) =>
     apiGet<PagedResult<TravelRequest>>(`/admin/travel-requests${toQueryString({ ...query })}`),
   adminGet: (id: string) => apiGet<TravelRequest>(`/admin/travel-requests/${id}`),
   adminSetStatus: (id: string, status: TravelRequestStatus) =>

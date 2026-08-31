@@ -18,6 +18,8 @@ public interface IApplicationDbContext
     DbSet<AdminUser> AdminUsers { get; }
     DbSet<RefreshToken> RefreshTokens { get; }
     DbSet<AuditLog> AuditLogs { get; }
+    DbSet<Flight> Flights { get; }
+    DbSet<FlightPassenger> FlightPassengers { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }
@@ -37,4 +39,6 @@ public interface IReadDbContext
     IQueryable<TravelRequestNote> TravelRequestNotes { get; }
     IQueryable<AdminUser> AdminUsers { get; }
     IQueryable<AuditLog> AuditLogs { get; }
+    IQueryable<Flight> Flights { get; }
+    IQueryable<FlightPassenger> FlightPassengers { get; }
 }

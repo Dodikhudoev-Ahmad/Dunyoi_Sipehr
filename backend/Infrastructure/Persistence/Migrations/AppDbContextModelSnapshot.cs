@@ -302,6 +302,94 @@ namespace AeroTravel.Infrastructure.Persistence.Migrations
                     b.ToTable("FaqItemTranslation");
                 });
 
+            modelBuilder.Entity("AeroTravel.Domain.Entities.Flight", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedByAdminUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("DepartureAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DestinationCity")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("FlightNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("OriginCity")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedByAdminUserId");
+
+                    b.HasIndex("DepartureAtUtc");
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("Flights");
+                });
+
+            modelBuilder.Entity("AeroTravel.Domain.Entities.FlightPassenger", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("AddedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("AddedByAdminUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("FlightId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("TravelRequestId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AddedByAdminUserId");
+
+                    b.HasIndex("TravelRequestId");
+
+                    b.HasIndex("FlightId", "TravelRequestId")
+                        .IsUnique()
+                        .HasFilter("\"TravelRequestId\" IS NOT NULL");
+
+                    b.ToTable("FlightPassengers");
+                });
+
             modelBuilder.Entity("AeroTravel.Domain.Entities.Offer", b =>
                 {
                     b.Property<Guid>("Id")
@@ -785,6 +873,33 @@ namespace AeroTravel.Infrastructure.Persistence.Migrations
                         .HasForeignKey("FaqItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("AeroTravel.Domain.Entities.Flight", b =>
+                {
+                    b.HasOne("AeroTravel.Domain.Entities.AdminUser", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByAdminUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+                });
+
+            modelBuilder.Entity("AeroTravel.Domain.Entities.FlightPassenger", b =>
+                {
+                    b.HasOne("AeroTravel.Domain.Entities.AdminUser", null)
+                        .WithMany()
+                        .HasForeignKey("AddedByAdminUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("AeroTravel.Domain.Entities.Flight", null)
+                        .WithMany()
+                        .HasForeignKey("FlightId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AeroTravel.Domain.Entities.TravelRequest", null)
+                        .WithMany()
+                        .HasForeignKey("TravelRequestId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("AeroTravel.Domain.Entities.Offer", b =>

@@ -17,6 +17,8 @@ import {
   LogOut,
   Menu,
   X,
+  Send,
+  ClipboardList,
 } from 'lucide-react'
 import { useAdminLogout, useAdminSession } from '@/admin/hooks/useAdminAuth'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
@@ -39,6 +41,8 @@ const NAV: NavItem[] = [
   { to: '/admin/crm', label: 'CRM — воронка', icon: KanbanSquare },
   { to: '/admin/travel-requests', label: 'Заявки', icon: Inbox },
   { to: '/admin/destinations', label: 'Направления', icon: MapPinned, superAdminOnly: true },
+  { to: '/admin/flights', label: 'Рейсы', icon: Send },
+  { to: '/admin/passengers', label: 'Реестр пассажиров', icon: ClipboardList },
   { to: '/admin/offers', label: 'Предложения', icon: Tag, superAdminOnly: true },
   { to: '/admin/services', label: 'Услуги', icon: Wrench, superAdminOnly: true },
   { to: '/admin/countries-cities', label: 'Страны и города', icon: Globe2, superAdminOnly: true },
