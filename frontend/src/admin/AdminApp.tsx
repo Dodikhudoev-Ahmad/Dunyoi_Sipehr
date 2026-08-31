@@ -22,6 +22,9 @@ import { CountriesCitiesPage } from '@/admin/pages/countries-cities/CountriesCit
 import { CrmBoardPage } from '@/admin/pages/crm/CrmBoardPage'
 import { TravelRequestsListPage } from '@/admin/pages/travel-requests/TravelRequestsListPage'
 import { TravelRequestDetailPage } from '@/admin/pages/travel-requests/TravelRequestDetailPage'
+import { FlightsListPage } from '@/admin/pages/flights/FlightsListPage'
+import { FlightDetailPage } from '@/admin/pages/flights/FlightDetailPage'
+import { PassengersRegistryPage } from '@/admin/pages/passengers/PassengersRegistryPage'
 import { AuditLogPage } from '@/admin/pages/audit-log/AuditLogPage'
 import { StaffListPage } from '@/admin/pages/staff/StaffListPage'
 import { NotFoundPage } from '@/pages/public/NotFoundPage'
@@ -69,6 +72,13 @@ export default function AdminApp() {
             <Route path="crm" element={<CrmBoardPage />} />
             <Route path="travel-requests" element={<TravelRequestsListPage />} />
             <Route path="travel-requests/:id" element={<TravelRequestDetailPage />} />
+
+            {/* Flights module — Editor and SuperAdmin both get full access (see
+                AdminFlightsController's RBAC exception comment), so these stay outside the
+                SuperAdminRoute guard below unlike the rest of content management. */}
+            <Route path="flights" element={<FlightsListPage />} />
+            <Route path="flights/:id" element={<FlightDetailPage />} />
+            <Route path="passengers" element={<PassengersRegistryPage />} />
 
             {/* Content management + staff + audit log — SuperAdmin only. The sidebar already
                 hides these links for Editor, but this route guard is the real, independent check

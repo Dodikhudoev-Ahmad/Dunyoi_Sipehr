@@ -19,6 +19,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<Flight> Flights => Set<Flight>();
+    public DbSet<FlightPassenger> FlightPassengers => Set<FlightPassenger>();
 
     IQueryable<Country> IReadDbContext.Countries => Countries.AsNoTracking();
     IQueryable<City> IReadDbContext.Cities => Cities.AsNoTracking();
@@ -32,6 +34,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     IQueryable<TravelRequestNote> IReadDbContext.TravelRequestNotes => TravelRequestNotes.AsNoTracking();
     IQueryable<AdminUser> IReadDbContext.AdminUsers => AdminUsers.AsNoTracking();
     IQueryable<AuditLog> IReadDbContext.AuditLogs => AuditLogs.AsNoTracking();
+    IQueryable<Flight> IReadDbContext.Flights => Flights.AsNoTracking();
+    IQueryable<FlightPassenger> IReadDbContext.FlightPassengers => FlightPassengers.AsNoTracking();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

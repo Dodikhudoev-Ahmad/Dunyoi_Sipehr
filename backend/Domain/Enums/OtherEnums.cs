@@ -21,3 +21,16 @@ public enum Currency
     Eur = 1,
     Tjs = 2
 }
+
+public enum FlightStatus
+{
+    Scheduled = 0,
+    Departed = 1,
+    Cancelled = 2
+}
+
+public enum FlightPassengerSource
+{
+    Manual = 0,
+    Crm = 1
+}

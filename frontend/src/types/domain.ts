@@ -362,6 +362,58 @@ export interface AdminUser {
   role: AdminRole
 }
 
+export type FlightStatus = 'Scheduled' | 'Departed' | 'Cancelled'
+export type FlightPassengerSource = 'Manual' | 'Crm'
+
+export interface Flight {
+  id: string
+  flightNumber: string
+  originCity: string
+  destinationCity: string
+  departureAtUtc: string
+  status: FlightStatus
+  passengerCount: number
+  createdAtUtc: string
+}
+
+export interface FlightDetail {
+  id: string
+  flightNumber: string
+  originCity: string
+  destinationCity: string
+  departureAtUtc: string
+  status: FlightStatus
+  createdByAdminUserId: string | null
+  createdByAdminDisplayName: string | null
+  createdAtUtc: string
+}
+
+export interface FlightPassenger {
+  id: string
+  flightId: string
+  source: FlightPassengerSource
+  travelRequestId: string | null
+  fullName: string
+  phone: string
+  addedByAdminUserId: string | null
+  addedByAdminDisplayName: string | null
+  addedAtUtc: string
+}
+
+export interface PassengerRegistryItem {
+  id: string
+  flightId: string
+  flightNumber: string
+  flightDepartureAtUtc: string
+  source: FlightPassengerSource
+  travelRequestId: string | null
+  fullName: string
+  phone: string
+  addedByAdminUserId: string | null
+  addedByAdminDisplayName: string | null
+  addedAtUtc: string
+}
+
 export interface AuditLog {
   id: string
   entityType: string
