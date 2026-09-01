@@ -1,4 +1,5 @@
 import { motion, useReducedMotion } from 'motion/react'
+import { cn } from '@/lib/cn'
 
 interface City {
   label: string
@@ -52,55 +53,56 @@ function loopPath() {
   return d
 }
 
-/** A premium "glass pill" city label — soft gradient fill, hairline edge highlight — so it reads
- * as part of a luxury aviation interface rather than a flat debug tooltip. The origin gets a
- * faint sage edge instead of a bigger typeface, keeping every label the same visual language
- * while still separating "home base" from "destination" by feel, not by size. */
+/** A premium "glass pill" city label — real HTML/CSS (not SVG text/rect) laid over the map at the
+ * same x/y percentages the SVG viewBox uses, so it gets genuine `backdrop-filter: blur()`, a
+ * floating drop shadow, and reliable font-weight rendering that SVG `<text>` can't guarantee
+ * across browsers. Rendered as a sibling overlay, not inside the SVG — see FlightRouteMap. The
+ * origin gets a faint gold edge instead of a bigger typeface, keeping every label the same visual
+ * language while still separating "home base" from "destination" by feel, not by size. */
 function CityLabel({ label, x, y, delay, origin }: { label: string; x: number; y: number; delay: number; origin?: boolean }) {
-  const fontSize = 2
-  const badgeWidth = label.length * (fontSize * 0.74) + 3.6
-  const badgeHeight = fontSize + 2.4
-
   return (
-    <motion.g
-      initial={{ opacity: 0, y: 1.5 }}
+    <motion.div
+      initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay }}
+      className="absolute -translate-x-1/2 -translate-y-full"
+      style={{ left: `${x}%`, top: `${y}%` }}
     >
-      <rect
-        x={x - badgeWidth / 2}
-        y={y - fontSize - 3.9}
-        width={badgeWidth}
-        height={badgeHeight}
-        rx={badgeHeight / 2}
-        fill="url(#routePillFill)"
-        stroke={origin ? 'var(--color-sage)' : 'var(--color-white)'}
-        strokeOpacity={origin ? 0.45 : 0.16}
-        strokeWidth={0.12}
-      />
-      <text
-        x={x}
-        y={y - 2.55}
-        textAnchor="middle"
-        fontSize={fontSize}
-        fontWeight={500}
-        letterSpacing="0.13"
-        fill="var(--color-white)"
-        fontFamily="var(--font-sans)"
+      <span
+        className={cn(
+          'mb-2 block rounded-full border px-3 py-1.25 text-[10.5px] font-medium text-white/95 uppercase tracking-[0.22em] backdrop-blur-md shadow-[0_10px_22px_-8px_rgba(4,8,14,0.65)]',
+          origin ? 'border-gold/45' : 'border-white/18',
+        )}
+        style={{ background: 'linear-gradient(180deg, rgba(9,13,20,0.6), rgba(9,13,20,0.32))' }}
       >
         {label}
-      </text>
-    </motion.g>
+      </span>
+    </motion.div>
   )
 }
 
 /** A route node: soft halo + solid core, shared by every city so the network reads as one
  * consistent interface. The origin's halo is a touch larger/brighter — the only size cue that
- * marks it as "home" instead of a destination. */
+ * marks it as "home" instead of a destination. A slow, repeating radar-ping ring (respecting
+ * prefers-reduced-motion) reads as a live map marker rather than a flat static dot. */
 function CityNode({ x, y, delay, origin, reducedMotion }: { x: number; y: number; delay: number; origin?: boolean; reducedMotion: boolean }) {
   return (
     <>
       <circle cx={x} cy={y} r={origin ? 1.7 : 1.15} fill="var(--color-sage)" opacity={origin ? 0.22 : 0.15} />
+      {!reducedMotion && (
+        <motion.circle
+          cx={x}
+          cy={y}
+          r={origin ? 0.62 : 0.52}
+          fill="none"
+          stroke="var(--color-sage)"
+          strokeWidth={0.16}
+          initial={{ opacity: 0.55, scale: 1 }}
+          animate={{ opacity: 0, scale: origin ? 2.8 : 2.4 }}
+          transition={{ duration: 1.9, repeat: Infinity, ease: 'easeOut', delay: delay + (origin ? 0.4 : 1.5) }}
+          style={{ transformOrigin: `${x}px ${y}px` }}
+        />
+      )}
       <motion.circle
         cx={x}
         cy={y}
@@ -162,64 +164,67 @@ export function FlightRouteMap({ className }: { className?: string }) {
   const staticHeading = (Math.atan2(DUBAI.y - DUSHANBE.y, DUBAI.x - DUSHANBE.x) * 180) / Math.PI
 
   return (
-    <svg
-      aria-hidden
-      className={className}
-      viewBox="0 0 100 100"
-      preserveAspectRatio="none"
-      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
-    >
-      <defs>
-        <linearGradient id="routePillFill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="var(--color-dark)" stopOpacity={0.72} />
-          <stop offset="1" stopColor="var(--color-dark)" stopOpacity={0.46} />
-        </linearGradient>
-        <filter id="planeShadow" x="-60%" y="-60%" width="220%" height="220%">
-          <feDropShadow dx="0" dy="0.12" stdDeviation="0.22" floodColor="var(--color-dark)" floodOpacity="0.55" />
-        </filter>
-      </defs>
+    <div className={cn('relative h-full w-full', className)}>
+      <svg
+        aria-hidden
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+      >
+        <defs>
+          <filter id="planeShadow" x="-60%" y="-60%" width="220%" height="220%">
+            <feDropShadow dx="0" dy="0.12" stdDeviation="0.22" floodColor="var(--color-dark)" floodOpacity="0.55" />
+          </filter>
+        </defs>
 
-      {DESTINATIONS.map((city) => (
-        <motion.path
-          key={city.label}
-          d={legPath(DUSHANBE, city)}
-          fill="none"
-          stroke="var(--color-sage)"
-          strokeWidth={0.22}
-          strokeDasharray="0.7 1.1"
-          strokeLinecap="round"
-          vectorEffect="non-scaling-stroke"
-          opacity={0.7}
-          initial={reducedMotion ? undefined : { pathLength: 0 }}
-          animate={reducedMotion ? undefined : { pathLength: 1 }}
-          transition={{ duration: 1.4, ease: 'easeOut', delay: city.delay }}
-        />
-      ))}
+        {DESTINATIONS.map((city) => (
+          <motion.path
+            key={city.label}
+            d={legPath(DUSHANBE, city)}
+            fill="none"
+            stroke="var(--color-sage)"
+            strokeWidth={0.22}
+            strokeDasharray="0.7 1.1"
+            strokeLinecap="round"
+            vectorEffect="non-scaling-stroke"
+            opacity={0.7}
+            initial={reducedMotion ? undefined : { pathLength: 0 }}
+            animate={reducedMotion ? undefined : { pathLength: 1 }}
+            transition={{ duration: 1.4, ease: 'easeOut', delay: city.delay }}
+          />
+        ))}
 
-      <CityNode x={DUSHANBE.x} y={DUSHANBE.y} delay={0.1} origin reducedMotion={!!reducedMotion} />
-      <CityLabel label={DUSHANBE.label} x={DUSHANBE.x} y={DUSHANBE.y} delay={0.1} origin />
+        <CityNode x={DUSHANBE.x} y={DUSHANBE.y} delay={0.1} origin reducedMotion={!!reducedMotion} />
 
-      {DESTINATIONS.map((city) => (
-        <g key={city.label}>
-          <CityNode x={city.x} y={city.y} delay={city.delay} reducedMotion={!!reducedMotion} />
-          <CityLabel label={city.label} x={city.x} y={city.y} delay={city.delay + 1.15} />
-        </g>
-      ))}
+        {DESTINATIONS.map((city) => (
+          <CityNode key={city.label} x={city.x} y={city.y} delay={city.delay} reducedMotion={!!reducedMotion} />
+        ))}
 
-      {reducedMotion ? (
-        <g transform={`translate(${DUSHANBE.x} ${DUSHANBE.y}) rotate(${staticHeading})`}>
-          <PlaneMark />
-        </g>
-      ) : (
-        <motion.g
-          initial={{ offsetDistance: '0%' }}
-          animate={{ offsetDistance: '100%' }}
-          transition={{ duration: 17, ease: 'easeInOut', repeat: Infinity }}
-          style={{ offsetPath: `path("${loopPath()}")`, offsetRotate: 'auto' }}
-        >
-          <PlaneMark />
-        </motion.g>
-      )}
-    </svg>
+        {reducedMotion ? (
+          <g transform={`translate(${DUSHANBE.x} ${DUSHANBE.y}) rotate(${staticHeading})`}>
+            <PlaneMark />
+          </g>
+        ) : (
+          <motion.g
+            initial={{ offsetDistance: '0%' }}
+            animate={{ offsetDistance: '100%' }}
+            transition={{ duration: 17, ease: 'easeInOut', repeat: Infinity }}
+            style={{ offsetPath: `path("${loopPath()}")`, offsetRotate: 'auto' }}
+          >
+            <PlaneMark />
+          </motion.g>
+        )}
+      </svg>
+
+      {/* City labels as a real HTML overlay (not SVG text/rect) — see CityLabel for why: genuine
+          backdrop-blur and reliable font-weight rendering. Positioned at the same x/y percentages
+          as the SVG viewBox (0-100 with preserveAspectRatio="none" maps 1:1 onto this box). */}
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <CityLabel label={DUSHANBE.label} x={DUSHANBE.x} y={DUSHANBE.y} delay={0.1} origin />
+        {DESTINATIONS.map((city) => (
+          <CityLabel key={city.label} label={city.label} x={city.x} y={city.y} delay={city.delay + 1.15} />
+        ))}
+      </div>
+    </div>
   )
 }
