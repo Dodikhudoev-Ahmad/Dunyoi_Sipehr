@@ -58,7 +58,11 @@ function loopPath() {
  * floating drop shadow, and reliable font-weight rendering that SVG `<text>` can't guarantee
  * across browsers. Rendered as a sibling overlay, not inside the SVG — see FlightRouteMap. The
  * origin gets a faint gold edge instead of a bigger typeface, keeping every label the same visual
- * language while still separating "home base" from "destination" by feel, not by size. */
+ * language while still separating "home base" from "destination" by feel, not by size.
+ *
+ * Text/padding scale up at the `xl`/`2xl` breakpoints — on a wide desktop hero (1440px+) the base
+ * size read as too small against the photo; letter-spacing is already in `em`s so it scales
+ * automatically with the font-size step instead of needing its own breakpoints. */
 function CityLabel({ label, x, y, delay, origin }: { label: string; x: number; y: number; delay: number; origin?: boolean }) {
   return (
     <motion.div
@@ -70,7 +74,7 @@ function CityLabel({ label, x, y, delay, origin }: { label: string; x: number; y
     >
       <span
         className={cn(
-          'mb-2 block rounded-full border px-3 py-1.25 text-[10.5px] font-medium text-white/95 uppercase tracking-[0.22em] backdrop-blur-md shadow-[0_10px_22px_-8px_rgba(4,8,14,0.65)]',
+          'mb-2 block rounded-full border px-3.5 py-1.5 text-sm font-medium text-white/95 uppercase tracking-[0.22em] backdrop-blur-md shadow-[0_10px_22px_-8px_rgba(4,8,14,0.65)] xl:px-4 xl:py-2 xl:text-base 2xl:px-5 2xl:py-2.5 2xl:text-lg',
           origin ? 'border-gold/45' : 'border-white/18',
         )}
         style={{ background: 'linear-gradient(180deg, rgba(9,13,20,0.6), rgba(9,13,20,0.32))' }}
@@ -84,39 +88,37 @@ function CityLabel({ label, x, y, delay, origin }: { label: string; x: number; y
 /** A route node: soft halo + solid core, shared by every city so the network reads as one
  * consistent interface. The origin's halo is a touch larger/brighter — the only size cue that
  * marks it as "home" instead of a destination. A slow, repeating radar-ping ring (respecting
- * prefers-reduced-motion) reads as a live map marker rather than a flat static dot. */
+ * prefers-reduced-motion) reads as a live map marker rather than a flat static dot.
+ *
+ * Rendered as an HTML overlay (like CityLabel) rather than an SVG `<circle>` — that's what lets
+ * the dot/ring grow at the `xl` breakpoint via plain Tailwind size classes, keeping it in visual
+ * proportion with the label as that grows too; a `<circle r>` has no clean responsive equivalent
+ * without exotic CSS. Positioned at the exact same x/y point the label sits above (unchanged). */
 function CityNode({ x, y, delay, origin, reducedMotion }: { x: number; y: number; delay: number; origin?: boolean; reducedMotion: boolean }) {
+  const dotSize = origin ? 'h-2.5 w-2.5 xl:h-3 xl:w-3' : 'h-2 w-2 xl:h-2.5 xl:w-2.5'
+  const haloSize = origin ? 'h-6 w-6 xl:h-7 xl:w-7' : 'h-4.5 w-4.5 xl:h-5.5 xl:w-5.5'
+
   return (
-    <>
-      <circle cx={x} cy={y} r={origin ? 1.7 : 1.15} fill="var(--color-sage)" opacity={origin ? 0.22 : 0.15} />
+    <span className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: `${x}%`, top: `${y}%` }}>
+      <span
+        className={cn('absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-sage', haloSize)}
+        style={{ opacity: origin ? 0.22 : 0.15 }}
+      />
       {!reducedMotion && (
-        <motion.circle
-          cx={x}
-          cy={y}
-          r={origin ? 0.62 : 0.52}
-          fill="none"
-          stroke="var(--color-sage)"
-          strokeWidth={0.16}
+        <motion.span
+          className={cn('absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-sage', dotSize)}
           initial={{ opacity: 0.55, scale: 1 }}
           animate={{ opacity: 0, scale: origin ? 2.8 : 2.4 }}
           transition={{ duration: 1.9, repeat: Infinity, ease: 'easeOut', delay: delay + (origin ? 0.4 : 1.5) }}
-          style={{ transformOrigin: `${x}px ${y}px` }}
         />
       )}
-      <motion.circle
-        cx={x}
-        cy={y}
-        r={origin ? 0.62 : 0.52}
-        fill="var(--color-sage)"
-        stroke="var(--color-dark)"
-        strokeWidth={0.12}
-        strokeOpacity={0.3}
+      <motion.span
+        className={cn('relative block rounded-full bg-sage ring-2 ring-dark/50', dotSize)}
         initial={reducedMotion ? undefined : { opacity: 0, scale: 0 }}
         animate={reducedMotion ? undefined : { opacity: 1, scale: 1 }}
         transition={{ duration: 0.4, delay: delay + (origin ? 0 : 1.1) }}
-        style={{ transformOrigin: `${x}px ${y}px` }}
       />
-    </>
+    </span>
   )
 }
 
@@ -194,12 +196,6 @@ export function FlightRouteMap({ className }: { className?: string }) {
           />
         ))}
 
-        <CityNode x={DUSHANBE.x} y={DUSHANBE.y} delay={0.1} origin reducedMotion={!!reducedMotion} />
-
-        {DESTINATIONS.map((city) => (
-          <CityNode key={city.label} x={city.x} y={city.y} delay={city.delay} reducedMotion={!!reducedMotion} />
-        ))}
-
         {reducedMotion ? (
           <g transform={`translate(${DUSHANBE.x} ${DUSHANBE.y}) rotate(${staticHeading})`}>
             <PlaneMark />
@@ -216,11 +212,17 @@ export function FlightRouteMap({ className }: { className?: string }) {
         )}
       </svg>
 
-      {/* City labels as a real HTML overlay (not SVG text/rect) — see CityLabel for why: genuine
-          backdrop-blur and reliable font-weight rendering. Positioned at the same x/y percentages
-          as the SVG viewBox (0-100 with preserveAspectRatio="none" maps 1:1 onto this box). */}
+      {/* City labels + point markers as a real HTML overlay (not SVG text/rect/circle) — see
+          CityLabel/CityNode for why: genuine backdrop-blur, reliable font-weight rendering, and
+          plain Tailwind breakpoints to grow both in proportion on wide screens. Positioned at the
+          same x/y percentages as the SVG viewBox (0-100 with preserveAspectRatio="none" maps 1:1
+          onto this box), so the points line up exactly with where the arcs terminate. */}
       <div aria-hidden className="pointer-events-none absolute inset-0">
+        <CityNode x={DUSHANBE.x} y={DUSHANBE.y} delay={0.1} origin reducedMotion={!!reducedMotion} />
         <CityLabel label={DUSHANBE.label} x={DUSHANBE.x} y={DUSHANBE.y} delay={0.1} origin />
+        {DESTINATIONS.map((city) => (
+          <CityNode key={city.label} x={city.x} y={city.y} delay={city.delay} reducedMotion={!!reducedMotion} />
+        ))}
         {DESTINATIONS.map((city) => (
           <CityLabel key={city.label} label={city.label} x={city.x} y={city.y} delay={city.delay + 1.15} />
         ))}
