@@ -62,7 +62,8 @@ function loopPath() {
  *
  * Text/padding scale up at the `xl`/`2xl` breakpoints — on a wide desktop hero (1440px+) the base
  * size read as too small against the photo; letter-spacing is already in `em`s so it scales
- * automatically with the font-size step instead of needing its own breakpoints. */
+ * automatically with the font-size step instead of needing its own breakpoints. (Sized down ~25%
+ * from an earlier pass that read as too large — 10.5/12/13.5px, not 14/16/18.) */
 function CityLabel({ label, x, y, delay, origin }: { label: string; x: number; y: number; delay: number; origin?: boolean }) {
   return (
     <motion.div
@@ -74,7 +75,7 @@ function CityLabel({ label, x, y, delay, origin }: { label: string; x: number; y
     >
       <span
         className={cn(
-          'mb-2 block rounded-full border px-3.5 py-1.5 text-sm font-medium text-white/95 uppercase tracking-[0.22em] backdrop-blur-md shadow-[0_10px_22px_-8px_rgba(4,8,14,0.65)] xl:px-4 xl:py-2 xl:text-base 2xl:px-5 2xl:py-2.5 2xl:text-lg',
+          'mb-2 block rounded-full border px-2.5 py-1 text-[10.5px] font-medium text-white/95 uppercase tracking-[0.22em] backdrop-blur-md shadow-[0_10px_22px_-8px_rgba(4,8,14,0.65)] xl:px-3 xl:py-1.5 xl:text-[12px] 2xl:px-4 2xl:py-2 2xl:text-[13.5px]',
           origin ? 'border-gold/45' : 'border-white/18',
         )}
         style={{ background: 'linear-gradient(180deg, rgba(9,13,20,0.6), rgba(9,13,20,0.32))' }}
@@ -95,8 +96,8 @@ function CityLabel({ label, x, y, delay, origin }: { label: string; x: number; y
  * proportion with the label as that grows too; a `<circle r>` has no clean responsive equivalent
  * without exotic CSS. Positioned at the exact same x/y point the label sits above (unchanged). */
 function CityNode({ x, y, delay, origin, reducedMotion }: { x: number; y: number; delay: number; origin?: boolean; reducedMotion: boolean }) {
-  const dotSize = origin ? 'h-2.5 w-2.5 xl:h-3 xl:w-3' : 'h-2 w-2 xl:h-2.5 xl:w-2.5'
-  const haloSize = origin ? 'h-6 w-6 xl:h-7 xl:w-7' : 'h-4.5 w-4.5 xl:h-5.5 xl:w-5.5'
+  const dotSize = origin ? 'h-2 w-2 xl:h-2.5 xl:w-2.5' : 'h-1.5 w-1.5 xl:h-2 xl:w-2'
+  const haloSize = origin ? 'h-4.5 w-4.5 xl:h-5.5 xl:w-5.5' : 'h-3.5 w-3.5 xl:h-4 xl:w-4'
 
   return (
     <span className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: `${x}%`, top: `${y}%` }}>
