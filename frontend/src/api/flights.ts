@@ -27,6 +27,10 @@ export const flightsApi = {
     apiPost<{ id: string }>(`/admin/flights/${flightId}/passengers/from-request`, payload),
   adminDeletePassenger: (flightId: string, passengerId: string) =>
     apiDelete<void>(`/admin/flights/${flightId}/passengers/${passengerId}`),
+  /** SuperAdmin-only server-side (backend enforces this too, 403 for Editor) — moves a passenger
+   * to a different flight's manifest. */
+  adminTransferPassenger: (payload: { passengerId: string; targetFlightId: string }) =>
+    apiPost<void>('/admin/flights/transfer-passenger', payload),
 }
 
 export const passengersApi = {

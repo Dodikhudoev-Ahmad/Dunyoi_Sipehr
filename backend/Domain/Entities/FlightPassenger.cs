@@ -27,4 +27,9 @@ public class FlightPassenger : Entity
         Phone = phone;
         AddedByAdminUserId = addedByAdminUserId;
     }
+
+    /// Moves this manifest entry to a different flight (SuperAdmin-only, see
+    /// TransferFlightPassengerCommand) — Source/TravelRequestId/AddedBy stay as originally
+    /// recorded; only which flight this passenger is on changes.
+    public void TransferToFlight(Guid newFlightId) => FlightId = newFlightId;
 }

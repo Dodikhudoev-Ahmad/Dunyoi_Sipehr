@@ -1,10 +1,13 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { Eye } from 'lucide-react'
 import { flightsApi, passengersApi } from '@/api/flights'
 import type { PassengerRegistryItem } from '@/types/domain'
 import { PageHeader } from '@/admin/components/PageHeader'
 import { DataTable, type Column } from '@/admin/components/DataTable'
+import { PassengerCardModal } from '@/admin/components/PassengerCardModal'
 import { Badge } from '@/components/ui/Badge'
+import { IconActionButton } from '@/components/ui/IconActionButton'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
@@ -34,6 +37,7 @@ export function PassengersRegistryPage() {
   const [departureFrom, setDepartureFrom] = useState('')
   const [departureTo, setDepartureTo] = useState('')
   const [exporting, setExporting] = useState(false)
+  const [viewingPassenger, setViewingPassenger] = useState<PassengerRegistryItem | null>(null)
 
   const flights = useQuery({
     queryKey: ['admin', 'flights', 'all-for-filter'],
@@ -79,6 +83,15 @@ export function PassengersRegistryPage() {
     { key: 'flightDepartureAtUtc', header: 'Дата вылета', render: (p) => new Date(p.flightDepartureAtUtc).toLocaleString('ru') },
     { key: 'source', header: 'Источник', render: (p) => <Badge tone={p.source === 'Crm' ? 'brand' : 'neutral'}>{p.source === 'Crm' ? 'CRM' : 'Вручную'}</Badge> },
     { key: 'addedBy', header: 'Кто добавил', render: (p) => <span className="text-slate">{p.addedByAdminDisplayName ?? '—'}</span> },
+    {
+      key: 'actions',
+      header: '',
+      render: (p) => (
+        <IconActionButton label="Просмотр" onClick={() => setViewingPassenger(p)}>
+          <Eye size={16} />
+        </IconActionButton>
+      ),
+    },
   ]
 
   return (
@@ -129,6 +142,13 @@ export function PassengersRegistryPage() {
           <Pagination page={registry.data.page} totalPages={registry.data.totalPages} onChange={setPage} />
         </>
       )}
+
+      <PassengerCardModal
+        passenger={viewingPassenger}
+        flightLabel={viewingPassenger ? `${viewingPassenger.flightNumber} — ${new Date(viewingPassenger.flightDepartureAtUtc).toLocaleDateString('ru')}` : ''}
+        onClose={() => setViewingPassenger(null)}
+        onTransferred={() => setViewingPassenger(null)}
+      />
     </div>
   )
 }

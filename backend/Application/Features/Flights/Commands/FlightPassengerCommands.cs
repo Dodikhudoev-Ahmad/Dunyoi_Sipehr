@@ -74,6 +74,48 @@ public class AddFlightPassengerFromRequestCommandHandler(IApplicationDbContext d
     }
 }
 
+/// SuperAdmin-only (enforced by [Authorize(Roles = ...)] on the controller action, not just this
+/// handler) — moves a passenger from whichever flight they're currently on to a different one.
+/// Validation order matches the product spec exactly: passenger exists, target flight exists,
+/// target isn't the passenger's current flight, then — for a CRM-sourced passenger — the target
+/// flight doesn't already have that same TravelRequest on its manifest (the DB has a unique
+/// index on (FlightId, TravelRequestId) for exactly this; checked here first so a real conflict
+/// comes back as a clear 409, not a raw SQL exception from SaveChangesAsync).
+public record TransferFlightPassengerCommand(Guid PassengerId, Guid TargetFlightId, Guid? AdminUserId) : IRequest<Result>;
+
+public class TransferFlightPassengerCommandHandler(IApplicationDbContext db) : IRequestHandler<TransferFlightPassengerCommand, Result>
+{
+    public async Task<Result> Handle(TransferFlightPassengerCommand request, CancellationToken cancellationToken)
+    {
+        var passenger = await db.FlightPassengers.FirstOrDefaultAsync(p => p.Id == request.PassengerId, cancellationToken);
+        if (passenger is null)
+            return Result.Failure(Error.NotFound("NOT_FOUND", "Passenger not found."));
+
+        var targetFlightExists = await db.Flights.AnyAsync(f => f.Id == request.TargetFlightId, cancellationToken);
+        if (!targetFlightExists)
+            return Result.Failure(Error.NotFound("NOT_FOUND", "Target flight not found."));
+
+        if (request.TargetFlightId == passenger.FlightId)
+            return Result.Failure(Error.Validation("VALIDATION_FAILED", "Passenger is already on this flight."));
+
+        if (passenger.TravelRequestId is { } travelRequestId)
+        {
+            var alreadyOnTargetFlight = await db.FlightPassengers.AnyAsync(
+                p => p.FlightId == request.TargetFlightId && p.TravelRequestId == travelRequestId, cancellationToken);
+            if (alreadyOnTargetFlight)
+                return Result.Failure(Error.Conflict("CONFLICT_DUPLICATE", "This client is already on the selected flight."));
+        }
+
+        var fromFlightId = passenger.FlightId;
+        passenger.TransferToFlight(request.TargetFlightId);
+
+        db.AuditLogs.Add(new AuditLog(nameof(FlightPassenger), passenger.Id, "Transfer", request.AdminUserId,
+            $"{{\"fromFlightId\":\"{fromFlightId}\",\"toFlightId\":\"{request.TargetFlightId}\"}}"));
+        await db.SaveChangesAsync(cancellationToken);
+        return Result.Success();
+    }
+}
+
 public record DeleteFlightPassengerCommand(Guid FlightId, Guid PassengerId, Guid? AdminUserId) : IRequest<Result>;
 
 public class DeleteFlightPassengerCommandHandler(IApplicationDbContext db) : IRequestHandler<DeleteFlightPassengerCommand, Result>
