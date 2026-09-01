@@ -20,6 +20,7 @@ public interface IApplicationDbContext
     DbSet<AuditLog> AuditLogs { get; }
     DbSet<Flight> Flights { get; }
     DbSet<FlightPassenger> FlightPassengers { get; }
+    DbSet<PassportPhoto> PassportPhotos { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

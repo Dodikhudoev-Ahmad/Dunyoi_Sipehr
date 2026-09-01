@@ -36,21 +36,27 @@ public static class DependencyInjection
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
 
-        // R2 (Cloudflare's S3-compatible object storage) is production storage for passport
-        // photos — see DEC-012. LocalFileStorageService stays available, unmodified, for local
-        // `dotnet run` without AWS-shaped credentials on hand: only switch to it when no R2
-        // credentials are configured AND we're in Development, so a production/staging
-        // environment that's missing R2 credentials fails loudly (via R2FileStorageService
-        // throwing on first use) instead of silently falling back to ephemeral local disk.
+        // R2 (Cloudflare's S3-compatible object storage) is the intended production storage for
+        // passport photos — see DEC-012. LocalFileStorageService stays available, unmodified, for
+        // local `dotnet run` without AWS-shaped credentials on hand.
+        //
+        // BLK-008 (temporary, see docs/BLOCKERS.md): R2 credentials aren't provisioned yet — no
+        // Cloudflare billing card attached — so a non-Development environment without them falls
+        // back to DbFileStorageService (Postgres bytea) instead of failing every upload with a
+        // 500, which is what happened in production until this fallback was added. Once real R2
+        // credentials are set, this picks R2 automatically again — but existing photos already
+        // saved as bytea won't be there until someone migrates them; see the blocker for the plan.
         var r2Section = configuration.GetSection("Storage:R2");
         services.Configure<LocalFileStorageOptions>(configuration.GetSection("Storage"));
         services.Configure<R2FileStorageOptions>(r2Section);
 
         var hasR2Credentials = !string.IsNullOrWhiteSpace(r2Section["AccessKey"]) && !string.IsNullOrWhiteSpace(r2Section["SecretKey"]);
-        if (env.IsDevelopment() && !hasR2Credentials)
+        if (hasR2Credentials)
+            services.AddSingleton<IFileStorageService, R2FileStorageService>();
+        else if (env.IsDevelopment())
             services.AddSingleton<IFileStorageService, LocalFileStorageService>();
         else
-            services.AddSingleton<IFileStorageService, R2FileStorageService>();
+            services.AddScoped<IFileStorageService, DbFileStorageService>();
 
         return services;
     }
