@@ -494,6 +494,37 @@ namespace AeroTravel.Infrastructure.Persistence.Migrations
                     b.ToTable("OfferTranslation");
                 });
 
+            modelBuilder.Entity("AeroTravel.Domain.Entities.PassportPhoto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<byte[]>("Content")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(260)
+                        .HasColumnType("character varying(260)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FileName")
+                        .IsUnique();
+
+                    b.ToTable("PassportPhotos");
+                });
+
             modelBuilder.Entity("AeroTravel.Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")

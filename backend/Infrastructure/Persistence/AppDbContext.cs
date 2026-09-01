@@ -21,6 +21,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<Flight> Flights => Set<Flight>();
     public DbSet<FlightPassenger> FlightPassengers => Set<FlightPassenger>();
+    public DbSet<PassportPhoto> PassportPhotos => Set<PassportPhoto>();
 
     IQueryable<Country> IReadDbContext.Countries => Countries.AsNoTracking();
     IQueryable<City> IReadDbContext.Cities => Cities.AsNoTracking();
