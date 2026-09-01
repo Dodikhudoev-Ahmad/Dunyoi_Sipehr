@@ -77,4 +77,14 @@ public class AdminFlightsController(ISender mediator, ICurrentUserService curren
     [HttpDelete("{id:guid}/passengers/{passengerId:guid}")]
     public async Task<IActionResult> DeletePassenger(Guid id, Guid passengerId, CancellationToken ct)
         => (await Mediator.Send(new DeleteFlightPassengerCommand(id, passengerId, CurrentAdminUserId), ct)).ToActionResult();
+
+    /// SuperAdmin-only override of this controller's class-level RBAC exception (see the comment
+    /// above) — moving a passenger between flights is a more consequential action than adding
+    /// one, so unlike the rest of this controller it follows the app's normal SuperAdmin-only rule.
+    [HttpPost("transfer-passenger")]
+    [Authorize(Roles = nameof(AdminRole.SuperAdmin))]
+    public async Task<IActionResult> TransferPassenger([FromBody] TransferPassengerRequest request, CancellationToken ct)
+        => (await Mediator.Send(new TransferFlightPassengerCommand(request.PassengerId, request.TargetFlightId, CurrentAdminUserId), ct)).ToActionResult();
 }
+
+public record TransferPassengerRequest(Guid PassengerId, Guid TargetFlightId);
