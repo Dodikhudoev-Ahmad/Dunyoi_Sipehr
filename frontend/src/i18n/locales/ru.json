@@ -113,7 +113,7 @@
     "childAge": "Возраст ребёнка {{index}}",
     "childAgeHint": "До 12 лет — детский тариф, с 12 лет — тариф как для взрослого",
     "passportPhoto": "Фото загранпаспорта",
-    "passportPhotoHint": "Прикрепите 1–2 фото заграничного (международного) паспорта (первая страница), JPG/PNG/WEBP, до 1 МБ каждое",
+    "passportPhotoHint": "Прикрепите фото загранпаспорта (главная страница), JPG/PNG/WEBP, до 1 МБ",
     "passportPhotoAdd": "Добавить фото",
     "passportPhotoRemove": "Удалить",
     "passportPhotoUploading": "Загрузка…",

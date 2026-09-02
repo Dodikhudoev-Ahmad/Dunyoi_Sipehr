@@ -21,7 +21,7 @@ public class PublicTravelRequestsController(ISender mediator) : ApiControllerBas
 
     /// Uploads a single passport/ID photo ahead of form submission; the returned filename is
     /// referenced in the subsequent Create call's PassportPhotoPaths. Its own, looser rate-limit
-    /// policy (5/min) — a real submission is 1-2 uploads plus the final POST, which used to share
+    /// policy (5/min) — a real submission is 1 upload plus the final POST, which used to share
     /// a single 1/min policy with Create at the controller level; that made the second request of
     /// any real submission always fail with 429. Separate policies fix that while keeping Create
     /// itself tight (see DEC-004 / the 1/min tightening pending CAPTCHA).

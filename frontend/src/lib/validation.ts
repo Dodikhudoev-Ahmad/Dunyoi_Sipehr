@@ -9,7 +9,7 @@ export function todayIso(): string {
 
 export const MAX_PASSENGERS = 9
 export const MAX_CHILD_AGE = 17
-export const MAX_PASSPORT_PHOTOS = 2
+export const MAX_PASSPORT_PHOTOS = 1
 
 /**
  * Travel Request form schema (React Hook Form + Zod per CLAUDE.md / MASTER_TZ), mirroring
