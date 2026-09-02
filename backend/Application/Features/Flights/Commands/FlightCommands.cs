@@ -44,7 +44,19 @@ public class CreateFlightCommandHandler(IApplicationDbContext db) : IRequestHand
 
         db.Flights.Add(flight);
         db.AuditLogs.Add(new AuditLog(nameof(Flight), flight.Id, "Create", request.AdminUserId));
-        await db.SaveChangesAsync(cancellationToken);
+
+        try
+        {
+            await db.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException)
+        {
+            // Two creates raced past the AnyAsync check above with the same number — the DB's
+            // unique index (FlightConfiguration) caught it, so no duplicate persists; report it
+            // the same way the pre-check above does instead of a raw 500.
+            return Result.Failure<Guid>(Error.Conflict("CONFLICT_DUPLICATE", "A flight with this number already exists."));
+        }
+
         return Result.Success(flight.Id);
     }
 }
@@ -88,7 +100,18 @@ public class UpdateFlightCommandHandler(IApplicationDbContext db) : IRequestHand
         flight.Update(input.FlightNumber, input.OriginCityId, input.DestinationCityId, input.DepartureAtUtc, input.Status);
 
         db.AuditLogs.Add(new AuditLog(nameof(Flight), flight.Id, "Update", request.AdminUserId));
-        await db.SaveChangesAsync(cancellationToken);
+
+        try
+        {
+            await db.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException)
+        {
+            // Same race as CreateFlightCommandHandler: another update claimed this number between
+            // the AnyAsync check above and this write.
+            return Result.Failure(Error.Conflict("CONFLICT_DUPLICATE", "A flight with this number already exists."));
+        }
+
         return Result.Success();
     }
 }
