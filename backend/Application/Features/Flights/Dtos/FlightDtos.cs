@@ -29,3 +29,8 @@ public record PassengerRegistryItemDto(
 
 public record AddManualPassengerInput(string FullName, string Phone);
 public record AddPassengerFromRequestInput(Guid TravelRequestId, string FullName, string Phone);
+
+/// Null when no existing flight number has a parseable trailing numeric part to increment from
+/// (empty catalog, or every number so far is non-numeric) — the create form just starts blank
+/// in that case rather than guessing a made-up starting number.
+public record NextFlightNumberDto(string? SuggestedNumber);

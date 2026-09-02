@@ -29,6 +29,11 @@ public class AdminFlightsController(ISender mediator, ICurrentUserService curren
     public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
         => (await Mediator.Send(new GetAdminFlightByIdQuery(id), ct)).ToActionResult().Result!;
 
+    /// Not a guid, so this never collides with the {id:guid} route above regardless of declaration order.
+    [HttpGet("next-number")]
+    public async Task<IActionResult> NextNumber(CancellationToken ct)
+        => (await Mediator.Send(new GetNextFlightNumberQuery(), ct)).ToActionResult().Result!;
+
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] UpsertFlightInput input, CancellationToken ct)
     {

@@ -339,6 +339,9 @@ namespace AeroTravel.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("DestinationCityId");
 
+                    b.HasIndex("FlightNumber")
+                        .IsUnique();
+
                     b.HasIndex("OriginCityId");
 
                     b.HasIndex("Status");

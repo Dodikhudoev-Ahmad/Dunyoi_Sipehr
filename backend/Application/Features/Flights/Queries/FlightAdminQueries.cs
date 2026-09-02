@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 using AeroTravel.Application.Common.Interfaces;
 using AeroTravel.Application.Common.Models;
 using AeroTravel.Application.Features.Flights.Dtos;
@@ -98,5 +99,51 @@ public class ListFlightPassengersQueryHandler(IReadDbContext db) : IRequestHandl
             .ToListAsync(cancellationToken);
 
         return Result.Success<IReadOnlyList<FlightPassengerDto>>(passengers);
+    }
+}
+
+/// Powers the "Добавить рейс" form's pre-filled number field. Looks across *every* flight, not
+/// just whatever page the list happens to have cached client-side — the list is paginated, so the
+/// highest number could easily be off-screen and a frontend-only computation would silently
+/// suggest a stale/duplicate number once there are more flights than fit on one page.
+public record GetNextFlightNumberQuery : IRequest<Result<NextFlightNumberDto>>;
+
+public class GetNextFlightNumberQueryHandler(IReadDbContext db) : IRequestHandler<GetNextFlightNumberQuery, Result<NextFlightNumberDto>>
+{
+    // Trailing run of digits, with everything before it (possibly empty) captured as the prefix —
+    // matches "FZ100" -> ("FZ", "100"), "DS-045" -> ("DS-", "045"), "45" -> ("", "45").
+    private static readonly Regex TrailingNumber = new(@"^(.*?)(\d+)$", RegexOptions.Compiled);
+
+    public async Task<Result<NextFlightNumberDto>> Handle(GetNextFlightNumberQuery request, CancellationToken cancellationToken)
+    {
+        var numbers = await db.Flights.Select(f => f.FlightNumber).ToListAsync(cancellationToken);
+
+        string? bestPrefix = null;
+        var bestValue = -1;
+        var bestDigitWidth = 0;
+
+        foreach (var number in numbers)
+        {
+            var match = TrailingNumber.Match(number);
+            if (!match.Success) continue;
+
+            var digits = match.Groups[2].Value;
+            if (!int.TryParse(digits, out var value)) continue;
+
+            if (value > bestValue)
+            {
+                bestValue = value;
+                bestPrefix = match.Groups[1].Value;
+                bestDigitWidth = digits.Length;
+            }
+        }
+
+        if (bestPrefix is null)
+            return Result.Success(new NextFlightNumberDto(null));
+
+        // Zero-padded to match the width of the number it's incrementing from (e.g. "045" -> "046",
+        // not "46") — falls out naturally once the incremented value needs an extra digit ("099" -> "100").
+        var nextDigits = (bestValue + 1).ToString().PadLeft(bestDigitWidth, '0');
+        return Result.Success(new NextFlightNumberDto($"{bestPrefix}{nextDigits}"));
     }
 }

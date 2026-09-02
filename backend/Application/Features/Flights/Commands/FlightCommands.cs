@@ -29,6 +29,10 @@ public class CreateFlightCommandHandler(IApplicationDbContext db) : IRequestHand
     {
         var input = request.Input;
 
+        var numberTaken = await db.Flights.AnyAsync(f => f.FlightNumber == input.FlightNumber, cancellationToken);
+        if (numberTaken)
+            return Result.Failure<Guid>(Error.Conflict("CONFLICT_DUPLICATE", "A flight with this number already exists."));
+
         var cityIds = await db.Cities
             .Where(c => c.Id == input.OriginCityId || c.Id == input.DestinationCityId)
             .Select(c => c.Id)
@@ -69,6 +73,10 @@ public class UpdateFlightCommandHandler(IApplicationDbContext db) : IRequestHand
             return Result.Failure(Error.NotFound("NOT_FOUND", "Flight not found."));
 
         var input = request.Input;
+
+        var numberTaken = await db.Flights.AnyAsync(f => f.FlightNumber == input.FlightNumber && f.Id != request.Id, cancellationToken);
+        if (numberTaken)
+            return Result.Failure(Error.Conflict("CONFLICT_DUPLICATE", "A flight with this number already exists."));
 
         var cityIds = await db.Cities
             .Where(c => c.Id == input.OriginCityId || c.Id == input.DestinationCityId)
