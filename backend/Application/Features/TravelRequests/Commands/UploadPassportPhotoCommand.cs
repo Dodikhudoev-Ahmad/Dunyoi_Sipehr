@@ -19,7 +19,7 @@ public class UploadPassportPhotoCommandValidator : AbstractValidator<UploadPassp
     public UploadPassportPhotoCommandValidator()
     {
         RuleFor(x => x.LengthBytes).InclusiveBetween(1, MaxSizeBytes)
-            .WithMessage("Image must be no larger than 8 MB.");
+            .WithMessage("Image must be no larger than 1 MB.");
     }
 }
 

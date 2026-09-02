@@ -123,6 +123,18 @@ builder.Services.AddRateLimiter(options =>
             Window = TimeSpan.FromMinutes(1),
             QueueLimit = 0,
         }));
+
+    // Bootstrap self-disables once one AdminUser exists (DEC-010), but until that first admin is
+    // created it's an unauthenticated endpoint — tighter than login since a real deployment only
+    // ever needs to call it once.
+    options.AddPolicy("bootstrap", context => RateLimitPartition.GetFixedWindowLimiter(
+        context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 5,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0,
+        }));
 });
 
 // ---- Response compression: every JSON API response gzip/brotli-compressed. `application/json`
