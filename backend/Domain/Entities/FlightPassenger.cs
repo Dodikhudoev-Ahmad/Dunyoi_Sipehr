@@ -16,6 +16,13 @@ public class FlightPassenger : Entity
     public Guid? AddedByAdminUserId { get; private set; }
     public DateTime AddedAtUtc { get; private set; } = DateTime.UtcNow;
 
+    /// EF Core concurrency token — the Npgsql provider maps a `uint` property marked
+    /// `IsRowVersion()` onto Postgres's built-in `xmin` system column automatically (no extra
+    /// storage or migration-managed column), so a stale write here throws
+    /// DbUpdateConcurrencyException instead of silently overwriting a concurrent transfer (see
+    /// TransferFlightPassengerCommandHandler).
+    public uint RowVersion { get; private set; }
+
     private FlightPassenger() { }
 
     public FlightPassenger(Guid flightId, FlightPassengerSource source, Guid? travelRequestId, string fullName, string phone, Guid? addedByAdminUserId)

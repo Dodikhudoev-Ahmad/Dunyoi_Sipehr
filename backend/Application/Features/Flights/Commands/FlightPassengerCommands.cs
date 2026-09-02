@@ -111,7 +111,18 @@ public class TransferFlightPassengerCommandHandler(IApplicationDbContext db) : I
 
         db.AuditLogs.Add(new AuditLog(nameof(FlightPassenger), passenger.Id, "Transfer", request.AdminUserId,
             $"{{\"fromFlightId\":\"{fromFlightId}\",\"toFlightId\":\"{request.TargetFlightId}\"}}"));
-        await db.SaveChangesAsync(cancellationToken);
+
+        try
+        {
+            await db.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // Another admin already moved this passenger between the read above and this write —
+            // fail cleanly instead of silently losing one of the two transfers (last-write-wins).
+            return Result.Failure(Error.Conflict("CONFLICT_STALE", "This passenger was just moved by someone else. Refresh and try again."));
+        }
+
         return Result.Success();
     }
 }
