@@ -91,7 +91,7 @@ export function Nav() {
           <ThemeToggle size="md" />
           <LocaleSwitcher size="md" />
           <button
-            className="flex h-10 w-10 items-center justify-center"
+            className="flex h-11 w-11 items-center justify-center"
             aria-label={t('nav.openMenu')}
             aria-expanded={open}
             onClick={() => setOpen(true)}

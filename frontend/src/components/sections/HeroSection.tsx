@@ -6,6 +6,7 @@ import { AeroMapBackground } from '@/components/ui/AeroMapBackground'
 import { FlightRouteMap } from '@/components/sections/FlightRouteMap'
 import { Button } from '@/components/ui/Button'
 import { editorialImages } from '@/lib/editorialImages'
+import { optimizeImageUrl } from '@/lib/imageOptimize'
 
 export function HeroSection() {
   const { t } = useTranslation()
@@ -20,7 +21,7 @@ export function HeroSection() {
         className="absolute inset-0"
       >
         <img
-          src={editorialImages.hero}
+          src={optimizeImageUrl(editorialImages.hero, 1600)}
           alt=""
           className="h-full w-full object-cover"
           loading="eager"
