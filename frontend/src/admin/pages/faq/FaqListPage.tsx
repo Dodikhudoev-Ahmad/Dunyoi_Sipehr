@@ -1,12 +1,13 @@
+import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { Plus, Pencil } from 'lucide-react'
+import { Plus, Pencil, Trash2 } from 'lucide-react'
 import { faqApi } from '@/api/faq'
 import type { AdminFaqItem } from '@/types/domain'
 import { findTranslation } from '@/lib/translations'
 import { PageHeader } from '@/admin/components/PageHeader'
 import { DataTable, type Column } from '@/admin/components/DataTable'
-import { ConfirmDeleteButton } from '@/admin/components/ConfirmDeleteButton'
+import { DeleteConfirmModal } from '@/admin/components/DeleteConfirmModal'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { IconActionButton } from '@/components/ui/IconActionButton'
@@ -21,12 +22,14 @@ export function FaqListPage() {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const faq = useQuery({ queryKey: ['admin', 'faq'], queryFn: () => faqApi.adminList({ page: 1, pageSize: 100, sort: 'sortOrder' }) })
+  const [deleting, setDeleting] = useState<AdminFaqItem | null>(null)
 
   const remove = useMutation({
     mutationFn: (id: string) => faqApi.adminDelete(id),
     onSuccess: () => {
       showToast('Вопрос удалён')
       void queryClient.invalidateQueries({ queryKey: ['admin', 'faq'] })
+      setDeleting(null)
     },
     onError: (error) => showToast(adminErrorMessage('Не удалось удалить вопрос', error), 'error'),
   })
@@ -43,7 +46,9 @@ export function FaqListPage() {
           <IconActionButton label="Редактировать" onClick={() => navigate(`/admin/faq/${f.id}`)}>
             <Pencil size={16} />
           </IconActionButton>
-          <ConfirmDeleteButton onConfirm={() => remove.mutate(f.id)} disabled={remove.isPending} />
+          <IconActionButton label="Удалить" tone="danger" onClick={() => setDeleting(f)}>
+            <Trash2 size={16} />
+          </IconActionButton>
         </div>
       ),
     },
@@ -65,6 +70,14 @@ export function FaqListPage() {
       {faq.isError && <ErrorState onRetry={() => faq.refetch()} />}
       {faq.isSuccess && faq.data.items.length === 0 && <EmptyState title="Вопросов пока нет" />}
       {faq.isSuccess && faq.data.items.length > 0 && <DataTable columns={columns} rows={faq.data.items} rowKey={(f) => f.id} />}
+      <DeleteConfirmModal
+        open={deleting !== null}
+        onClose={() => setDeleting(null)}
+        onConfirm={() => deleting && remove.mutate(deleting.id)}
+        isPending={remove.isPending}
+        title="Удалить вопрос?"
+        description={`Вопрос «${deleting ? (findTranslation(deleting.translations, 'ru')?.question ?? '') : ''}» будет удалён безвозвратно.`}
+      />
     </div>
   )
 }

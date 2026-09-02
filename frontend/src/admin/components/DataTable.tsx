@@ -30,8 +30,11 @@ export function DataTable<T>({ columns, rows, rowKey, sort, dir, onSort, rowClas
       <table className="w-full min-w-[640px] text-left text-sm">
         <thead>
           <tr className="border-b border-text/10 text-xs uppercase tracking-wide text-slate">
-            {columns.map((col) => (
-              <th key={col.key} className="snap-start px-4 py-3 font-medium">
+            {columns.map((col, i) => (
+              <th
+                key={col.key}
+                className={cn('snap-start px-4 py-3 font-medium', i === 0 && 'sticky left-0 z-10 border-r border-text/8 bg-elevated')}
+              >
                 {col.sortable && onSort ? (
                   <button className="flex items-center gap-1 hover:text-text" onClick={() => onSort(col.key)}>
                     {col.header}
@@ -47,8 +50,11 @@ export function DataTable<T>({ columns, rows, rowKey, sort, dir, onSort, rowClas
         <tbody>
           {rows.map((row) => (
             <tr key={rowKey(row)} className={cn('border-b border-text/5 last:border-0 hover:bg-text/2', rowClassName?.(row))}>
-              {columns.map((col) => (
-                <td key={col.key} className="px-4 py-3 align-middle">
+              {columns.map((col, i) => (
+                <td
+                  key={col.key}
+                  className={cn('px-4 py-3 align-middle', i === 0 && 'sticky left-0 z-10 border-r border-text/8 bg-elevated')}
+                >
                   {col.render(row)}
                 </td>
               ))}

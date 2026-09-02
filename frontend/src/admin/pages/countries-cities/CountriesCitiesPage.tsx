@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus, Pencil } from 'lucide-react'
+import { Plus, Pencil, Trash2 } from 'lucide-react'
 import { countriesApi } from '@/api/countries'
 import { citiesApi } from '@/api/cities'
 import { LOCALES, type AdminCountryItem, type AdminCityItem } from '@/types/domain'
 import { findTranslation } from '@/lib/translations'
 import { PageHeader } from '@/admin/components/PageHeader'
 import { DataTable, type Column } from '@/admin/components/DataTable'
-import { ConfirmDeleteButton } from '@/admin/components/ConfirmDeleteButton'
+import { DeleteConfirmModal } from '@/admin/components/DeleteConfirmModal'
 import { Button } from '@/components/ui/Button'
 import { IconActionButton } from '@/components/ui/IconActionButton'
 import { Input, FieldLabel, FieldError } from '@/components/ui/Input'
@@ -47,6 +47,8 @@ export function CountriesCitiesPage() {
   const [cityForm, setCityForm] = useState<CityFormState | null>(null)
   const [countryErrors, setCountryErrors] = useState<Record<string, string | undefined>>({})
   const [cityErrors, setCityErrors] = useState<Record<string, string | undefined>>({})
+  const [deletingCountry, setDeletingCountry] = useState<AdminCountryItem | null>(null)
+  const [deletingCity, setDeletingCity] = useState<AdminCityItem | null>(null)
 
   // Mirrors CreateCountryCommandValidator/UpdateCountryCommandValidator
   // (backend/Application/Features/Countries/Commands/CountryCommands.cs).
@@ -102,6 +104,7 @@ export function CountriesCitiesPage() {
     onSuccess: () => {
       showToast('Страна удалена')
       void queryClient.invalidateQueries({ queryKey: ['admin', 'countries'] })
+      setDeletingCountry(null)
     },
     onError: (error) => showToast(adminErrorMessage('Не удалось удалить страну', error), 'error'),
   })
@@ -132,6 +135,7 @@ export function CountriesCitiesPage() {
     onSuccess: () => {
       showToast('Город удалён')
       void queryClient.invalidateQueries({ queryKey: ['admin', 'cities'] })
+      setDeletingCity(null)
     },
     onError: (error) => showToast(adminErrorMessage('Не удалось удалить город', error), 'error'),
   })
@@ -159,7 +163,9 @@ export function CountriesCitiesPage() {
           >
             <Pencil size={16} />
           </IconActionButton>
-          <ConfirmDeleteButton onConfirm={() => deleteCountry.mutate(c.id)} disabled={deleteCountry.isPending} />
+          <IconActionButton label="Удалить" tone="danger" onClick={() => setDeletingCountry(c)}>
+            <Trash2 size={16} />
+          </IconActionButton>
         </div>
       ),
     },
@@ -195,7 +201,9 @@ export function CountriesCitiesPage() {
           >
             <Pencil size={16} />
           </IconActionButton>
-          <ConfirmDeleteButton onConfirm={() => deleteCity.mutate(c.id)} disabled={deleteCity.isPending} />
+          <IconActionButton label="Удалить" tone="danger" onClick={() => setDeletingCity(c)}>
+            <Trash2 size={16} />
+          </IconActionButton>
         </div>
       ),
     },
@@ -326,6 +334,23 @@ export function CountriesCitiesPage() {
         {cities.isSuccess && cities.data.items.length === 0 && <EmptyState title="Городов пока нет" />}
         {cities.isSuccess && cities.data.items.length > 0 && <DataTable columns={cityColumns} rows={cities.data.items} rowKey={(c) => c.id} />}
       </div>
+
+      <DeleteConfirmModal
+        open={deletingCountry !== null}
+        onClose={() => setDeletingCountry(null)}
+        onConfirm={() => deletingCountry && deleteCountry.mutate(deletingCountry.id)}
+        isPending={deleteCountry.isPending}
+        title="Удалить страну?"
+        description={`Страна «${deletingCountry ? (findTranslation(deletingCountry.translations, 'ru')?.name ?? deletingCountry.isoCode) : ''}» будет удалена безвозвратно.`}
+      />
+      <DeleteConfirmModal
+        open={deletingCity !== null}
+        onClose={() => setDeletingCity(null)}
+        onConfirm={() => deletingCity && deleteCity.mutate(deletingCity.id)}
+        isPending={deleteCity.isPending}
+        title="Удалить город?"
+        description={`Город «${deletingCity ? (findTranslation(deletingCity.translations, 'ru')?.name ?? '') : ''}» будет удалён безвозвратно.`}
+      />
     </div>
   )
 }

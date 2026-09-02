@@ -5,8 +5,8 @@ import { Tooltip } from './Tooltip'
 type Tone = 'neutral' | 'danger'
 
 // Same hover-fill convention as the CRM board's arrow buttons (rounded-md, transition-colors,
-// hover:bg-brand-subtle hover:text-brand -- see CrmBoardPage.tsx) and the danger styling already
-// used on ConfirmDeleteButton (text-danger hover:bg-danger/10).
+// hover:bg-brand-subtle hover:text-brand -- see CrmBoardPage.tsx) and the danger styling used on
+// every row-level delete trigger (text-danger hover:bg-danger/10) that opens DeleteConfirmModal.
 const toneClasses: Record<Tone, string> = {
   neutral: 'text-slate hover:bg-brand-subtle hover:text-brand',
   danger: 'text-danger hover:bg-danger/10',

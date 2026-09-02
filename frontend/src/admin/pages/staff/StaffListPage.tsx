@@ -6,6 +6,7 @@ import type { AdminRole, AdminStaff } from '@/types/domain'
 import { useAuth } from '@/hooks/useAuth'
 import { PageHeader } from '@/admin/components/PageHeader'
 import { DataTable, type Column } from '@/admin/components/DataTable'
+import { DeleteConfirmModal } from '@/admin/components/DeleteConfirmModal'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { IconActionButton } from '@/components/ui/IconActionButton'
@@ -158,6 +159,7 @@ export function StaffListPage() {
   const queryClient = useQueryClient()
   const [addOpen, setAddOpen] = useState(false)
   const [revealedPassword, setRevealedPassword] = useState<string | null>(null)
+  const [deactivating, setDeactivating] = useState<AdminStaff | null>(null)
 
   const staff = useQuery({
     queryKey: STAFF_KEY,
@@ -169,6 +171,7 @@ export function StaffListPage() {
     onSuccess: () => {
       showToast('Изменения сохранены')
       void queryClient.invalidateQueries({ queryKey: STAFF_KEY })
+      setDeactivating(null)
     },
     onError: (error) => showToast(adminErrorMessage('Не удалось изменить сотрудника', error), 'error'),
   })
@@ -227,7 +230,7 @@ export function StaffListPage() {
             <IconActionButton
               label={s.id === currentAdmin?.id ? 'Нельзя деактивировать свой аккаунт' : 'Деактивировать'}
               tone="danger"
-              onClick={() => update.mutate({ id: s.id, isActive: false })}
+              onClick={() => setDeactivating(s)}
               disabled={update.isPending || s.id === currentAdmin?.id}
             >
               <Ban size={16} />
@@ -266,6 +269,15 @@ export function StaffListPage() {
 
       <AddStaffModal open={addOpen} onClose={() => setAddOpen(false)} />
       <RevealPasswordModal password={revealedPassword} onClose={() => setRevealedPassword(null)} />
+      <DeleteConfirmModal
+        open={deactivating !== null}
+        onClose={() => setDeactivating(null)}
+        onConfirm={() => deactivating && update.mutate({ id: deactivating.id, isActive: false })}
+        isPending={update.isPending}
+        title="Деактивировать сотрудника?"
+        description={`${deactivating?.displayName} потеряет доступ к админ-панели. Аккаунт можно будет активировать обратно.`}
+        confirmLabel="Деактивировать"
+      />
     </div>
   )
 }
