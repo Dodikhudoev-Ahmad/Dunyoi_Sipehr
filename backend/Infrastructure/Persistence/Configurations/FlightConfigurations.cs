@@ -10,11 +10,13 @@ public class FlightConfiguration : IEntityTypeConfiguration<Flight>
     {
         builder.HasKey(x => x.Id);
         builder.Property(x => x.FlightNumber).HasMaxLength(20).IsRequired();
-        builder.Property(x => x.OriginCity).HasMaxLength(200).IsRequired();
-        builder.Property(x => x.DestinationCity).HasMaxLength(200).IsRequired();
         builder.HasIndex(x => x.DepartureAtUtc);
         builder.HasIndex(x => x.Status);
         builder.HasOne<AdminUser>().WithMany().HasForeignKey(x => x.CreatedByAdminUserId).OnDelete(DeleteBehavior.SetNull);
+        // Restrict, matching Destination -> City (CatalogConfigurations.cs): a city with flights
+        // referencing it can't be silently deleted out from under them.
+        builder.HasOne<City>().WithMany().HasForeignKey(x => x.OriginCityId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<City>().WithMany().HasForeignKey(x => x.DestinationCityId).OnDelete(DeleteBehavior.Restrict);
     }
 }
 

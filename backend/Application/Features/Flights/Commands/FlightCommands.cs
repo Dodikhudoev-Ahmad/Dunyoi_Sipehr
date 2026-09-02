@@ -15,8 +15,10 @@ public class CreateFlightCommandValidator : AbstractValidator<CreateFlightComman
     public CreateFlightCommandValidator()
     {
         RuleFor(x => x.Input.FlightNumber).NotEmpty().MaximumLength(20);
-        RuleFor(x => x.Input.OriginCity).NotEmpty().MaximumLength(200);
-        RuleFor(x => x.Input.DestinationCity).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.Input.OriginCityId).NotEmpty();
+        RuleFor(x => x.Input.DestinationCityId).NotEmpty();
+        RuleFor(x => x.Input.DestinationCityId).NotEqual(x => x.Input.OriginCityId)
+            .WithMessage("Origin and destination city must be different.");
         RuleFor(x => x.Input.Status).IsInEnum();
     }
 }
@@ -26,7 +28,15 @@ public class CreateFlightCommandHandler(IApplicationDbContext db) : IRequestHand
     public async Task<Result<Guid>> Handle(CreateFlightCommand request, CancellationToken cancellationToken)
     {
         var input = request.Input;
-        var flight = new Flight(input.FlightNumber, input.OriginCity, input.DestinationCity, input.DepartureAtUtc, request.AdminUserId);
+
+        var cityIds = await db.Cities
+            .Where(c => c.Id == input.OriginCityId || c.Id == input.DestinationCityId)
+            .Select(c => c.Id)
+            .ToListAsync(cancellationToken);
+        if (!cityIds.Contains(input.OriginCityId) || !cityIds.Contains(input.DestinationCityId))
+            return Result.Failure<Guid>(Error.NotFound("NOT_FOUND", "Origin or destination city not found."));
+
+        var flight = new Flight(input.FlightNumber, input.OriginCityId, input.DestinationCityId, input.DepartureAtUtc, request.AdminUserId);
 
         db.Flights.Add(flight);
         db.AuditLogs.Add(new AuditLog(nameof(Flight), flight.Id, "Create", request.AdminUserId));
@@ -42,8 +52,10 @@ public class UpdateFlightCommandValidator : AbstractValidator<UpdateFlightComman
     public UpdateFlightCommandValidator()
     {
         RuleFor(x => x.Input.FlightNumber).NotEmpty().MaximumLength(20);
-        RuleFor(x => x.Input.OriginCity).NotEmpty().MaximumLength(200);
-        RuleFor(x => x.Input.DestinationCity).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.Input.OriginCityId).NotEmpty();
+        RuleFor(x => x.Input.DestinationCityId).NotEmpty();
+        RuleFor(x => x.Input.DestinationCityId).NotEqual(x => x.Input.OriginCityId)
+            .WithMessage("Origin and destination city must be different.");
         RuleFor(x => x.Input.Status).IsInEnum();
     }
 }
@@ -57,7 +69,15 @@ public class UpdateFlightCommandHandler(IApplicationDbContext db) : IRequestHand
             return Result.Failure(Error.NotFound("NOT_FOUND", "Flight not found."));
 
         var input = request.Input;
-        flight.Update(input.FlightNumber, input.OriginCity, input.DestinationCity, input.DepartureAtUtc, input.Status);
+
+        var cityIds = await db.Cities
+            .Where(c => c.Id == input.OriginCityId || c.Id == input.DestinationCityId)
+            .Select(c => c.Id)
+            .ToListAsync(cancellationToken);
+        if (!cityIds.Contains(input.OriginCityId) || !cityIds.Contains(input.DestinationCityId))
+            return Result.Failure(Error.NotFound("NOT_FOUND", "Origin or destination city not found."));
+
+        flight.Update(input.FlightNumber, input.OriginCityId, input.DestinationCityId, input.DepartureAtUtc, input.Status);
 
         db.AuditLogs.Add(new AuditLog(nameof(Flight), flight.Id, "Update", request.AdminUserId));
         await db.SaveChangesAsync(cancellationToken);

@@ -2,14 +2,18 @@ using AeroTravel.Domain.Enums;
 
 namespace AeroTravel.Application.Features.Flights.Dtos;
 
-public record UpsertFlightInput(string FlightNumber, string OriginCity, string DestinationCity, DateTime DepartureAtUtc, FlightStatus Status);
+public record UpsertFlightInput(string FlightNumber, Guid OriginCityId, Guid DestinationCityId, DateTime DepartureAtUtc, FlightStatus Status);
 
+/// OriginCity/DestinationCity are the resolved ru-locale city names (admin UI is ru-only), kept
+/// alongside the raw ids so list/detail views can render the route as text without a second
+/// lookup, while the edit form still has the ids to pre-select the right dropdown option.
 public record FlightListItemDto(
-    Guid Id, string FlightNumber, string OriginCity, string DestinationCity, DateTime DepartureAtUtc, FlightStatus Status,
-    int PassengerCount, DateTime CreatedAtUtc);
+    Guid Id, string FlightNumber, Guid OriginCityId, string OriginCity, Guid DestinationCityId, string DestinationCity,
+    DateTime DepartureAtUtc, FlightStatus Status, int PassengerCount, DateTime CreatedAtUtc);
 
 public record FlightDetailDto(
-    Guid Id, string FlightNumber, string OriginCity, string DestinationCity, DateTime DepartureAtUtc, FlightStatus Status,
+    Guid Id, string FlightNumber, Guid OriginCityId, string OriginCity, Guid DestinationCityId, string DestinationCity,
+    DateTime DepartureAtUtc, FlightStatus Status,
     Guid? CreatedByAdminUserId, string? CreatedByAdminDisplayName, DateTime CreatedAtUtc);
 
 public record FlightPassengerDto(
