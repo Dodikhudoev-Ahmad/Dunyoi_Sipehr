@@ -317,20 +317,16 @@ namespace AeroTravel.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("DepartureAtUtc")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("DestinationCity")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                    b.Property<Guid>("DestinationCityId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("FlightNumber")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
-                    b.Property<string>("OriginCity")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                    b.Property<Guid>("OriginCityId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
@@ -340,6 +336,10 @@ namespace AeroTravel.Infrastructure.Persistence.Migrations
                     b.HasIndex("CreatedByAdminUserId");
 
                     b.HasIndex("DepartureAtUtc");
+
+                    b.HasIndex("DestinationCityId");
+
+                    b.HasIndex("OriginCityId");
 
                     b.HasIndex("Status");
 
@@ -912,6 +912,18 @@ namespace AeroTravel.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("CreatedByAdminUserId")
                         .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("AeroTravel.Domain.Entities.City", null)
+                        .WithMany()
+                        .HasForeignKey("DestinationCityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AeroTravel.Domain.Entities.City", null)
+                        .WithMany()
+                        .HasForeignKey("OriginCityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("AeroTravel.Domain.Entities.FlightPassenger", b =>

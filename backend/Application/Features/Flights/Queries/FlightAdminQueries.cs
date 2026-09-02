@@ -33,7 +33,9 @@ public class ListAdminFlightsQueryHandler(IReadDbContext db) : IRequestHandler<L
         if (!string.IsNullOrWhiteSpace(request.Search))
         {
             var term = request.Search.Trim();
-            query = query.Where(f => f.FlightNumber.Contains(term) || f.OriginCity.Contains(term) || f.DestinationCity.Contains(term));
+            query = query.Where(f => f.FlightNumber.Contains(term)
+                || db.Cities.Where(c => c.Id == f.OriginCityId).SelectMany(c => c.Translations).Any(t => t.Name.Contains(term))
+                || db.Cities.Where(c => c.Id == f.DestinationCityId).SelectMany(c => c.Translations).Any(t => t.Name.Contains(term)));
         }
 
         var page = request.Page < 1 ? 1 : request.Page;
@@ -43,7 +45,10 @@ public class ListAdminFlightsQueryHandler(IReadDbContext db) : IRequestHandler<L
         var total = await query.CountAsync(cancellationToken);
         var items = await query.Skip((page - 1) * pageSize).Take(pageSize)
             .Select(f => new FlightListItemDto(
-                f.Id, f.FlightNumber, f.OriginCity, f.DestinationCity, f.DepartureAtUtc, f.Status,
+                f.Id, f.FlightNumber,
+                f.OriginCityId, db.Cities.Where(c => c.Id == f.OriginCityId).SelectMany(c => c.Translations).Where(t => t.Locale == Locale.Ru).Select(t => t.Name).FirstOrDefault() ?? "—",
+                f.DestinationCityId, db.Cities.Where(c => c.Id == f.DestinationCityId).SelectMany(c => c.Translations).Where(t => t.Locale == Locale.Ru).Select(t => t.Name).FirstOrDefault() ?? "—",
+                f.DepartureAtUtc, f.Status,
                 db.FlightPassengers.Count(p => p.FlightId == f.Id), f.CreatedAtUtc))
             .ToListAsync(cancellationToken);
 
@@ -59,7 +64,10 @@ public class GetAdminFlightByIdQueryHandler(IReadDbContext db) : IRequestHandler
     {
         var dto = await db.Flights.Where(f => f.Id == request.Id)
             .Select(f => new FlightDetailDto(
-                f.Id, f.FlightNumber, f.OriginCity, f.DestinationCity, f.DepartureAtUtc, f.Status,
+                f.Id, f.FlightNumber,
+                f.OriginCityId, db.Cities.Where(c => c.Id == f.OriginCityId).SelectMany(c => c.Translations).Where(t => t.Locale == Locale.Ru).Select(t => t.Name).FirstOrDefault() ?? "—",
+                f.DestinationCityId, db.Cities.Where(c => c.Id == f.DestinationCityId).SelectMany(c => c.Translations).Where(t => t.Locale == Locale.Ru).Select(t => t.Name).FirstOrDefault() ?? "—",
+                f.DepartureAtUtc, f.Status,
                 f.CreatedByAdminUserId, db.AdminUsers.Where(a => a.Id == f.CreatedByAdminUserId).Select(a => a.DisplayName).FirstOrDefault(),
                 f.CreatedAtUtc))
             .FirstOrDefaultAsync(cancellationToken);

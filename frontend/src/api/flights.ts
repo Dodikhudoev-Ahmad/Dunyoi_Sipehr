@@ -5,8 +5,8 @@ import type { Flight, FlightDetail, FlightPassenger, FlightStatus, PassengerRegi
 
 export interface UpsertFlightPayload {
   flightNumber: string
-  originCity: string
-  destinationCity: string
+  originCityId: string
+  destinationCityId: string
   departureAtUtc: string
   status: FlightStatus
 }

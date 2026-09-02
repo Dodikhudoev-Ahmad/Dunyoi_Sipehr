@@ -368,7 +368,10 @@ export type FlightPassengerSource = 'Manual' | 'Crm'
 export interface Flight {
   id: string
   flightNumber: string
+  /** Resolved ru-locale city name — see originCityId for the id the edit form needs. */
+  originCityId: string
   originCity: string
+  destinationCityId: string
   destinationCity: string
   departureAtUtc: string
   status: FlightStatus
@@ -379,7 +382,9 @@ export interface Flight {
 export interface FlightDetail {
   id: string
   flightNumber: string
+  originCityId: string
   originCity: string
+  destinationCityId: string
   destinationCity: string
   departureAtUtc: string
   status: FlightStatus
