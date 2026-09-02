@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { citiesApi } from '@/api/cities'
+import { flightsApi } from '@/api/flights'
 import { findTranslation } from '@/lib/translations'
 import type { Flight, FlightDetail, FlightStatus } from '@/types/domain'
 import type { UpsertFlightPayload } from '@/api/flights'
@@ -45,14 +46,35 @@ export function FlightFormModal({ open, onClose, onSubmit, isPending, flight }: 
     enabled: open,
   })
 
+  // Only fetched when creating (never overwrites an existing flight's real number on edit) —
+  // computed server-side across every flight, not just the paginated list this modal's caller
+  // has cached, so it stays correct once there are more flights than fit on one page.
+  const nextNumber = useQuery({
+    queryKey: ['admin', 'flights', 'next-number'],
+    queryFn: () => flightsApi.adminGetNextNumber(),
+    enabled: open && !flight,
+  })
+  // Guards against the suggestion landing after the admin has already started typing their own
+  // number — applied at most once per time the modal opens, and only into a still-empty field.
+  const appliedSuggestionRef = useRef(false)
+
   useEffect(() => {
     if (!open) return
+    appliedSuggestionRef.current = false
     setFlightNumber(flight?.flightNumber ?? '')
     setOriginCityId(flight?.originCityId ?? '')
     setDestinationCityId(flight?.destinationCityId ?? '')
     setDepartureAt(flight ? toLocalInputValue(flight.departureAtUtc) : '')
     setStatus(flight?.status ?? 'Scheduled')
   }, [open, flight])
+
+  useEffect(() => {
+    if (!open || flight || appliedSuggestionRef.current) return
+    const suggested = nextNumber.data?.suggestedNumber
+    if (!suggested) return
+    appliedSuggestionRef.current = true
+    setFlightNumber((current) => (current === '' ? suggested : current))
+  }, [open, flight, nextNumber.data])
 
   const sameCity = originCityId.length > 0 && originCityId === destinationCityId
   const canSubmit =

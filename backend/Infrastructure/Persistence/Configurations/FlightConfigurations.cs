@@ -10,6 +10,7 @@ public class FlightConfiguration : IEntityTypeConfiguration<Flight>
     {
         builder.HasKey(x => x.Id);
         builder.Property(x => x.FlightNumber).HasMaxLength(20).IsRequired();
+        builder.HasIndex(x => x.FlightNumber).IsUnique();
         builder.HasIndex(x => x.DepartureAtUtc);
         builder.HasIndex(x => x.Status);
         builder.HasOne<AdminUser>().WithMany().HasForeignKey(x => x.CreatedByAdminUserId).OnDelete(DeleteBehavior.SetNull);

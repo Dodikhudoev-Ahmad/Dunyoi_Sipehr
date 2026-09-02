@@ -1,7 +1,7 @@
 import { forwardRef, type ButtonHTMLAttributes } from 'react'
 import { cn } from '@/lib/cn'
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'excel'
+type Variant = 'primary' | 'secondary' | 'ghost' | 'excel' | 'danger'
 type Size = 'sm' | 'md' | 'lg'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -16,6 +16,10 @@ const variantClasses: Record<Variant, string> = {
   // Excel-brand green (#217346, MS Office's own swatch) for the requests export button — kept
   // entirely out of the blue brand palette so hover/focus never drift toward the site's blue.
   excel: 'bg-[#217346] text-white hover:bg-[#1a5c38] focus-visible:ring-[#217346]/50',
+  // Solid version of the app's existing --color-danger token (already used everywhere else as a
+  // subtle bg-danger/10 + text-danger accent) — for a destructive confirm button inside a modal,
+  // where that subtle treatment would read as barely-there rather than "this deletes something".
+  danger: 'bg-danger text-white hover:bg-danger/85 focus-visible:ring-danger/50',
 }
 
 const sizeClasses: Record<Size, string> = {

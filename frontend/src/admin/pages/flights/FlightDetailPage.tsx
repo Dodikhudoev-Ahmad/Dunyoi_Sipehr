@@ -1,14 +1,14 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, Eye, Plus } from 'lucide-react'
+import { ArrowLeft, Eye, Plus, Trash2 } from 'lucide-react'
 import { flightsApi } from '@/api/flights'
 import type { FlightPassenger } from '@/types/domain'
 import { PageHeader } from '@/admin/components/PageHeader'
 import { DataTable, type Column } from '@/admin/components/DataTable'
 import { AddPassengerModal } from '@/admin/components/AddPassengerModal'
 import { FlightFormModal } from '@/admin/components/FlightFormModal'
-import { ConfirmDeleteButton } from '@/admin/components/ConfirmDeleteButton'
+import { DeleteConfirmModal } from '@/admin/components/DeleteConfirmModal'
 import { PassengerCardModal } from '@/admin/components/PassengerCardModal'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
@@ -42,6 +42,7 @@ export function FlightDetailPage() {
   const [editOpen, setEditOpen] = useState(false)
   const [exporting, setExporting] = useState(false)
   const [viewingPassenger, setViewingPassenger] = useState<FlightPassenger | null>(null)
+  const [deletingPassenger, setDeletingPassenger] = useState<FlightPassenger | null>(null)
 
   const flightKey = ['admin', 'flight', id]
   const passengersKey = ['admin', 'flight-passengers', id]
@@ -66,6 +67,7 @@ export function FlightDetailPage() {
       showToast('Участник удалён')
       void queryClient.invalidateQueries({ queryKey: passengersKey })
       void queryClient.invalidateQueries({ queryKey: ['admin', 'flights'] })
+      setDeletingPassenger(null)
     },
     onError: (error) => showToast(adminErrorMessage('Не удалось удалить участника', error), 'error'),
   })
@@ -104,7 +106,9 @@ export function FlightDetailPage() {
           <IconActionButton label="Просмотр" onClick={() => setViewingPassenger(p)}>
             <Eye size={16} />
           </IconActionButton>
-          <ConfirmDeleteButton onConfirm={() => removePassenger.mutate(p.id)} disabled={removePassenger.isPending} />
+          <IconActionButton label="Удалить" tone="danger" onClick={() => setDeletingPassenger(p)}>
+            <Trash2 size={16} />
+          </IconActionButton>
         </div>
       ),
     },
@@ -174,6 +178,14 @@ export function FlightDetailPage() {
         flightLabel={`${f.flightNumber} — ${f.originCity} → ${f.destinationCity}`}
         onClose={() => setViewingPassenger(null)}
         onTransferred={() => setViewingPassenger(null)}
+      />
+      <DeleteConfirmModal
+        open={deletingPassenger !== null}
+        onClose={() => setDeletingPassenger(null)}
+        onConfirm={() => deletingPassenger && removePassenger.mutate(deletingPassenger.id)}
+        isPending={removePassenger.isPending}
+        title="Удалить участника?"
+        description={`${deletingPassenger?.fullName} будет удалён из рейса.`}
       />
     </div>
   )

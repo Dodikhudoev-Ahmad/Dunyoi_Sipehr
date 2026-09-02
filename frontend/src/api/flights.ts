@@ -15,6 +15,10 @@ export const flightsApi = {
   adminList: (query: ListQuery & { status?: FlightStatus; fromUtc?: string; toUtc?: string; search?: string }) =>
     apiGet<PagedResult<Flight>>(`/admin/flights${toQueryString({ ...query })}`),
   adminGet: (id: string) => apiGet<FlightDetail>(`/admin/flights/${id}`),
+  /** Suggested next flight number for the "Добавить рейс" form, computed server-side across every
+   * flight (not just whatever page is cached client-side). Null when no existing number has a
+   * parseable trailing digit run to increment from. */
+  adminGetNextNumber: () => apiGet<{ suggestedNumber: string | null }>('/admin/flights/next-number'),
   adminCreate: (payload: UpsertFlightPayload) => apiPost<{ id: string }>('/admin/flights', payload),
   adminUpdate: (id: string, payload: UpsertFlightPayload) => apiPut<void>(`/admin/flights/${id}`, payload),
   adminDelete: (id: string) => apiDelete<void>(`/admin/flights/${id}`),
