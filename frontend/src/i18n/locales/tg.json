@@ -113,7 +113,7 @@
     "childAge": "Синну соли кӯдак {{index}}",
     "childAgeHint": "То 12 сола — тарифи кӯдакона, аз 12 сола — тарифи калонсолон",
     "passportPhoto": "Сурати шиносномаи хориҷӣ",
-    "passportPhotoHint": "1–2 сурати шиносномаи хориҷиро замима кунед (саҳифаи якум), JPG/PNG/WEBP, ҳадди аксар 1 МБ ҳар кадом",
+    "passportPhotoHint": "Сурати шиносномаи хориҷиро замима кунед (саҳифаи асосӣ), JPG/PNG/WEBP, ҳадди аксар 1 МБ",
     "passportPhotoAdd": "Илова кардани сурат",
     "passportPhotoRemove": "Нест кардан",
     "passportPhotoUploading": "Боргузорӣ…",

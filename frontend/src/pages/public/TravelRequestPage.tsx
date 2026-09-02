@@ -567,7 +567,6 @@ export function TravelRequestPage() {
                       <input
                         type="file"
                         accept="image/*"
-                        capture="environment"
                         className="hidden"
                         onChange={(e) => {
                           addPhotoFiles(e.target.files)

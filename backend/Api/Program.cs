@@ -103,7 +103,7 @@ builder.Services.AddRateLimiter(options =>
             QueueLimit = 0,
         }));
 
-    // Passport-photo upload — a real submission needs up to 2 (MAX_PASSPORT_PHOTOS) plus room
+    // Passport-photo upload — a real submission needs exactly 1 (MaxPassportPhotos) plus room
     // for a retry after a network hiccup, so 5/min still comfortably covers legitimate use while
     // capping how many files an abuser can write per minute.
     options.AddPolicy("travel-request-photo-upload", context => RateLimitPartition.GetFixedWindowLimiter(
