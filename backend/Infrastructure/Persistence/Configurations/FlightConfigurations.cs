@@ -36,5 +36,8 @@ public class FlightPassengerConfiguration : IEntityTypeConfiguration<FlightPasse
             .HasFilter("\"TravelRequestId\" IS NOT NULL");
         builder.HasOne<TravelRequest>().WithMany().HasForeignKey(x => x.TravelRequestId).OnDelete(DeleteBehavior.SetNull);
         builder.HasOne<AdminUser>().WithMany().HasForeignKey(x => x.AddedByAdminUserId).OnDelete(DeleteBehavior.SetNull);
+        // Npgsql maps this onto the built-in xmin system column (see RowVersion doc comment on
+        // the entity) — no extra storage or migration-managed column.
+        builder.Property(x => x.RowVersion).IsRowVersion();
     }
 }
