@@ -112,6 +112,10 @@
 
 html {
   scroll-behavior: smooth;
+  /* iOS Safari's rubber-band overscroll reveals blank space past the top/bottom edge of the
+     document while scrolling — reported as a "large empty area" below the last block on long
+     mobile pages (e.g. TravelRequestDetailPage). Suppress it at the root scroller. */
+  overscroll-behavior-y: none;
 }
 
 body {
