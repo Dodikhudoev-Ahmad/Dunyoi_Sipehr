@@ -52,6 +52,7 @@ public class AuthController(ISender mediator, IWebHostEnvironment env) : ApiCont
         => (await Mediator.Send(new MeQuery(), ct)).ToActionResult().Result ?? NoContent();
 
     [HttpPost("bootstrap")]
+    [EnableRateLimiting("bootstrap")]
     public async Task<IActionResult> Bootstrap([FromBody] BootstrapAdminCommand command, CancellationToken ct)
         => (await Mediator.Send(command, ct)).ToActionResult().Result ?? NoContent();
 
