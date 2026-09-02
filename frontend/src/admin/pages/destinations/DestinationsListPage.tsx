@@ -1,11 +1,12 @@
+import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { Plus, Pencil } from 'lucide-react'
+import { Plus, Pencil, Trash2 } from 'lucide-react'
 import { destinationsApi } from '@/api/destinations'
 import type { AdminDestinationListItem } from '@/types/domain'
 import { PageHeader } from '@/admin/components/PageHeader'
 import { DataTable, type Column } from '@/admin/components/DataTable'
-import { ConfirmDeleteButton } from '@/admin/components/ConfirmDeleteButton'
+import { DeleteConfirmModal } from '@/admin/components/DeleteConfirmModal'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { IconActionButton } from '@/components/ui/IconActionButton'
@@ -22,6 +23,7 @@ export function DestinationsListPage() {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const { page, setPage, sort, dir, toggleSort } = useListState('sortOrder')
+  const [deleting, setDeleting] = useState<AdminDestinationListItem | null>(null)
 
   const destinations = useQuery({
     queryKey: ['admin', 'destinations', page, sort, dir],
@@ -33,6 +35,7 @@ export function DestinationsListPage() {
     onSuccess: () => {
       showToast('Направление удалено')
       void queryClient.invalidateQueries({ queryKey: ['admin', 'destinations'] })
+      setDeleting(null)
     },
     onError: (error) => showToast(adminErrorMessage('Не удалось удалить направление', error), 'error'),
   })
@@ -51,7 +54,9 @@ export function DestinationsListPage() {
           <IconActionButton label="Редактировать" onClick={() => navigate(`/admin/destinations/${d.id}`)}>
             <Pencil size={16} />
           </IconActionButton>
-          <ConfirmDeleteButton onConfirm={() => remove.mutate(d.id)} disabled={remove.isPending} />
+          <IconActionButton label="Удалить" tone="danger" onClick={() => setDeleting(d)}>
+            <Trash2 size={16} />
+          </IconActionButton>
         </div>
       ),
     },
@@ -78,6 +83,14 @@ export function DestinationsListPage() {
           <Pagination page={destinations.data.page} totalPages={destinations.data.totalPages} onChange={setPage} />
         </>
       )}
+      <DeleteConfirmModal
+        open={deleting !== null}
+        onClose={() => setDeleting(null)}
+        onConfirm={() => deleting && remove.mutate(deleting.id)}
+        isPending={remove.isPending}
+        title="Удалить направление?"
+        description={`Направление «${deleting?.slug}» будет удалено безвозвратно.`}
+      />
     </div>
   )
 }

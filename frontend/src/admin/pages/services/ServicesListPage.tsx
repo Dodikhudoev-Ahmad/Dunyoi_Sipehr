@@ -1,12 +1,13 @@
+import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { Plus, Pencil } from 'lucide-react'
+import { Plus, Pencil, Trash2 } from 'lucide-react'
 import { servicesApi } from '@/api/services'
 import type { AdminServiceItem } from '@/types/domain'
 import { findTranslation } from '@/lib/translations'
 import { PageHeader } from '@/admin/components/PageHeader'
 import { DataTable, type Column } from '@/admin/components/DataTable'
-import { ConfirmDeleteButton } from '@/admin/components/ConfirmDeleteButton'
+import { DeleteConfirmModal } from '@/admin/components/DeleteConfirmModal'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { IconActionButton } from '@/components/ui/IconActionButton'
@@ -21,12 +22,14 @@ export function ServicesListPage() {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const services = useQuery({ queryKey: ['admin', 'services'], queryFn: () => servicesApi.adminList({ page: 1, pageSize: 100, sort: 'sortOrder' }) })
+  const [deleting, setDeleting] = useState<AdminServiceItem | null>(null)
 
   const remove = useMutation({
     mutationFn: (id: string) => servicesApi.adminDelete(id),
     onSuccess: () => {
       showToast('Услуга удалена')
       void queryClient.invalidateQueries({ queryKey: ['admin', 'services'] })
+      setDeleting(null)
     },
     onError: (error) => showToast(adminErrorMessage('Не удалось удалить услугу', error), 'error'),
   })
@@ -43,7 +46,9 @@ export function ServicesListPage() {
           <IconActionButton label="Редактировать" onClick={() => navigate(`/admin/services/${s.id}`)}>
             <Pencil size={16} />
           </IconActionButton>
-          <ConfirmDeleteButton onConfirm={() => remove.mutate(s.id)} disabled={remove.isPending} />
+          <IconActionButton label="Удалить" tone="danger" onClick={() => setDeleting(s)}>
+            <Trash2 size={16} />
+          </IconActionButton>
         </div>
       ),
     },
@@ -65,6 +70,14 @@ export function ServicesListPage() {
       {services.isError && <ErrorState onRetry={() => services.refetch()} />}
       {services.isSuccess && services.data.items.length === 0 && <EmptyState title="Услуг пока нет" />}
       {services.isSuccess && services.data.items.length > 0 && <DataTable columns={columns} rows={services.data.items} rowKey={(s) => s.id} />}
+      <DeleteConfirmModal
+        open={deleting !== null}
+        onClose={() => setDeleting(null)}
+        onConfirm={() => deleting && remove.mutate(deleting.id)}
+        isPending={remove.isPending}
+        title="Удалить услугу?"
+        description={`Услуга «${deleting ? (findTranslation(deleting.translations, 'ru')?.name ?? '') : ''}» будет удалена безвозвратно.`}
+      />
     </div>
   )
 }

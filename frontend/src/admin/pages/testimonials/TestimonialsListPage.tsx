@@ -1,11 +1,12 @@
+import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { Plus, Star, Pencil } from 'lucide-react'
+import { Plus, Star, Pencil, Trash2 } from 'lucide-react'
 import { testimonialsApi } from '@/api/testimonials'
 import type { AdminTestimonialItem } from '@/types/domain'
 import { PageHeader } from '@/admin/components/PageHeader'
 import { DataTable, type Column } from '@/admin/components/DataTable'
-import { ConfirmDeleteButton } from '@/admin/components/ConfirmDeleteButton'
+import { DeleteConfirmModal } from '@/admin/components/DeleteConfirmModal'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { IconActionButton } from '@/components/ui/IconActionButton'
@@ -19,6 +20,7 @@ export function TestimonialsListPage() {
   const { showToast } = useToast()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
+  const [deleting, setDeleting] = useState<AdminTestimonialItem | null>(null)
   const testimonials = useQuery({
     queryKey: ['admin', 'testimonials'],
     queryFn: () => testimonialsApi.adminList({ page: 1, pageSize: 100, sort: 'sortOrder' }),
@@ -29,6 +31,7 @@ export function TestimonialsListPage() {
     onSuccess: () => {
       showToast('Отзыв удалён')
       void queryClient.invalidateQueries({ queryKey: ['admin', 'testimonials'] })
+      setDeleting(null)
     },
     onError: (error) => showToast(adminErrorMessage('Не удалось удалить отзыв', error), 'error'),
   })
@@ -46,7 +49,9 @@ export function TestimonialsListPage() {
           <IconActionButton label="Редактировать" onClick={() => navigate(`/admin/testimonials/${t.id}`)}>
             <Pencil size={16} />
           </IconActionButton>
-          <ConfirmDeleteButton onConfirm={() => remove.mutate(t.id)} disabled={remove.isPending} />
+          <IconActionButton label="Удалить" tone="danger" onClick={() => setDeleting(t)}>
+            <Trash2 size={16} />
+          </IconActionButton>
         </div>
       ),
     },
@@ -70,6 +75,14 @@ export function TestimonialsListPage() {
       {testimonials.isSuccess && testimonials.data.items.length > 0 && (
         <DataTable columns={columns} rows={testimonials.data.items} rowKey={(t) => t.id} />
       )}
+      <DeleteConfirmModal
+        open={deleting !== null}
+        onClose={() => setDeleting(null)}
+        onConfirm={() => deleting && remove.mutate(deleting.id)}
+        isPending={remove.isPending}
+        title="Удалить отзыв?"
+        description={`Отзыв от «${deleting?.authorName}» будет удалён безвозвратно.`}
+      />
     </div>
   )
 }

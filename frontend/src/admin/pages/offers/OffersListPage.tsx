@@ -1,11 +1,12 @@
+import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { Plus, Pencil } from 'lucide-react'
+import { Plus, Pencil, Trash2 } from 'lucide-react'
 import { offersApi } from '@/api/offers'
 import type { AdminOfferListItem } from '@/types/domain'
 import { PageHeader } from '@/admin/components/PageHeader'
 import { DataTable, type Column } from '@/admin/components/DataTable'
-import { ConfirmDeleteButton } from '@/admin/components/ConfirmDeleteButton'
+import { DeleteConfirmModal } from '@/admin/components/DeleteConfirmModal'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { IconActionButton } from '@/components/ui/IconActionButton'
@@ -22,6 +23,7 @@ export function OffersListPage() {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const { page, setPage, sort, dir, toggleSort } = useListState('sortOrder')
+  const [deleting, setDeleting] = useState<AdminOfferListItem | null>(null)
 
   const offers = useQuery({
     queryKey: ['admin', 'offers', page, sort, dir],
@@ -33,6 +35,7 @@ export function OffersListPage() {
     onSuccess: () => {
       showToast('Предложение удалено')
       void queryClient.invalidateQueries({ queryKey: ['admin', 'offers'] })
+      setDeleting(null)
     },
     onError: (error) => showToast(adminErrorMessage('Не удалось удалить предложение', error), 'error'),
   })
@@ -50,7 +53,9 @@ export function OffersListPage() {
           <IconActionButton label="Редактировать" onClick={() => navigate(`/admin/offers/${o.id}`)}>
             <Pencil size={16} />
           </IconActionButton>
-          <ConfirmDeleteButton onConfirm={() => remove.mutate(o.id)} disabled={remove.isPending} />
+          <IconActionButton label="Удалить" tone="danger" onClick={() => setDeleting(o)}>
+            <Trash2 size={16} />
+          </IconActionButton>
         </div>
       ),
     },
@@ -77,6 +82,14 @@ export function OffersListPage() {
           <Pagination page={offers.data.page} totalPages={offers.data.totalPages} onChange={setPage} />
         </>
       )}
+      <DeleteConfirmModal
+        open={deleting !== null}
+        onClose={() => setDeleting(null)}
+        onConfirm={() => deleting && remove.mutate(deleting.id)}
+        isPending={remove.isPending}
+        title="Удалить предложение?"
+        description={`Предложение «${deleting?.slug}» будет удалено безвозвратно.`}
+      />
     </div>
   )
 }

@@ -3,11 +3,12 @@ import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 
 /**
- * A full modal confirm for destructive actions that deserve more weight than the inline
- * check/✕-swap `ConfirmDeleteButton` pattern used for simple list-row deletes elsewhere in the
- * admin — e.g. removing a passenger from a flight, where the description names exactly who's
- * being removed rather than a generic "delete this row?". Built on the same `Modal` primitive
- * every other dialog in the app already uses (Esc / click-outside close it, no action taken).
+ * The one confirm dialog for every destructive action across the admin — replaces an earlier
+ * inline check/✕-swap pattern that used to live on each list row, since a generic "delete this
+ * row?" doesn't say what's actually being removed. The description names it explicitly (e.g. a
+ * passenger's full name, a destination's slug). Built on the same `Modal` primitive every other
+ * dialog in the app already uses (Esc / click-outside close it, no action taken). Also reused for
+ * non-delete-but-still-destructive actions (e.g. deactivating a staff account) via `confirmLabel`.
  */
 export function DeleteConfirmModal({
   open,

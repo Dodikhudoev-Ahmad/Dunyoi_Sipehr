@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Pencil } from 'lucide-react'
+import { Plus, Pencil, Trash2 } from 'lucide-react'
 import { flightsApi, type UpsertFlightPayload } from '@/api/flights'
 import type { Flight } from '@/types/domain'
 import { PageHeader } from '@/admin/components/PageHeader'
 import { DataTable, type Column } from '@/admin/components/DataTable'
 import { FlightFormModal } from '@/admin/components/FlightFormModal'
-import { ConfirmDeleteButton } from '@/admin/components/ConfirmDeleteButton'
+import { DeleteConfirmModal } from '@/admin/components/DeleteConfirmModal'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { IconActionButton } from '@/components/ui/IconActionButton'
@@ -29,6 +29,7 @@ export function FlightsListPage() {
   const { page, setPage, sort, dir, toggleSort } = useListState('departureAtUtc')
   const [addOpen, setAddOpen] = useState(false)
   const [editing, setEditing] = useState<Flight | null>(null)
+  const [deleting, setDeleting] = useState<Flight | null>(null)
 
   const flights = useQuery({
     queryKey: [...FLIGHTS_KEY, page, sort, dir],
@@ -60,6 +61,7 @@ export function FlightsListPage() {
     onSuccess: () => {
       showToast('Рейс удалён')
       void queryClient.invalidateQueries({ queryKey: FLIGHTS_KEY })
+      setDeleting(null)
     },
     onError: (error) => showToast(adminErrorMessage('Не удалось удалить рейс', error), 'error'),
   })
@@ -81,7 +83,9 @@ export function FlightsListPage() {
           <IconActionButton label="Изменить" onClick={() => setEditing(f)}>
             <Pencil size={16} />
           </IconActionButton>
-          <ConfirmDeleteButton onConfirm={() => remove.mutate(f.id)} disabled={remove.isPending} />
+          <IconActionButton label="Удалить" tone="danger" onClick={() => setDeleting(f)}>
+            <Trash2 size={16} />
+          </IconActionButton>
         </div>
       ),
     },
@@ -126,6 +130,14 @@ export function FlightsListPage() {
         onSubmit={(payload) => update.mutate(payload)}
         isPending={update.isPending}
         flight={editing ?? undefined}
+      />
+      <DeleteConfirmModal
+        open={deleting !== null}
+        onClose={() => setDeleting(null)}
+        onConfirm={() => deleting && remove.mutate(deleting.id)}
+        isPending={remove.isPending}
+        title="Удалить рейс?"
+        description={`Рейс «${deleting?.flightNumber}» (${deleting?.originCity} → ${deleting?.destinationCity}) и весь его список участников будут удалены безвозвратно.`}
       />
     </div>
   )
