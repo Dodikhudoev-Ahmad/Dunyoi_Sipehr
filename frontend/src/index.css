@@ -5,7 +5,9 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-display: "Bodoni Moda", "Georgia", serif;
+  /* "Bodoni Moda Variable" is the family name @fontsource-variable/bodoni-moda ships under
+     (main.tsx) — same font Google Fonts was serving, just self-hosted. */
+  --font-display: "Bodoni Moda Variable", "Georgia", serif;
   --font-sans: "Golos Text", "Helvetica Neue", Arial, sans-serif;
 
   /* ---------------------------------------------------------------------
