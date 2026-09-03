@@ -113,7 +113,7 @@
     "childAge": "Child {{index}} age",
     "childAgeHint": "Under 12 books at the child fare; 12 and older books at the adult fare",
     "passportPhoto": "International passport photo",
-    "passportPhotoHint": "Attach a photo of your international passport (main page), JPG/PNG/WEBP, up to 1 MB",
+    "passportPhotoHint": "Attach a photo of your international passport (main page), JPG/PNG/WEBP, up to 4 MB",
     "passportPhotoAdd": "Add photo",
     "passportPhotoRemove": "Remove",
     "passportPhotoUploading": "Uploading…",
@@ -133,7 +133,7 @@
     "childAgeRequired": "Please provide each child's age",
     "passportConsentRequired": "Consent to process international passport data is required",
     "passportPhotoRequired": "Attach at least one international passport photo",
-    "fileTooLarge": "File is too large (max 1 MB)",
+    "fileTooLarge": "File is too large (max 4 MB)",
     "fileInvalidType": "Only image files are supported",
     "uploadFailed": "Could not upload the file"
   },

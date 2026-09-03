@@ -14,12 +14,12 @@ public record UploadPassportPhotoCommand(Stream Content, long LengthBytes) : IRe
 
 public class UploadPassportPhotoCommandValidator : AbstractValidator<UploadPassportPhotoCommand>
 {
-    public const long MaxSizeBytes = 1024 * 1024; // 1 MB, per the ask
+    public const long MaxSizeBytes = 4 * 1024 * 1024; // 4 MB, per the ask
 
     public UploadPassportPhotoCommandValidator()
     {
         RuleFor(x => x.LengthBytes).InclusiveBetween(1, MaxSizeBytes)
-            .WithMessage("Image must be no larger than 1 MB.");
+            .WithMessage("Image must be no larger than 4 MB.");
     }
 }
 

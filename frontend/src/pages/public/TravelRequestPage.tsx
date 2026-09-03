@@ -22,7 +22,7 @@ import { pageTitle, ogImageUrl } from '@/lib/seo'
 import { editorialImages } from '@/lib/editorialImages'
 import { cn } from '@/lib/cn'
 
-const MAX_PHOTO_SIZE_BYTES = 1024 * 1024
+const MAX_PHOTO_SIZE_BYTES = 4 * 1024 * 1024
 
 interface PassportPhoto {
   id: string
