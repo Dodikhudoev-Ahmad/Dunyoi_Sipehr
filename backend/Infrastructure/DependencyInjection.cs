@@ -1,5 +1,7 @@
 using AeroTravel.Application.Common.Interfaces;
+using AeroTravel.Application.Common.Models;
 using AeroTravel.Infrastructure.Auth;
+using AeroTravel.Infrastructure.Email;
 using AeroTravel.Infrastructure.Files;
 using AeroTravel.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -57,6 +59,26 @@ public static class DependencyInjection
             services.AddSingleton<IFileStorageService, LocalFileStorageService>();
         else
             services.AddScoped<IFileStorageService, DbFileStorageService>();
+
+        // Transactional email (closes BLK-005) — generic SMTP so it works with a Gmail app
+        // password or any other provider without a provider-specific SDK. NullEmailService is the
+        // fallback whenever Host/User/Password aren't all set, so a missing/misconfigured mailer
+        // never breaks the operation (e.g. travel-request creation) it's notifying about.
+        var smtpSection = configuration.GetSection("Email:Smtp");
+        services.Configure<SmtpEmailOptions>(smtpSection);
+        var hasSmtpCredentials = !string.IsNullOrWhiteSpace(smtpSection["Host"])
+            && !string.IsNullOrWhiteSpace(smtpSection["User"])
+            && !string.IsNullOrWhiteSpace(smtpSection["Password"]);
+        if (hasSmtpCredentials)
+            services.AddTransient<IEmailService, SmtpEmailService>();
+        else
+            services.AddTransient<IEmailService, NullEmailService>();
+
+        services.Configure<NotificationSettings>(options =>
+        {
+            options.NotifyTo = configuration["Email:NotifyTo"] ?? "";
+            options.AdminUrl = configuration["App:AdminUrl"] ?? "";
+        });
 
         return services;
     }

@@ -1,3 +1,5 @@
+using System.Net;
+using System.Text;
 using AeroTravel.Application.Common.Interfaces;
 using AeroTravel.Application.Common.Models;
 using AeroTravel.Application.Features.TravelRequests.Dtos;
@@ -5,6 +7,8 @@ using AeroTravel.Domain.Entities;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace AeroTravel.Application.Features.TravelRequests.Commands;
 
@@ -66,7 +70,11 @@ public class CreateTravelRequestCommandValidator : AbstractValidator<CreateTrave
     }
 }
 
-public class CreateTravelRequestCommandHandler(IApplicationDbContext db) : IRequestHandler<CreateTravelRequestCommand, Result<Guid>>
+public class CreateTravelRequestCommandHandler(
+    IApplicationDbContext db,
+    IEmailService emailService,
+    IOptions<NotificationSettings> notificationSettings,
+    ILogger<CreateTravelRequestCommandHandler> logger) : IRequestHandler<CreateTravelRequestCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(CreateTravelRequestCommand request, CancellationToken cancellationToken)
     {
@@ -105,6 +113,58 @@ public class CreateTravelRequestCommandHandler(IApplicationDbContext db) : IRequ
 
         db.TravelRequests.Add(travelRequest);
         await db.SaveChangesAsync(cancellationToken);
+
+        // Best-effort staff notification — a failed/unconfigured mail provider must never fail
+        // the request itself, since the request is already durably saved above by this point.
+        try
+        {
+            var notifyTo = notificationSettings.Value.NotifyTo;
+            if (!string.IsNullOrWhiteSpace(notifyTo))
+                await emailService.SendAsync(notifyTo, BuildSubject(travelRequest), BuildHtmlBody(travelRequest, notificationSettings.Value.AdminUrl), cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to send new-travel-request notification email for request {TravelRequestId}", travelRequest.Id);
+        }
+
         return Result.Success(travelRequest.Id);
     }
+
+    private static string BuildSubject(TravelRequest travelRequest)
+        => $"Новая заявка: {travelRequest.LastName} {travelRequest.FirstName}".Trim();
+
+    private static string BuildHtmlBody(TravelRequest travelRequest, string? adminUrl)
+    {
+        var fullName = string.Join(' ', new[] { travelRequest.LastName, travelRequest.FirstName, travelRequest.MiddleName }
+            .Where(part => !string.IsNullOrWhiteSpace(part)));
+        var direction = travelRequest.OfferSnapshotTitle ?? travelRequest.DestinationSnapshotTitle;
+        var dates = travelRequest.ReturnDate is { } returnDate
+            ? $"{travelRequest.DepartureDate:dd.MM.yyyy} — {returnDate:dd.MM.yyyy}"
+            : $"{travelRequest.DepartureDate:dd.MM.yyyy}";
+
+        var sb = new StringBuilder();
+        sb.Append("<h2>Новая заявка на подбор авиабилета</h2>");
+        sb.Append("<table cellpadding=\"4\" cellspacing=\"0\">");
+        AppendRow(sb, "Имя", WebUtility.HtmlEncode(fullName));
+        AppendRow(sb, "Телефон", WebUtility.HtmlEncode(travelRequest.Phone));
+        if (!string.IsNullOrWhiteSpace(direction))
+            AppendRow(sb, "Направление", WebUtility.HtmlEncode(direction));
+        AppendRow(sb, "Даты", WebUtility.HtmlEncode(dates));
+        AppendRow(sb, "Взрослые", travelRequest.PassengersAdults.ToString());
+        AppendRow(sb, "Дети", travelRequest.PassengersChildren.ToString());
+        if (!string.IsNullOrWhiteSpace(travelRequest.Message))
+            AppendRow(sb, "Сообщение", WebUtility.HtmlEncode(travelRequest.Message));
+        sb.Append("</table>");
+
+        if (!string.IsNullOrWhiteSpace(adminUrl))
+        {
+            var link = $"{adminUrl.TrimEnd('/')}/admin/travel-requests/{travelRequest.Id}";
+            sb.Append($"<p><a href=\"{link}\">Открыть заявку в CRM</a></p>");
+        }
+
+        return sb.ToString();
+    }
+
+    private static void AppendRow(StringBuilder sb, string label, string value)
+        => sb.Append($"<tr><td><strong>{WebUtility.HtmlEncode(label)}</strong></td><td>{value}</td></tr>");
 }

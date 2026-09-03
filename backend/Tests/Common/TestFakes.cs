@@ -3,6 +3,8 @@ using AeroTravel.Domain.Entities;
 using AeroTravel.Domain.Enums;
 using AeroTravel.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace AeroTravel.Tests.Common;
 
@@ -64,4 +66,22 @@ public class FakeFileStorageService : IFileStorageService
 
     public Task<Stream?> OpenReadAsync(string fileName, CancellationToken cancellationToken) =>
         Task.FromResult<Stream?>(KnownFileNames.Contains(fileName) ? new MemoryStream() : null);
+}
+
+/// In-memory stand-in for IEmailService — records every send instead of touching a real SMTP
+/// server, so handler tests can assert a notification was (or wasn't) sent.
+public class FakeEmailService : IEmailService
+{
+    public List<(string To, string Subject, string HtmlBody)> SentEmails { get; } = [];
+
+    public Task SendAsync(string to, string subject, string htmlBody, CancellationToken cancellationToken)
+    {
+        SentEmails.Add((to, subject, htmlBody));
+        return Task.CompletedTask;
+    }
+}
+
+public static class NullLoggers
+{
+    public static ILogger<T> For<T>() => NullLogger<T>.Instance;
 }
