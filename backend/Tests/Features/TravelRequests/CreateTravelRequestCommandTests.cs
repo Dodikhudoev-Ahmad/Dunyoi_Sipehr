@@ -2,7 +2,9 @@ using AeroTravel.Application.Common.Models;
 using AeroTravel.Application.Features.TravelRequests.Commands;
 using AeroTravel.Application.Features.TravelRequests.Dtos;
 using AeroTravel.Domain.Enums;
+using AeroTravel.Infrastructure.Persistence;
 using AeroTravel.Tests.Common;
+using Microsoft.Extensions.Options;
 
 namespace AeroTravel.Tests.Features.TravelRequests;
 
@@ -24,11 +26,16 @@ public class CreateTravelRequestCommandTests
         return storage;
     }
 
+    private static CreateTravelRequestCommandHandler Handler(AppDbContext db, FakeEmailService? emailService = null) =>
+        new(db, emailService ?? new FakeEmailService(),
+            Options.Create(new NotificationSettings { NotifyTo = "staff@example.com", AdminUrl = "https://example.com" }),
+            NullLoggers.For<CreateTravelRequestCommandHandler>());
+
     [Fact]
     public async Task Handle_ValidRequest_CreatesEntity()
     {
         using var db = TestDb.Create();
-        var handler = new CreateTravelRequestCommandHandler(db);
+        var handler = Handler(db);
 
         var result = await handler.Handle(new CreateTravelRequestCommand(ValidInput(), "1.2.3.4"), CancellationToken.None);
 
@@ -37,10 +44,24 @@ public class CreateTravelRequestCommandTests
     }
 
     [Fact]
+    public async Task Handle_ValidRequest_SendsNotificationEmail()
+    {
+        using var db = TestDb.Create();
+        var emailService = new FakeEmailService();
+        var handler = Handler(db, emailService);
+
+        var result = await handler.Handle(new CreateTravelRequestCommand(ValidInput(), "1.2.3.4"), CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        var sent = Assert.Single(emailService.SentEmails);
+        Assert.Equal("staff@example.com", sent.To);
+    }
+
+    [Fact]
     public async Task Handle_HoneypotFilled_RejectsSilently_WithoutPersisting()
     {
         using var db = TestDb.Create();
-        var handler = new CreateTravelRequestCommandHandler(db);
+        var handler = Handler(db);
 
         var result = await handler.Handle(new CreateTravelRequestCommand(ValidInput(website: "http://spam.example"), "1.2.3.4"), CancellationToken.None);
 
