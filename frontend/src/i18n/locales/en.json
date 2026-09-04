@@ -81,6 +81,9 @@
   },
   "contacts": {
     "title": "Contacts",
+    "eyebrow": "Contact",
+    "heading": "Get in touch",
+    "supportingText": "We'll help you plan the route, arrange the flight, and answer any questions.",
     "address": "Address",
     "phone": "Phone",
     "email": "Email"
