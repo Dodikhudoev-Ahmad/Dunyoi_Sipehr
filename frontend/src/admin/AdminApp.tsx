@@ -4,6 +4,8 @@ import { AdminErrorBoundary } from '@/admin/components/ErrorBoundary'
 import { AdminLayout } from '@/admin/components/AdminLayout'
 import { ProtectedRoute } from '@/admin/components/ProtectedRoute'
 import { SuperAdminRoute } from '@/admin/components/SuperAdminRoute'
+import { NonAccountantRoute } from '@/admin/components/NonAccountantRoute'
+import { FinanceRoute } from '@/admin/components/FinanceRoute'
 import { LoginPage } from '@/admin/pages/LoginPage'
 import { BootstrapPage } from '@/admin/pages/BootstrapPage'
 import { DashboardPage } from '@/admin/pages/DashboardPage'
@@ -25,6 +27,7 @@ import { TravelRequestDetailPage } from '@/admin/pages/travel-requests/TravelReq
 import { FlightsListPage } from '@/admin/pages/flights/FlightsListPage'
 import { FlightDetailPage } from '@/admin/pages/flights/FlightDetailPage'
 import { PassengersRegistryPage } from '@/admin/pages/passengers/PassengersRegistryPage'
+import { FinancePage } from '@/admin/pages/finance/FinancePage'
 import { AuditLogPage } from '@/admin/pages/audit-log/AuditLogPage'
 import { StaffListPage } from '@/admin/pages/staff/StaffListPage'
 import { NotFoundPage } from '@/pages/public/NotFoundPage'
@@ -68,36 +71,46 @@ export default function AdminApp() {
 
         <Route element={<ProtectedRoute />}>
           <Route element={<AdminLayout />}>
-            <Route index element={<DashboardPage />} />
-            <Route path="crm" element={<CrmBoardPage />} />
-            <Route path="travel-requests" element={<TravelRequestsListPage />} />
-            <Route path="travel-requests/:id" element={<TravelRequestDetailPage />} />
+            {/* Everything below except Finance — Accountant is scoped to Finance only (see
+                MASTER_TZ Finance module spec), so a direct URL into any of these redirects them
+                to /admin/finance instead of reaching a page whose own API calls would 403. */}
+            <Route element={<NonAccountantRoute />}>
+              <Route index element={<DashboardPage />} />
+              <Route path="crm" element={<CrmBoardPage />} />
+              <Route path="travel-requests" element={<TravelRequestsListPage />} />
+              <Route path="travel-requests/:id" element={<TravelRequestDetailPage />} />
 
-            {/* Flights module — Editor and SuperAdmin both get full access (see
-                AdminFlightsController's RBAC exception comment), so these stay outside the
-                SuperAdminRoute guard below unlike the rest of content management. */}
-            <Route path="flights" element={<FlightsListPage />} />
-            <Route path="flights/:id" element={<FlightDetailPage />} />
-            <Route path="passengers" element={<PassengersRegistryPage />} />
+              {/* Flights module — Editor and SuperAdmin both get full access (see
+                  AdminFlightsController's RBAC exception comment), so these stay outside the
+                  SuperAdminRoute guard below unlike the rest of content management. */}
+              <Route path="flights" element={<FlightsListPage />} />
+              <Route path="flights/:id" element={<FlightDetailPage />} />
+              <Route path="passengers" element={<PassengersRegistryPage />} />
 
-            {/* Content management + staff + audit log — SuperAdmin only. The sidebar already
-                hides these links for Editor, but this route guard is the real, independent check
-                (not a CSS trick) for anyone who navigates straight to the URL. */}
-            <Route element={<SuperAdminRoute />}>
-              <Route path="destinations" element={<DestinationsListPage />} />
-              <Route path="destinations/:id" element={<DestinationFormPage />} />
-              <Route path="offers" element={<OffersListPage />} />
-              <Route path="offers/:id" element={<OfferFormPage />} />
-              <Route path="services" element={<ServicesListPage />} />
-              <Route path="services/:id" element={<ServiceFormPage />} />
-              <Route path="testimonials" element={<TestimonialsListPage />} />
-              <Route path="testimonials/:id" element={<TestimonialFormPage />} />
-              <Route path="faq" element={<FaqListPage />} />
-              <Route path="faq/:id" element={<FaqFormPage />} />
-              <Route path="site-content" element={<SiteContentPage />} />
-              <Route path="countries-cities" element={<CountriesCitiesPage />} />
-              <Route path="audit-log" element={<AuditLogPage />} />
-              <Route path="staff" element={<StaffListPage />} />
+              {/* Content management + staff + audit log — SuperAdmin only. The sidebar already
+                  hides these links for Editor, but this route guard is the real, independent check
+                  (not a CSS trick) for anyone who navigates straight to the URL. */}
+              <Route element={<SuperAdminRoute />}>
+                <Route path="destinations" element={<DestinationsListPage />} />
+                <Route path="destinations/:id" element={<DestinationFormPage />} />
+                <Route path="offers" element={<OffersListPage />} />
+                <Route path="offers/:id" element={<OfferFormPage />} />
+                <Route path="services" element={<ServicesListPage />} />
+                <Route path="services/:id" element={<ServiceFormPage />} />
+                <Route path="testimonials" element={<TestimonialsListPage />} />
+                <Route path="testimonials/:id" element={<TestimonialFormPage />} />
+                <Route path="faq" element={<FaqListPage />} />
+                <Route path="faq/:id" element={<FaqFormPage />} />
+                <Route path="site-content" element={<SiteContentPage />} />
+                <Route path="countries-cities" element={<CountriesCitiesPage />} />
+                <Route path="audit-log" element={<AuditLogPage />} />
+                <Route path="staff" element={<StaffListPage />} />
+              </Route>
+            </Route>
+
+            {/* Finance — the one section Accountant can reach; SuperAdmin can too, Editor can't. */}
+            <Route element={<FinanceRoute />}>
+              <Route path="finance" element={<FinancePage />} />
             </Route>
 
             <Route path="*" element={<AdminNotFound />} />

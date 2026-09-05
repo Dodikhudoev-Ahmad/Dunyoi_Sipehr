@@ -21,6 +21,8 @@ public interface IApplicationDbContext
     DbSet<Flight> Flights { get; }
     DbSet<FlightPassenger> FlightPassengers { get; }
     DbSet<PassportPhoto> PassportPhotos { get; }
+    DbSet<Payment> Payments { get; }
+    DbSet<Expense> Expenses { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }
@@ -42,4 +44,6 @@ public interface IReadDbContext
     IQueryable<AuditLog> AuditLogs { get; }
     IQueryable<Flight> Flights { get; }
     IQueryable<FlightPassenger> FlightPassengers { get; }
+    IQueryable<Payment> Payments { get; }
+    IQueryable<Expense> Expenses { get; }
 }

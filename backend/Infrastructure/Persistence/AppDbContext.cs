@@ -22,6 +22,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Flight> Flights => Set<Flight>();
     public DbSet<FlightPassenger> FlightPassengers => Set<FlightPassenger>();
     public DbSet<PassportPhoto> PassportPhotos => Set<PassportPhoto>();
+    public DbSet<Payment> Payments => Set<Payment>();
+    public DbSet<Expense> Expenses => Set<Expense>();
 
     IQueryable<Country> IReadDbContext.Countries => Countries.AsNoTracking();
     IQueryable<City> IReadDbContext.Cities => Cities.AsNoTracking();
@@ -37,6 +39,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     IQueryable<AuditLog> IReadDbContext.AuditLogs => AuditLogs.AsNoTracking();
     IQueryable<Flight> IReadDbContext.Flights => Flights.AsNoTracking();
     IQueryable<FlightPassenger> IReadDbContext.FlightPassengers => FlightPassengers.AsNoTracking();
+    IQueryable<Payment> IReadDbContext.Payments => Payments.AsNoTracking();
+    IQueryable<Expense> IReadDbContext.Expenses => Expenses.AsNoTracking();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

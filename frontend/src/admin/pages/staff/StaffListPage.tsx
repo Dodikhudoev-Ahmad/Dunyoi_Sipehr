@@ -21,7 +21,7 @@ import { adminErrorMessage } from '@/lib/apiError'
 
 const STAFF_KEY = ['admin', 'staff']
 
-const ROLE_LABEL: Record<AdminRole, string> = { SuperAdmin: 'SuperAdmin', Editor: 'Editor' }
+const ROLE_LABEL: Record<AdminRole, string> = { SuperAdmin: 'SuperAdmin', Editor: 'Editor', Accountant: 'Бухгалтер' }
 
 function generatePassword(): string {
   const alphabet = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%'
@@ -82,6 +82,7 @@ function AddStaffModal({ open, onClose }: { open: boolean; onClose: () => void }
           <FieldLabel htmlFor="staff-role">Роль</FieldLabel>
           <Select id="staff-role" value={role} onChange={(e) => setRole(e.target.value as AdminRole)} disabled={create.isPending}>
             <option value="Editor">Editor</option>
+            <option value="Accountant">{ROLE_LABEL.Accountant}</option>
             <option value="SuperAdmin">SuperAdmin</option>
           </Select>
         </div>
@@ -203,6 +204,7 @@ export function StaffListPage() {
             className="py-1.5 text-sm"
           >
             <option value="Editor">{ROLE_LABEL.Editor}</option>
+            <option value="Accountant">{ROLE_LABEL.Accountant}</option>
             <option value="SuperAdmin">{ROLE_LABEL.SuperAdmin}</option>
           </Select>
         </div>
