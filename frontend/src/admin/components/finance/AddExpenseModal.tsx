@@ -10,9 +10,9 @@ import { useToast } from '@/components/ui/Toast'
 import { adminErrorMessage } from '@/lib/apiError'
 import { EXPENSE_CATEGORY_LABEL } from '@/admin/lib/financeLabels'
 
-function todayIso(): string {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+/** Long-form ru date for the read-only "today" display below — e.g. "5 сентября 2026". */
+function todayLabel(): string {
+  return new Date().toLocaleDateString('ru', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
 export function AddExpenseModal({ open, onClose, onCreated }: { open: boolean; onClose: () => void; onCreated: () => void }) {
@@ -20,19 +20,17 @@ export function AddExpenseModal({ open, onClose, onCreated }: { open: boolean; o
   const queryClient = useQueryClient()
 
   const [amount, setAmount] = useState('')
-  const [spentOnUtc, setSpentOnUtc] = useState(todayIso())
   const [category, setCategory] = useState<ExpenseCategory>('Rent')
   const [comment, setComment] = useState('')
 
   function reset() {
     setAmount('')
-    setSpentOnUtc(todayIso())
     setCategory('Rent')
     setComment('')
   }
 
   const create = useMutation({
-    mutationFn: () => financeApi.createExpense({ amount: Number(amount), spentOnUtc, category, comment: comment.trim() || undefined }),
+    mutationFn: () => financeApi.createExpense({ amount: Number(amount), category, comment: comment.trim() || undefined }),
     onSuccess: () => {
       showToast('Расход добавлен')
       void queryClient.invalidateQueries({ queryKey: ['admin', 'finance'] })
@@ -42,7 +40,7 @@ export function AddExpenseModal({ open, onClose, onCreated }: { open: boolean; o
     onError: (error) => showToast(adminErrorMessage('Не удалось добавить расход', error), 'error'),
   })
 
-  const canSubmit = Number(amount) > 0 && spentOnUtc.length > 0
+  const canSubmit = Number(amount) > 0
 
   return (
     <Modal open={open} onClose={() => { onClose(); reset() }} label="Новый расход" title="Новый расход">
@@ -59,8 +57,10 @@ export function AddExpenseModal({ open, onClose, onCreated }: { open: boolean; o
             <Input id="expense-amount" type="number" min="0" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} disabled={create.isPending} />
           </div>
           <div>
-            <FieldLabel htmlFor="expense-date">Дата</FieldLabel>
-            <Input id="expense-date" type="date" value={spentOnUtc} onChange={(e) => setSpentOnUtc(e.target.value)} disabled={create.isPending} />
+            <FieldLabel>Дата</FieldLabel>
+            {/* Always today's server date — not editable, so an operation can't be backdated to
+                manipulate the balance or period reports (see backend UpsertExpenseInput). */}
+            <p className="flex min-h-11 items-center rounded-lg border border-text/15 bg-text/5 px-4 text-slate">{todayLabel()}</p>
           </div>
         </div>
 

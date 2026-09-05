@@ -21,7 +21,7 @@ public class CreatePaymentCommandValidator : AbstractValidator<CreatePaymentComm
     }
 }
 
-public class CreatePaymentCommandHandler(IApplicationDbContext db) : IRequestHandler<CreatePaymentCommand, Result<Guid>>
+public class CreatePaymentCommandHandler(IApplicationDbContext db, IDateTimeProvider clock) : IRequestHandler<CreatePaymentCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(CreatePaymentCommand request, CancellationToken cancellationToken)
     {
@@ -32,7 +32,9 @@ public class CreatePaymentCommandHandler(IApplicationDbContext db) : IRequestHan
         if (input.FlightId is { } flId && !await db.Flights.AnyAsync(f => f.Id == flId, cancellationToken))
             return Result.Failure<Guid>(Error.NotFound("NOT_FOUND", "Flight not found."));
 
-        var payment = new Payment(input.Amount, input.PaidOnUtc, input.ClientName, input.TravelRequestId, input.FlightId, input.Method, input.Comment, request.AdminUserId);
+        // Always today's server date — never client-supplied (see UpsertPaymentInput doc comment).
+        var paidOnUtc = DateOnly.FromDateTime(clock.UtcNow);
+        var payment = new Payment(input.Amount, paidOnUtc, input.ClientName, input.TravelRequestId, input.FlightId, input.Method, input.Comment, request.AdminUserId);
 
         db.Payments.Add(payment);
         db.AuditLogs.Add(new AuditLog(nameof(Payment), payment.Id, "Create", request.AdminUserId));
@@ -71,12 +73,14 @@ public class CreateExpenseCommandValidator : AbstractValidator<CreateExpenseComm
     }
 }
 
-public class CreateExpenseCommandHandler(IApplicationDbContext db) : IRequestHandler<CreateExpenseCommand, Result<Guid>>
+public class CreateExpenseCommandHandler(IApplicationDbContext db, IDateTimeProvider clock) : IRequestHandler<CreateExpenseCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(CreateExpenseCommand request, CancellationToken cancellationToken)
     {
         var input = request.Input;
-        var expense = new Expense(input.Amount, input.SpentOnUtc, input.Category, input.Comment, request.AdminUserId);
+        // Always today's server date — never client-supplied (see UpsertExpenseInput doc comment).
+        var spentOnUtc = DateOnly.FromDateTime(clock.UtcNow);
+        var expense = new Expense(input.Amount, spentOnUtc, input.Category, input.Comment, request.AdminUserId);
 
         db.Expenses.Add(expense);
         db.AuditLogs.Add(new AuditLog(nameof(Expense), expense.Id, "Create", request.AdminUserId));

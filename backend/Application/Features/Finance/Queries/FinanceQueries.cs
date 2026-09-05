@@ -319,3 +319,43 @@ public class GetFinanceTravelRequestsLookupQueryHandler(IReadDbContext db) : IRe
         return Result.Success<IReadOnlyList<FinanceTravelRequestLookupItemDto>>(items);
     }
 }
+
+/// The flights a specific client is actually on the manifest for — so the "Приход" form's flight
+/// picker can't be pointed at a flight the client never booked (see MASTER_TZ Finance module spec
+/// item on scoping the flight dropdown to the selected client). Matched via FlightPassengers:
+/// by TravelRequestId when the payment is linked to a CRM request (the reliable case — an exact
+/// row link), falling back to the request's own phone number (a passenger can be on the manifest
+/// as a Manual entry with no TravelRequestId, e.g. added before the CRM link existed) and, for a
+/// client typed free-text with no CRM link at all, an exact full-name match.
+public record GetFinanceFlightsForClientQuery(Guid? TravelRequestId, string? ClientName) : IRequest<Result<IReadOnlyList<FinanceFlightLookupItemDto>>>;
+
+public class GetFinanceFlightsForClientQueryHandler(IReadDbContext db) : IRequestHandler<GetFinanceFlightsForClientQuery, Result<IReadOnlyList<FinanceFlightLookupItemDto>>>
+{
+    public async Task<Result<IReadOnlyList<FinanceFlightLookupItemDto>>> Handle(GetFinanceFlightsForClientQuery request, CancellationToken cancellationToken)
+    {
+        IQueryable<FlightPassenger> passengers;
+
+        if (request.TravelRequestId is { } trId)
+        {
+            var phone = await db.TravelRequests.Where(t => t.Id == trId).Select(t => t.Phone).FirstOrDefaultAsync(cancellationToken);
+            passengers = db.FlightPassengers.Where(p => p.TravelRequestId == trId || (phone != null && p.Phone == phone));
+        }
+        else if (!string.IsNullOrWhiteSpace(request.ClientName))
+        {
+            var term = request.ClientName.Trim();
+            passengers = db.FlightPassengers.Where(p => p.FullName == term);
+        }
+        else
+        {
+            return Result.Success<IReadOnlyList<FinanceFlightLookupItemDto>>([]);
+        }
+
+        var flightIds = await passengers.Select(p => p.FlightId).Distinct().ToListAsync(cancellationToken);
+        var items = await db.Flights.Where(f => flightIds.Contains(f.Id))
+            .OrderByDescending(f => f.DepartureAtUtc)
+            .Select(f => new FinanceFlightLookupItemDto(f.Id, f.FlightNumber, f.DepartureAtUtc))
+            .ToListAsync(cancellationToken);
+
+        return Result.Success<IReadOnlyList<FinanceFlightLookupItemDto>>(items);
+    }
+}
