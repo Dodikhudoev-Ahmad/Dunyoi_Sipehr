@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AeroTravel.Api.Controllers.Admin;
 
 [Route("api/v1/admin/testimonials")]
-[Authorize]
+[Authorize(Roles = nameof(AdminRole.Editor) + "," + nameof(AdminRole.SuperAdmin))]
 public class AdminTestimonialsController(ISender mediator, ICurrentUserService currentUser) : AdminApiControllerBase(mediator, currentUser)
 {
     [HttpGet]

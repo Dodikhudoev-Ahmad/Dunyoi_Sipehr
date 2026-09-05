@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AeroTravel.Api.Controllers.Admin;
 
 [Route("api/v1/admin/cities")]
-[Authorize]
+[Authorize(Roles = nameof(AdminRole.Editor) + "," + nameof(AdminRole.SuperAdmin))]
 public class AdminCitiesController(ISender mediator, ICurrentUserService currentUser) : AdminApiControllerBase(mediator, currentUser)
 {
     [HttpGet]

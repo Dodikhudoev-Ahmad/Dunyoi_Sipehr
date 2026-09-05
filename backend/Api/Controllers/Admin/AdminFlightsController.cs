@@ -15,7 +15,7 @@ namespace AeroTravel.Api.Controllers.Admin;
 // passenger manifests — this is a deliberate product decision for this module only, not an
 // oversight. Do not copy the plain [Authorize] used here as a precedent for other controllers.
 [Route("api/v1/admin/flights")]
-[Authorize]
+[Authorize(Roles = nameof(AdminRole.Editor) + "," + nameof(AdminRole.SuperAdmin))]
 public class AdminFlightsController(ISender mediator, ICurrentUserService currentUser) : AdminApiControllerBase(mediator, currentUser)
 {
     [HttpGet]

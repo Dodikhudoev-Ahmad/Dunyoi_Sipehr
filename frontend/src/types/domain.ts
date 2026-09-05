@@ -12,7 +12,7 @@ export const DEFAULT_LOCALE: Locale = 'ru'
 
 export type Currency = 'USD' | 'EUR' | 'TJS'
 
-export type AdminRole = 'SuperAdmin' | 'Editor'
+export type AdminRole = 'SuperAdmin' | 'Editor' | 'Accountant'
 
 export type TravelRequestStatus = 'New' | 'Contacted' | 'Qualified' | 'Won' | 'Lost'
 
@@ -433,4 +433,64 @@ export interface AuditLog {
    * audit entry's time showed "Invalid Date"). */
   timestampUtc: string
   detailsJson: string | null
+}
+
+export type PaymentMethod = 'Cash' | 'Card' | 'BankTransfer' | 'Other'
+export type ExpenseCategory = 'Rent' | 'Salary' | 'AirlineCommission' | 'Advertising' | 'Other'
+export type FinanceTransactionType = 'Income' | 'Expense'
+
+/** One row of the unified Finance journal (GET /admin/finance/transactions) — Payments and
+ * Expenses projected into one shape (see TransactionDto on the backend). */
+export interface FinanceTransaction {
+  id: string
+  type: FinanceTransactionType
+  date: string
+  amount: number
+  categoryOrMethod: string
+  label: string | null
+  clientName: string | null
+  comment: string | null
+  createdByAdminUserId: string | null
+  createdByAdminDisplayName: string | null
+}
+
+export interface FinanceSummary {
+  incomeForPeriod: number
+  expenseForPeriod: number
+  balanceAllTime: number
+  totalReceivables: number
+}
+
+export interface Receivable {
+  travelRequestId: string
+  clientName: string
+  dealValue: number
+  paid: number
+  remaining: number
+}
+
+export interface FlightReportItem {
+  label: string
+  total: number
+}
+
+export interface MonthlySeriesPoint {
+  year: number
+  month: number
+  monthLabel: string
+  income: number
+  expense: number
+}
+
+export interface FinanceFlightLookupItem {
+  id: string
+  flightNumber: string
+  departureAtUtc: string
+}
+
+export interface FinanceTravelRequestLookupItem {
+  id: string
+  clientName: string
+  phone: string
+  dealValue: number | null
 }

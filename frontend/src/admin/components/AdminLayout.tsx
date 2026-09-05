@@ -19,38 +19,45 @@ import {
   X,
   Send,
   ClipboardList,
+  Wallet,
 } from 'lucide-react'
 import { useAdminLogout, useAdminSession } from '@/admin/hooks/useAdminAuth'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { Drawer } from '@/components/ui/Drawer'
 import { cn } from '@/lib/cn'
+import type { AdminRole } from '@/types/domain'
 import logo from '@/assets/brand/logo.png'
+
+const EDITOR_AND_SUPERADMIN: AdminRole[] = ['Editor', 'SuperAdmin']
+const SUPERADMIN_ONLY: AdminRole[] = ['SuperAdmin']
+const ACCOUNTANT_AND_SUPERADMIN: AdminRole[] = ['Accountant', 'SuperAdmin']
 
 interface NavItem {
   to: string
   label: string
   icon: typeof LayoutDashboard
   end?: boolean
-  /** Разделы управления контентом сайта — их видит только SuperAdmin.
-   *  CRM-менеджер (роль Editor) работает только с заявками и воронкой. */
-  superAdminOnly?: boolean
+  /** Roles allowed to see this link. Бухгалтер (Accountant) видит только «Финансы» — ни в одном
+   *  другом пункте меню этой роли нет, а не только в разделах управления контентом сайта. */
+  roles: AdminRole[]
 }
 
 const NAV: NavItem[] = [
-  { to: '/admin', label: 'Дашборд', icon: LayoutDashboard, end: true },
-  { to: '/admin/crm', label: 'CRM — воронка', icon: KanbanSquare },
-  { to: '/admin/travel-requests', label: 'Заявки', icon: Inbox },
-  { to: '/admin/destinations', label: 'Направления', icon: MapPinned, superAdminOnly: true },
-  { to: '/admin/flights', label: 'Рейсы', icon: Send },
-  { to: '/admin/passengers', label: 'Реестр пассажиров', icon: ClipboardList },
-  { to: '/admin/offers', label: 'Предложения', icon: Tag, superAdminOnly: true },
-  { to: '/admin/services', label: 'Услуги', icon: Wrench, superAdminOnly: true },
-  { to: '/admin/countries-cities', label: 'Страны и города', icon: Globe2, superAdminOnly: true },
-  { to: '/admin/testimonials', label: 'Отзывы', icon: MessageSquareQuote, superAdminOnly: true },
-  { to: '/admin/faq', label: 'Вопросы', icon: HelpCircle, superAdminOnly: true },
-  { to: '/admin/site-content', label: 'Контент сайта', icon: FileText, superAdminOnly: true },
-  { to: '/admin/staff', label: 'Сотрудники', icon: Users, superAdminOnly: true },
-  { to: '/admin/audit-log', label: 'Журнал аудита', icon: ScrollText, superAdminOnly: true },
+  { to: '/admin', label: 'Дашборд', icon: LayoutDashboard, end: true, roles: EDITOR_AND_SUPERADMIN },
+  { to: '/admin/crm', label: 'CRM — воронка', icon: KanbanSquare, roles: EDITOR_AND_SUPERADMIN },
+  { to: '/admin/travel-requests', label: 'Заявки', icon: Inbox, roles: EDITOR_AND_SUPERADMIN },
+  { to: '/admin/destinations', label: 'Направления', icon: MapPinned, roles: SUPERADMIN_ONLY },
+  { to: '/admin/flights', label: 'Рейсы', icon: Send, roles: EDITOR_AND_SUPERADMIN },
+  { to: '/admin/passengers', label: 'Реестр пассажиров', icon: ClipboardList, roles: EDITOR_AND_SUPERADMIN },
+  { to: '/admin/finance', label: 'Финансы', icon: Wallet, roles: ACCOUNTANT_AND_SUPERADMIN },
+  { to: '/admin/offers', label: 'Предложения', icon: Tag, roles: SUPERADMIN_ONLY },
+  { to: '/admin/services', label: 'Услуги', icon: Wrench, roles: SUPERADMIN_ONLY },
+  { to: '/admin/countries-cities', label: 'Страны и города', icon: Globe2, roles: SUPERADMIN_ONLY },
+  { to: '/admin/testimonials', label: 'Отзывы', icon: MessageSquareQuote, roles: SUPERADMIN_ONLY },
+  { to: '/admin/faq', label: 'Вопросы', icon: HelpCircle, roles: SUPERADMIN_ONLY },
+  { to: '/admin/site-content', label: 'Контент сайта', icon: FileText, roles: SUPERADMIN_ONLY },
+  { to: '/admin/staff', label: 'Сотрудники', icon: Users, roles: SUPERADMIN_ONLY },
+  { to: '/admin/audit-log', label: 'Журнал аудита', icon: ScrollText, roles: SUPERADMIN_ONLY },
 ]
 
 interface SidebarContentProps {
@@ -63,9 +70,9 @@ interface SidebarContentProps {
 /** Shared nav/profile markup for the static desktop sidebar and the mobile drawer — kept in one
  * place so the two surfaces can't drift out of sync with each other. */
 function SidebarContent({ admin, onLogout, onNavigate, headerExtra }: SidebarContentProps) {
-  // CRM-менеджеру (роль Editor) показываем только Дашборд, CRM и Заявки.
-  // SuperAdmin видит все разделы, включая управление контентом сайта.
-  const navItems = NAV.filter((item) => !item.superAdminOnly || admin?.role === 'SuperAdmin')
+  // Бухгалтер (Accountant) видит только «Финансы»; CRM-менеджер (Editor) — Дашборд/CRM/Заявки/
+  // Рейсы/Реестр пассажиров; SuperAdmin видит всё, включая управление контентом сайта.
+  const navItems = NAV.filter((item) => admin?.role && item.roles.includes(admin.role))
   return (
     <>
       <div className="flex shrink-0 items-center gap-2.5 px-6 py-6 font-display text-lg">

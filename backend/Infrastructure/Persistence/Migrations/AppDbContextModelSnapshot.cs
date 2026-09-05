@@ -257,6 +257,43 @@ namespace AeroTravel.Infrastructure.Persistence.Migrations
                     b.ToTable("DestinationTranslation");
                 });
 
+            modelBuilder.Entity("AeroTravel.Domain.Entities.Expense", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(14, 2)
+                        .HasColumnType("numeric(14,2)");
+
+                    b.Property<int>("Category")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedByAdminUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("SpentOnUtc")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Category");
+
+                    b.HasIndex("CreatedByAdminUserId");
+
+                    b.HasIndex("SpentOnUtc");
+
+                    b.ToTable("Expenses");
+                });
+
             modelBuilder.Entity("AeroTravel.Domain.Entities.FaqItem", b =>
                 {
                     b.Property<Guid>("Id")
@@ -532,6 +569,56 @@ namespace AeroTravel.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("PassportPhotos");
+                });
+
+            modelBuilder.Entity("AeroTravel.Domain.Entities.Payment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(14, 2)
+                        .HasColumnType("numeric(14,2)");
+
+                    b.Property<string>("ClientName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedByAdminUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("FlightId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Method")
+                        .HasColumnType("integer");
+
+                    b.Property<DateOnly>("PaidOnUtc")
+                        .HasColumnType("date");
+
+                    b.Property<Guid?>("TravelRequestId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedByAdminUserId");
+
+                    b.HasIndex("FlightId");
+
+                    b.HasIndex("PaidOnUtc");
+
+                    b.HasIndex("TravelRequestId");
+
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("AeroTravel.Domain.Entities.RefreshToken", b =>
@@ -906,6 +993,14 @@ namespace AeroTravel.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("AeroTravel.Domain.Entities.Expense", b =>
+                {
+                    b.HasOne("AeroTravel.Domain.Entities.AdminUser", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByAdminUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+                });
+
             modelBuilder.Entity("AeroTravel.Domain.Entities.FaqItemTranslation", b =>
                 {
                     b.HasOne("AeroTravel.Domain.Entities.FaqItem", null)
@@ -986,6 +1081,24 @@ namespace AeroTravel.Infrastructure.Persistence.Migrations
                         .HasForeignKey("OfferId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("AeroTravel.Domain.Entities.Payment", b =>
+                {
+                    b.HasOne("AeroTravel.Domain.Entities.AdminUser", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByAdminUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("AeroTravel.Domain.Entities.Flight", null)
+                        .WithMany()
+                        .HasForeignKey("FlightId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("AeroTravel.Domain.Entities.TravelRequest", null)
+                        .WithMany()
+                        .HasForeignKey("TravelRequestId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("AeroTravel.Domain.Entities.RefreshToken", b =>

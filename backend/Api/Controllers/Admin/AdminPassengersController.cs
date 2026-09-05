@@ -1,6 +1,7 @@
 using AeroTravel.Api.Common;
 using AeroTravel.Application.Common.Interfaces;
 using AeroTravel.Application.Features.Flights.Queries;
+using AeroTravel.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +11,7 @@ namespace AeroTravel.Api.Controllers.Admin;
 // RBAC EXCEPTION — see AdminFlightsController: Editor and SuperAdmin both get full read/export
 // access to the passenger registry, unlike the SuperAdmin-only pattern elsewhere in this app.
 [Route("api/v1/admin/passengers")]
-[Authorize]
+[Authorize(Roles = nameof(AdminRole.Editor) + "," + nameof(AdminRole.SuperAdmin))]
 public class AdminPassengersController(ISender mediator, ICurrentUserService currentUser) : AdminApiControllerBase(mediator, currentUser)
 {
     [HttpGet]

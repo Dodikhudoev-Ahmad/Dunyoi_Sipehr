@@ -17,7 +17,7 @@ public record UpdateDealValueRequest(decimal Value, Currency Currency);
 public record UpdateFollowUpRequest(DateTime? Date);
 
 [Route("api/v1/admin/travel-requests")]
-[Authorize]
+[Authorize(Roles = nameof(AdminRole.Editor) + "," + nameof(AdminRole.SuperAdmin))]
 public class AdminTravelRequestsController(ISender mediator, ICurrentUserService currentUser) : AdminApiControllerBase(mediator, currentUser)
 {
     [HttpGet]
