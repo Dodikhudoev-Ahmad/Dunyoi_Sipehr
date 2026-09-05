@@ -24,7 +24,7 @@ export function ContactsPage() {
         {content.isPending && <Skeleton className="h-[420px] w-full max-w-[1100px]" />}
         {content.isError && <ErrorState onRetry={() => content.refetch()} />}
         {content.isSuccess && (
-          <div className="relative mx-auto w-full max-w-[1100px] overflow-hidden rounded-[28px] border border-text/10 bg-elevated/70 px-6 py-10 shadow-[0_1px_2px_rgba(11,15,20,0.06),0_24px_64px_-16px_rgba(11,15,20,0.28)] backdrop-blur-xl sm:px-10 md:px-14 md:py-16">
+          <div className="relative mx-auto w-full max-w-[1100px] min-w-0 overflow-hidden rounded-[24px] border border-text/10 bg-elevated/70 px-5 py-6 shadow-[0_1px_2px_rgba(11,15,20,0.06),0_24px_64px_-16px_rgba(11,15,20,0.28)] backdrop-blur-xl sm:px-8 sm:py-9 md:rounded-[28px] md:px-14 md:py-16">
             {/* Soft inner highlight along the top edge — glass-panel feel, not a gradient wash. */}
             <div
               aria-hidden
@@ -32,12 +32,13 @@ export function ContactsPage() {
             />
 
             {/* Faint navigation motif — a single flight-route line and a coordinate marker,
-                deliberately quiet so it never competes with the contact information. */}
+                deliberately quiet so it never competes with the contact information. Hidden below
+                `sm`: on a compact phone card every pixel should read as contact information. */}
             <svg
               aria-hidden
               viewBox="0 0 1100 420"
               preserveAspectRatio="xMidYMid slice"
-              className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.16]"
+              className="pointer-events-none absolute inset-0 hidden h-full w-full opacity-[0.16] sm:block"
             >
               <path
                 d="M -40 340 Q 260 120 560 210 T 1140 90"
@@ -51,29 +52,31 @@ export function ContactsPage() {
             </svg>
             <p
               aria-hidden
-              className="pointer-events-none absolute bottom-6 right-7 font-sans text-[10px] uppercase tracking-[0.3em] text-slate/40"
+              className="pointer-events-none absolute bottom-6 right-7 hidden font-sans text-[10px] uppercase tracking-[0.3em] text-slate/40 sm:block"
             >
               Dushanbe · 38.5598° N
             </p>
 
-            <div className="relative grid gap-10 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] md:gap-16">
+            <div className="relative grid grid-cols-1 gap-8 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] md:gap-16">
               {/* Left — editorial intro */}
-              <div className="flex flex-col justify-center">
+              <div className="flex min-w-0 flex-col justify-center">
                 <p className="text-xs font-medium uppercase tracking-[0.32em] text-sage">{t('contacts.eyebrow')}</p>
-                <h2 className="mt-4 font-display text-3xl font-medium leading-[1.1] tracking-tight text-text md:text-[2.6rem]">
+                <h2 className="mt-4 font-display text-3xl font-medium leading-[1.15] tracking-tight text-text md:text-[2.6rem] md:leading-[1.1]">
                   {t('contacts.heading')}
                 </h2>
-                <p className="mt-5 max-w-sm text-[15px] leading-relaxed text-slate">{t('contacts.supportingText')}</p>
+                <p className="mt-4 text-[15px] leading-relaxed text-slate md:mt-5 md:max-w-sm">{t('contacts.supportingText')}</p>
               </div>
 
               {/* Right — structured contact panel */}
-              <div className="divide-y divide-text/10 border-t border-text/10 md:border-t-0 md:border-l md:pl-14">
+              <div className="min-w-0 divide-y divide-text/10 border-t border-text/10 md:border-t-0 md:border-l md:pl-14">
                 <ContactItem
                   index="01"
                   icon={<MapPin size={17} strokeWidth={1.6} />}
                   label={t('contacts.address')}
                 >
-                  <p className="text-[15px] leading-relaxed text-text">{content.data.body || '—'}</p>
+                  <p className="wrap-anywhere whitespace-pre-line text-sm leading-[1.6] text-text md:text-[15px] md:leading-relaxed">
+                    {content.data.body || '—'}
+                  </p>
                 </ContactItem>
 
                 <ContactItem
@@ -83,10 +86,10 @@ export function ContactsPage() {
                 >
                   <a
                     href={`tel:${SITE_CONTACT.phone}`}
-                    className="group/link inline-flex items-baseline gap-2 text-[17px] font-medium text-text transition-all duration-300 hover:translate-x-0.5 hover:text-brand"
+                    className="group/link inline-block max-w-full wrap-anywhere text-[17px] font-medium text-text transition-all duration-300 hover:translate-x-0.5 hover:text-brand"
                   >
                     {SITE_CONTACT.phoneDisplay}
-                    <span className="text-brand opacity-0 transition-opacity duration-300 group-hover/link:opacity-100">→</span>
+                    <span className="ml-2 text-brand opacity-0 transition-opacity duration-300 group-hover/link:opacity-100">→</span>
                   </a>
                 </ContactItem>
 
@@ -97,10 +100,10 @@ export function ContactsPage() {
                 >
                   <a
                     href={`mailto:${SITE_CONTACT.email}`}
-                    className="group/link inline-flex items-baseline gap-2 text-[17px] font-medium text-text transition-all duration-300 hover:translate-x-0.5 hover:text-brand"
+                    className="group/link inline-block max-w-full wrap-anywhere text-[17px] font-medium text-text transition-all duration-300 hover:translate-x-0.5 hover:text-brand"
                   >
                     {SITE_CONTACT.email}
-                    <span className="text-brand opacity-0 transition-opacity duration-300 group-hover/link:opacity-100">→</span>
+                    <span className="ml-2 text-brand opacity-0 transition-opacity duration-300 group-hover/link:opacity-100">→</span>
                   </a>
                 </ContactItem>
               </div>
@@ -119,17 +122,21 @@ interface ContactItemProps {
   children: ReactNode
 }
 
-/** One editorial contact block: index number, icon, uppercase micro-label, primary content. */
+/**
+ * One editorial contact block: index number, icon, uppercase micro-label, primary content.
+ * Mobile: number + icon sit on their own row (a deliberate phone layout), content wraps below,
+ * full-width. Desktop: all three sit inline in one row, unchanged from the original composition.
+ */
 function ContactItem({ index, icon, label, children }: ContactItemProps) {
   return (
-    <div className="group flex items-start gap-5 py-6 first:pt-0 last:pb-0 md:py-7">
-      <span className="mt-0.5 shrink-0 font-display text-sm text-slate/40">{index}</span>
-      <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-text/10 text-brand transition-colors duration-300 group-hover:border-brand/30">
+    <div className="group grid grid-cols-[auto_auto] items-center gap-x-3 gap-y-3 py-5 first:pt-0 last:pb-0 md:grid-cols-[auto_auto_1fr] md:items-start md:gap-x-5 md:gap-y-0 md:py-7">
+      <span className="shrink-0 font-display text-sm text-slate/40 md:mt-0.5">{index}</span>
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-text/10 text-brand transition-colors duration-300 group-hover:border-brand/30 md:mt-0.5">
         {icon}
       </span>
-      <div className="min-w-0">
-        <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-slate/70">{label}</p>
-        <div className="mt-1.5">{children}</div>
+      <div className="col-span-2 min-w-0 md:col-span-1">
+        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate/70 md:tracking-[0.24em]">{label}</p>
+        <div className="mt-1.5 min-w-0">{children}</div>
       </div>
     </div>
   )
