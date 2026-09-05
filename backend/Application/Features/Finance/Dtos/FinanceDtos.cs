@@ -2,11 +2,15 @@ using AeroTravel.Domain.Enums;
 
 namespace AeroTravel.Application.Features.Finance.Dtos;
 
+/// No date field — the operation date is always "today" on the server (see
+/// CreatePaymentCommandHandler), never client-supplied, so a payment can't be backdated/postdated
+/// to manipulate the balance or period reports.
 public record UpsertPaymentInput(
-    decimal Amount, DateOnly PaidOnUtc, string ClientName,
+    decimal Amount, string ClientName,
     Guid? TravelRequestId, Guid? FlightId, PaymentMethod Method, string? Comment);
 
-public record UpsertExpenseInput(decimal Amount, DateOnly SpentOnUtc, ExpenseCategory Category, string? Comment);
+/// Same "always today" rule as UpsertPaymentInput — see CreateExpenseCommandHandler.
+public record UpsertExpenseInput(decimal Amount, ExpenseCategory Category, string? Comment);
 
 /// One row of the unified transaction journal (GET /admin/finance/transactions) — Payments and
 /// Expenses projected into a common shape so the frontend renders a single sortable table instead

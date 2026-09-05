@@ -53,6 +53,10 @@ public class AdminFinanceController(ISender mediator, ICurrentUserService curren
     public async Task<IActionResult> FlightsLookup(CancellationToken ct)
         => (await Mediator.Send(new GetFinanceFlightsLookupQuery(), ct)).ToActionResult().Result!;
 
+    [HttpGet("lookup/flights-for-client")]
+    public async Task<IActionResult> FlightsForClient([FromQuery] Guid? travelRequestId, [FromQuery] string? clientName, CancellationToken ct)
+        => (await Mediator.Send(new GetFinanceFlightsForClientQuery(travelRequestId, clientName), ct)).ToActionResult().Result!;
+
     [HttpGet("lookup/travel-requests")]
     public async Task<IActionResult> TravelRequestsLookup([FromQuery] string? search, CancellationToken ct = default)
         => (await Mediator.Send(new GetFinanceTravelRequestsLookupQuery(search), ct)).ToActionResult().Result!;

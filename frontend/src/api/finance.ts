@@ -18,9 +18,10 @@ export interface FinancePeriodFilter {
   toDate?: string
 }
 
+/** No date field — the backend always stamps the operation with the server's current date (see
+ * UpsertPaymentInput's doc comment on the backend), so it can't be sent from the client. */
 export interface CreatePaymentPayload {
   amount: number
-  paidOnUtc: string
   clientName: string
   travelRequestId?: string
   flightId?: string
@@ -28,9 +29,9 @@ export interface CreatePaymentPayload {
   comment?: string
 }
 
+/** Same "always today" rule as CreatePaymentPayload. */
 export interface CreateExpensePayload {
   amount: number
-  spentOnUtc: string
   category: ExpenseCategory
   comment?: string
 }
@@ -54,6 +55,10 @@ export const financeApi = {
   flightsLookup: () => apiGet<FinanceFlightLookupItem[]>('/admin/finance/lookup/flights'),
   travelRequestsLookup: (search?: string) =>
     apiGet<FinanceTravelRequestLookupItem[]>(`/admin/finance/lookup/travel-requests${toQueryString({ search })}`),
+  /** Only the flights the given client actually appears on a manifest for — see
+   * GetFinanceFlightsForClientQuery on the backend. Always pass exactly one of the two. */
+  flightsForClient: (query: { travelRequestId?: string; clientName?: string }) =>
+    apiGet<FinanceFlightLookupItem[]>(`/admin/finance/lookup/flights-for-client${toQueryString(query)}`),
 
   createPayment: (payload: CreatePaymentPayload) => apiPost<{ id: string }>('/admin/finance/payments', payload),
   deletePayment: (id: string) => apiDelete<void>(`/admin/finance/payments/${id}`),
